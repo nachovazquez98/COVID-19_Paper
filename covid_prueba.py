@@ -5,6 +5,7 @@ from urllib.request import urlopen
 from socket import timeout
 import pandas as pd
 import numpy as np
+import os
 
 #Se extrae el csv de la web
 url = "http://187.191.75.115/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip"
@@ -67,7 +68,7 @@ finally:
     #%%
     #eliminar columna FECHA_INGRESO, FECHA_SINTOMAS y FECHA_DEF
     #df.drop(['FECHA_INGRESO', 'FECHA_SINTOMAS', 'FECHA_DEF'], axis=1, inplace = True)
-    
+        
     #Se cambian los valores de 97, 98 y 99 a 2. Se escribe 3 veces por columna a modificar debido a unos errores que encontramos, modificaban datos equivocados
     df.loc[df['INTUBADO'] == 97, ['INTUBADO']] = 2;df.loc[df['INTUBADO'] == 98, ['INTUBADO']] = 2;df.loc[df['INTUBADO'] == 99, ['INTUBADO']] = 2
     df.loc[df['NEUMONIA'] == 97, ['NEUMONIA']] = 2;df.loc[df['NEUMONIA'] == 98, ['NEUMONIA']] = 2;df.loc[df['NEUMONIA'] == 99, ['NEUMONIA']] = 2

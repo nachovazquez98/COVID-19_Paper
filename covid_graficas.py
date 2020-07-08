@@ -1,3 +1,6 @@
+'''
+falta grafica de acumulados y de mapa de correlacion
+'''
 import pandas as pd
 import numpy as np
 import seaborn as sns; sns.set()
@@ -7,7 +10,7 @@ import os, datetime
 from collections import Counter
 from matplotlib.offsetbox import AnchoredText
 os.getcwd()
-os.chdir('/home/nacho/Documents/coronavirus/rangel/')
+os.chdir('/home/nacho/Documents/coronavirus/COVID-19_Paper/')
 df = pd.read_csv("covid_data.csv")
 #%%
 #SOLO CASOS POSITIVOS COVID
@@ -25,6 +28,7 @@ def grafica1():
     print("Entidades de residencia con caso de covid:\n", df['ENTIDAD_RES'].value_counts())
     #
     fig, ax = plt.subplots() 
+    plot_date(ax)
     ax.bar((df['ENTIDAD_RES'].value_counts()).index, (df['ENTIDAD_RES'].value_counts()).values) 
     ax.set_title('Entidades de residencia con caso de covid') 
     ax.set_xlabel('ENTIDAD_RES') 
@@ -37,6 +41,7 @@ def grafica2():
     print("Municipios de residencia con mas casos de covid:\n", df['MUNICIPIO_RES'].value_counts())
     #
     fig, ax = plt.subplots() 
+    plot_date(ax)
     ax.bar((df['MUNICIPIO_RES'].value_counts())[:10].index, (df['MUNICIPIO_RES'].value_counts())[:10].values) 
     ax.set_title('10 Municipios de residencia con mas casos de covid') 
     ax.set_xlabel('MUNICIPIO_RES') 
@@ -50,6 +55,7 @@ def grafica3():
     print("Pacientes con covid ambulatorios o hospitalizados:\n", df['TIPO_PACIENTE'].value_counts())
     #
     fig, ax = plt.subplots() 
+    plot_date(ax)
     ax.bar((df['TIPO_PACIENTE'].value_counts()).index, (df['TIPO_PACIENTE'].value_counts()).values) 
     ax.set_title('Pacientes con covid ambulatorios o hospitalizados:') 
     ax.set_xlabel('Ambulatorios - Hospitalizados') 
@@ -67,6 +73,7 @@ def grafica4():
     print("Porcentaje de Intubados Hospitalizados: ",((df['INTUBADO'].value_counts()).values[1]/(df['INTUBADO'].value_counts()).values[0])*100)
     #
     fig, ax = plt.subplots() 
+    plot_date(ax)
     ax.bar((df_aux['INTUBADO'].value_counts()).index, (df_aux['INTUBADO'].value_counts()).values) 
     ax.set_title('Pacientes con covid hospitalizados intubados:') 
     ax.set_xlabel('No Intubados - Intubados') 
@@ -81,6 +88,7 @@ def grafica5():
     print("Porcentaje de mortalidad: ",((df['BOOL_DEF'].value_counts()).values[1]/(df['BOOL_DEF'].value_counts()).values[0])*100)
     #
     fig, ax = plt.subplots() 
+    plot_date(ax)
     ax.bar((df['BOOL_DEF'].value_counts()).index, (df['BOOL_DEF'].value_counts()).values) 
     ax.set_title('Pacientes con covid fallecidos:') 
     ax.set_xlabel('No fallecidos - fallecidos') 
@@ -396,7 +404,7 @@ def casos_acum_indiv(titulo, columna_fecha, npol, estado):
 #%%
 #MATRIZ CORRELACION
 #hacer columna de hombre y de mujer para reemplazar sexo
-df_matcorr = df.drop(['SEXO','ENTIDAD_NAC', 'ENTIDAD_RES', 'MUNICIPIO_RES', 'OTRO_CASO', 'DIAS_DIF_HOSP'], axis=1)
+df_matcorr = df.drop(['SEXO','ENTIDAD_NAC', 'ENTIDAD_oRES', 'MUNICIPIO_RES', 'OTRO_CASO', 'DIAS_DIF_HOSP'], axis=1)
 #df_matcorr = df.loc(['SEXO','ENTIDAD_NAC', 'ENTIDAD_RES', 'MUNICIPIO_RES', 'OTRO_CASO', 'DIAS_DIF_HOSP'], axis=1)
 #df_matcorr['hombre'] = df.loc[df['SEXO']== 0]
 #df.loc[df['INTUBADO'] == 97, ['INTUBADO']] = 2
