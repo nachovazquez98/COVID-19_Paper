@@ -3,6 +3,11 @@ robust versions of logistic regression
 support vector machines
 random forests
 gradient boosted decision trees
+
+1) solo entrenar 10% de df y hacer pruebas
+2) buscar otros algoritmos
+2.5) agregar simple PCA
+3) agregar ui para acceder a los modelos entrenados
 '''
 import os
 import pandas as pd

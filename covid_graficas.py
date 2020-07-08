@@ -1,5 +1,9 @@
 '''
-falta grafica de acumulados y de mapa de correlacion
+falta:
+    grafica de acumulados 
+    mapa de correlacion
+    corregir y mejorar las primeras graficas
+    pasar todo listo a jupyter y documentarlo
 '''
 import pandas as pd
 import numpy as np
@@ -404,7 +408,7 @@ def casos_acum_indiv(titulo, columna_fecha, npol, estado):
 #%%
 #MATRIZ CORRELACION
 #hacer columna de hombre y de mujer para reemplazar sexo
-df_matcorr = df.drop(['SEXO','ENTIDAD_NAC', 'ENTIDAD_oRES', 'MUNICIPIO_RES', 'OTRO_CASO', 'DIAS_DIF_HOSP'], axis=1)
+df_matcorr = df.drop(['SEXO','ENTIDAD_NAC', 'ENTIDAD_RES', 'MUNICIPIO_RES', 'OTRO_CASO', 'DIAS_DIF_HOSP'], axis=1)
 #df_matcorr = df.loc(['SEXO','ENTIDAD_NAC', 'ENTIDAD_RES', 'MUNICIPIO_RES', 'OTRO_CASO', 'DIAS_DIF_HOSP'], axis=1)
 #df_matcorr['hombre'] = df.loc[df['SEXO']== 0]
 #df.loc[df['INTUBADO'] == 97, ['INTUBADO']] = 2
