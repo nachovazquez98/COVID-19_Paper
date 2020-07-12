@@ -3,6 +3,7 @@ falta:
     grafica de acumulados 
     mapa de correlacion
     corregir y mejorar las primeras graficas
+    por rango de edades porcentaje de mortalidad respecto a contagios (barplot)
     pasar todo listo a jupyter y documentarlo
 '''
 import pandas as pd

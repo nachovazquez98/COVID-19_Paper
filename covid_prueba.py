@@ -5,11 +5,8 @@ from urllib.request import urlopen
 from socket import timeout
 import pandas as pd
 import numpy as np
-<<<<<<< HEAD
 import os
-=======
 import datetime
->>>>>>> a2ca5b9ec3cdaa714edaa87abca8ba8d5656a78b
 
 #Se extrae el csv de la web
 url = "http://187.191.75.115/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip"
@@ -61,14 +58,9 @@ def filter_binary_status(df):
 
 def filter_unused_dates(df):
     #eliminar columna FECHA_INGRESO, FECHA_SINTOMAS y FECHA_DEF
-<<<<<<< HEAD
     #df.drop(['FECHA_INGRESO', 'FECHA_SINTOMAS', 'FECHA_DEF'], axis=1, inplace = True)
-        
-=======
-    df.drop(['FECHA_INGRESO', 'FECHA_SINTOMAS', 'FECHA_DEF'], axis=1, inplace = True)
 
 def change_to_two(df):
->>>>>>> a2ca5b9ec3cdaa714edaa87abca8ba8d5656a78b
     #Se cambian los valores de 97, 98 y 99 a 2. Se escribe 3 veces por columna a modificar debido a unos errores que encontramos, modificaban datos equivocados
     change_to_two_dictionary = ['INTUBADO', 'NEUMONIA', 'EMBARAZO', 'HABLA_LENGUA_INDIG', 'DIABETES', 'EPOC', 'ASMA', 'INMUSUPR', 'HIPERTENSION', 'OTRA_COM', 'CARDIOVASCULAR', 'OBESIDAD', 'RENAL_CRONICA', 'TABAQUISMO', 'OTRO_CASO', 'UCI']
     for condition in change_to_two_dictionary:
