@@ -10,7 +10,7 @@ gradient boosted decision trees
 2.5) agregar simple PCA
 3) agregar ui para acceder a los modelos entrenados
 '''
-import os
+import os, sys
 import pandas as pd
 import numpy as np
 import seaborn as sns; sns.set()
@@ -24,14 +24,18 @@ from matplotlib.colors import ListedColormap
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import GridSearchCV 
-from sklearn.externals import joblib
+import joblib
 sns.set(color_codes=True)
+from sklearn.pipeline import Pipeline
 #%%abrir csv
-os.getcwd()
-os.chdir('/home/nacho/Documents/coronavirus/COVID-19_Paper/')
+pathname = os.path.dirname(sys.argv[0]) 
+fullpath = os.path.abspath(pathname)       
+print('path del codigo: ', fullpath) 
+os.chdir(fullpath) #cambia directorio de trabajo en la dir del codigo
+print('getcwd: ',os.getcwd())
 df = pd.read_csv("covid_data.csv")
 #%%10% de los datos aleatorios
-df = df.sample(frac=0.01)
+df = df.sample(frac=0.001)
 # %%pca
 class pca():
     def __init__(self,  df=None, titulo="Unspecified", label_y=None):
@@ -132,49 +136,73 @@ class pca():
         plt.savefig("plots/"+self.titulo + "_3D.png", format='png', dpi=1200)
         y = self.df[self.label_y]
         return result, y
-    #%%hyper_svm
-def hyper_svm(X, y):
-    param_grid = {'C': [0.1, 1, 10, 100, 1000],  
-                  'gamma': [1, 0.1, 0.01, 0.001, 0.0001], 
-                  'kernel': ['rbf']} 
-    grid = GridSearchCV(SVC(), param_grid, refit = True, verbose = 3)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, shuffle=True) 
-    # fitting the model for grid search 
-    grid.fit(X_train, y_train) 
-    grid_predictions = grid.predict(X_test) 
-    # print classification report 
-    report = classification_report(y_test, grid_predictions, output_dict=True)
-    print(report) 
-    print(confusion_matrix(y_test, grid_predictions))
-    return grid, report
-#%%
+#%%solamente
 def solamente(df, columna, bool=None):
     if bool == None:
         bool = 1
     df = df[df[columna] == bool] #filtrar
     df.drop([columna], axis=1, inplace = True)
     return df
-#%%
-def report_df(report, report_name):
+#%%gridsearchcv
+#checar stratify
+def gridsearchcv(X, y, n_pca=None):
+    if n_pca != None:
+        X_train, X_test, Y_train, Y_test = train_test_split(X,y,
+                                                            test_size=0.2, 
+                                                            #stratify=y, 
+                                                            #random_state=False,
+                                                            shuffle=True)
+        pipe_steps = [('scaler', StandardScaler()),('pca', PCA()), ('SupVM', SVC(kernel='rbf'))]
+        param_grid= {
+            'pca__n_components': [n_pca], 
+            'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
+            'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
+        }
+    else:
+        X_train, X_test, Y_train, Y_test = train_test_split(X,y,
+                                                    test_size=0.2, 
+                                                    #stratify=y, 
+                                                    #random_state=False,
+                                                    shuffle=True)
+        pipe_steps = [('scaler', StandardScaler()), ('SupVM', SVC(kernel='rbf'))]
+        param_grid= {
+            'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
+            'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
+        }
+    pipeline = Pipeline(pipe_steps)
+    grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3)
+    grid.fit(X_train, Y_train)
+    print ("Best-Fit Parameters From Training Data:\n",grid.best_params_)
+    grid_predictions = grid.predict(X_test) 
+    report = classification_report(Y_test, grid_predictions, output_dict=True)
     report = pd.DataFrame(report).transpose()
     print(report)
-    report.to_csv("models/"+str(report_name)+".csv", index=True)
-    return report   
+    print(confusion_matrix(Y_test, grid_predictions))
+    return grid, report, X_test, Y_test
 #%%prediccion de hospitalizacion por covid - PCA
 hosp_data = df.copy()
 hosp_data = solamente(hosp_data,'RESULTADO')
 hosp_data = hosp_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','TIPO_PACIENTE']]
+hosp_data = hosp_data.reset_index(drop=True)
+#visualizacion pca
 hosp_pca = pca(hosp_data, titulo="Grafica PCA Hospitalizacion por COVID", label_y="TIPO_PACIENTE")
-X, y = hosp_pca.pca_2D()
-hosp_pca.pca_3D()
-#X, y = hosp_pca.pca_3D()
+hosp_pca.pca_2D(); hosp_pca.pca_3D()
+#separar datos
+X = hosp_data.loc[:, hosp_data.columns != 'TIPO_PACIENTE']
+y = hosp_data.loc[:,'TIPO_PACIENTE']
 #---->train
-hosp_data_svm, hosp_data_svm_report = hyper_svm(X,y)
-#graficar modelo 2d
-plot_svm(hosp_data_svm)
+#hosp_data_grid, hosp_data_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=2)
+hosp_data_grid, hosp_data_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=None)
 #guarda el modelo y su reporte
-joblib.dump(hosp_data_svm.best_estimator_, 'models/hosp_data_svm.pkl', compress = 1)
-hosp_data_svm_report = report_df(hosp_data_svm_report, "hosp_data_svm_report")
+#joblib.dump(hosp_data_svm.best_estimator_, 'models/hosp_data_svm.pkl', compress = 1)
+joblib.dump(hosp_data_grid, 'models/hosp_data_grid.pkl', compress = 1)
+hosp_data_grid_report.to_csv("models/hosp_data_grid_report.csv", index=True)
+#importa el modelo y su rendimiento
+hosp_data_grid_load = joblib.load('models/hosp_data_grid.pkl')
+hosp_data_grid_report = pd.read_csv("models/hosp_data_grid_report.csv", index_col=0)
+#prueba el modelo load con input sin preprocesamiento
+Y_test.iloc[50]
+hosp_data_grid_load.predict(X_test.iloc[50,:].values.reshape(1,-1)) 
 #%%Mortalidad de los contagiagos ANTES de ir al hospital
 def_data = df.copy()
 def_data = solamente(def_data,'TIPO_PACIENTE', bool=0)
@@ -257,100 +285,4 @@ vent_ucineum_data_svm, vent_ucineum_data_svm_report = hyper_svm(X,y)
 #guarda el modelo y su reporte
 joblib.dump(vent_ucineum_data_svm.best_estimator_, 'vent_ucineum_data_svm.pkl', compress = 1)
 vent_ucineum_data_svm_report = report_df(vent_ucineum_data_svm_report, "vent_ucineum_data_svm_report")
-#%%Ejemplo
-# Here we are using inbuilt dataset of scikit learn 
-from sklearn.datasets import load_breast_cancer 
-# instantiating 
-cancer = load_breast_cancer() 
-# creating dataframe 
-df = pd.DataFrame(cancer['data'], columns = cancer['feature_names']) 
-df['target'] = cancer['target']
-df.head()
-cancer_pca = pca(df, titulo="cancer", label_y='target')
-#X, y = cancer_pca.pca_2D()
-X, y= cancer_pca.pca_3D()
-#---->train
-cancer_svm, cancer_svm_report = hyper_svm(X,y)
-print(cancer_svm.best_params_)
-############################
-#####grafica modelo en 2d########
-plot_svm(cancer_svm)
-###########################
-#############################3
-#guarda el mejor modelo y su rendimiento
-joblib.dump(cancer_svm.best_estimator_, 'models/cancer_svm.pkl', compress = 1)
-cancer_svm_report = report_df(cancer_svm_report, "cancer_svm_report")
-#importa el modelo y su rendimiento
-cancer_svm = joblib.load('models/cancer_svm.pkl')
-cancer_svm_report = pd.read_csv("models/cancer_svm_report.csv")
-#probar input del modelo
-input = df.iloc[222,:-1].values.reshape(1,-1) #selecciona la fila 222 y todas las columnas excepto label
-input_label = df.iloc[222,-1]
-#pendiente transformar input a 3 dimensiones para pedict
-#print(pca.components_) 
-cancer_svm.predict([[-81.75387141, -65.15700805,  -2.87823954]])
-cancer_svm.predict([[-273.82155725,   28.27681179,   -7.82953981]])
-#grid_predictions_prueba = cancer_grid.predict(X_test.iloc[0,:].values.reshape(1,-1)) 
-#%%Pipeline Steps are StandardScaler, PCA and SVM 
-from sklearn.svm import SVC
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import GridSearchCV
-
-X_train, X_test, Y_train, Y_test = train_test_split(cancer.data,
-                                                    cancer.target,
-                                                    test_size=0.25, 
-                                                    stratify=cancer.target, 
-                                                    random_state=30)
-
-pipe_steps = [('scaler', StandardScaler()), ('pca', PCA()), ('SupVM', SVC(kernel='rbf'))]
-
-check_params= {
-    'pca__n_components': [2], 
-    'SupVM__C': [0.1, 0.5, 1, 10,30, 40, 50, 75, 100, 500, 1000], 
-    'SupVM__gamma' : [0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
-}
-
-pipeline = Pipeline(pipe_steps)
-
-create_grid = GridSearchCV(pipeline, param_grid=check_params, cv=cv)
-create_grid.fit(X_train, Y_train)
-print ("score for %d fold CV := %3.2f" %(cv, create_grid.score(X_test, Y_test)))
-print ("!!!!!!!! Best-Fit Parameters From Training Data !!!!!!!!!!!!!!")
-print (create_grid.best_params_)
-print ("grid best params: ", create_grid.best_params_)
-# %% plot smv 2d   
-def plot_svm(model):
-    plt.scatter(X[:, 0], X[:, 1], c=y, s=2, cmap='rainbow',marker='o',linewidths=0)
-    plot_svc_decision_function(model)
-    plt.scatter(model.best_estimator_.support_vectors_[:, 0],
-                model.best_estimator_.support_vectors_[:, 1],
-                s=300, lw=1, facecolors='none');
-    
-def plot_svc_decision_function(model, ax=None, plot_support=True):
-    """Plot the decision function for a 2D SVC"""
-    if ax is None:
-        ax = plt.gca()
-    xlim = ax.get_xlim()
-    ylim = ax.get_ylim()
-    
-    # create grid to evaluate model
-    x = np.linspace(xlim[0], xlim[1], 30)
-    y = np.linspace(ylim[0], ylim[1], 30)
-    Y, X = np.meshgrid(y, x)
-    xy = np.vstack([X.ravel(), Y.ravel()]).T
-    P = model.decision_function(xy).reshape(X.shape)
-    
-    # plot decision boundary and margins
-    ax.contour(X, Y, P, colors='k',
-               levels=[-1, 0, 1], alpha=0.5,
-               linestyles=['--', '-', '--'])
-    
-    # plot support vectors
-    if plot_support:
-        ax.scatter(model.best_estimator_.support_vectors_[:, 0],
-                   model.best_estimator_.support_vectors_[:, 1],
-                   s=300, linewidth=1, facecolors='none');
-    ax.set_xlim(xlim)
-    ax.set_ylim(ylim)
-
 
