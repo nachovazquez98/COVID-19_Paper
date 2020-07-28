@@ -191,7 +191,7 @@ def gridsearchcv(X, y, n_pca=None):
             'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
         }
     pipeline = Pipeline(pipe_steps)
-    grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3)
+    grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1)
     grid.fit(X_train, Y_train)
     print ("Best-Fit Parameters From Training Data:\n",grid.best_params_)
     grid_predictions = grid.predict(X_test) 
@@ -270,11 +270,6 @@ def_hosp_data_grid_report = pd.read_csv("models/def_hosp_data_grid_report.csv", 
 #prueba el modelo load con input sin preprocesamiento
 Y_test.iloc[20]
 def_hosp_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
-
-
-#%%
-df.UCI.value_counts() #-->validar
-
 
 #%%Necesidad de ICU ANTES de saber si o no tiene neumonia
 icu_data = df.copy()

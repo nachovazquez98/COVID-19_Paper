@@ -81,6 +81,8 @@ def binary_values(df):
     binary_values_dictionary = ['RESULTADO', 'SEXO', 'INTUBADO', 'NEUMONIA', 'EMBARAZO', 'HABLA_LENGUA_INDIG', 'DIABETES', 'EPOC', 'ASMA', 'INMUSUPR', 'HIPERTENSION', 'OTRA_COM', 'CARDIOVASCULAR', 'OBESIDAD', 'RENAL_CRONICA', 'TABAQUISMO', 'OTRO_CASO', 'UCI', 'NACIONALIDAD']
     for condition in binary_values_dictionary:
         df.loc[df[condition] == 2, [condition]] = 0
+        df.loc[df[condition] == 97, [condition]] = 0
+        df.loc[df[condition] == 98, [condition]] = 0
         df.loc[df[condition] == 3, [condition]] = 2
         df.loc[df[condition] == 99, [condition]] = 0
     df.loc[df['TIPO_PACIENTE'] == 1, ['TIPO_PACIENTE']] = 0
