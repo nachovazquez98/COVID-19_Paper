@@ -58,20 +58,27 @@ def filter_binary_status(df):
 
 def filter_unused_dates(df):
     #eliminar columna FECHA_INGRESO, FECHA_SINTOMAS y FECHA_DEF
-    #df.drop(['FECHA_INGRESO', 'FECHA_SINTOMAS', 'FECHA_DEF'], axis=1, inplace = True)
+    df.drop(['FECHA_INGRESO', 'FECHA_SINTOMAS', 'FECHA_DEF'], axis=1, inplace = True)
 
 def change_to_two(df):
     #Se cambian los valores de 97, 98 y 99 a 2. Se escribe 3 veces por columna a modificar debido a unos errores que encontramos, modificaban datos equivocados
-    change_to_two_dictionary = ['INTUBADO', 'NEUMONIA', 'EMBARAZO', 'HABLA_LENGUA_INDIG', 'DIABETES', 'EPOC', 'ASMA', 'INMUSUPR', 'HIPERTENSION', 'OTRA_COM', 'CARDIOVASCULAR', 'OBESIDAD', 'RENAL_CRONICA', 'TABAQUISMO', 'OTRO_CASO', 'UCI']
-    for condition in change_to_two_dictionary:
+    change_to_two_dictionary = ['EMBARAZO', 'RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'OTRO_CASO', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA', 'OTRA_COM']
+    for condition in change_to_two_dictionary: 
         df.loc[df[condition] == 97, [condition]] = 2;df.loc[df[condition] == 98, [condition]] = 2;df.loc[df[condition] == 99, [condition]] = 2
+
+def remove_non_conclusive(df):
+    non_conclusive_dictionary = ['SEXO'] #'TIPO_PACIENTE', 'INTUBADO', 'UCI', 'NEUMONIA',
+    for condition in non_conclusive_dictionary:
+        df.drop(df[df[condition] == 97].index, inplace = True)
+        df.drop(df[df[condition] == 98].index, inplace = True)
+        df.drop(df[df[condition] == 99].index, inplace = True)
 
 def binary_values(df):
     #Se cambian los valores de 1, 2 e incluso 3 a 0 y 1. Se separa para mantener más claro el proceso
     #En SEXO son: 0 - Hombre, 1 - Mujer, 2 - No especificado
     #En OTRO_CASO se cambiaron los datos: 1 - 1, 2|97|98 - 0, 99 - 2
     #En nacionalidad los datos son: 1- 1, 2|99 - 0 
-    binary_values_dictionary = ['SEXO', 'INTUBADO', 'NEUMONIA', 'EMBARAZO', 'HABLA_LENGUA_INDIG', 'DIABETES', 'EPOC', 'ASMA', 'INMUSUPR', 'HIPERTENSION', 'OTRA_COM', 'CARDIOVASCULAR', 'OBESIDAD', 'RENAL_CRONICA', 'TABAQUISMO', 'OTRO_CASO', 'UCI', 'NACIONALIDAD']
+    binary_values_dictionary = ['RESULTADO', 'SEXO', 'INTUBADO', 'NEUMONIA', 'EMBARAZO', 'HABLA_LENGUA_INDIG', 'DIABETES', 'EPOC', 'ASMA', 'INMUSUPR', 'HIPERTENSION', 'OTRA_COM', 'CARDIOVASCULAR', 'OBESIDAD', 'RENAL_CRONICA', 'TABAQUISMO', 'OTRO_CASO', 'UCI', 'NACIONALIDAD']
     for condition in binary_values_dictionary:
         df.loc[df[condition] == 2, [condition]] = 0
         df.loc[df[condition] == 3, [condition]] = 2
@@ -116,6 +123,7 @@ finally:
     filter_binary_status(df)
     #filter_unused_dates(df)
     change_to_two(df)
+    remove_non_conclusive(df)
     binary_values(df)
     filter_pregnant_men(df)
     print_df(df)

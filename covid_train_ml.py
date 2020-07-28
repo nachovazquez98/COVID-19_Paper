@@ -27,15 +27,32 @@ from sklearn.model_selection import GridSearchCV
 import joblib
 sns.set(color_codes=True)
 from sklearn.pipeline import Pipeline
+
+
 #%%abrir csv
-pathname = os.path.dirname(sys.argv[0]) 
+"""pathname = os.path.dirname(sys.argv[0]) 
 fullpath = os.path.abspath(pathname)       
 print('path del codigo: ', fullpath) 
 os.chdir(fullpath) #cambia directorio de trabajo en la dir del codigo
 print('getcwd: ',os.getcwd())
-df = pd.read_csv("covid_data.csv")
+df = pd.read_csv("covid_data.csv")""" #Path absoluto
+df = pd.read_csv(r"D:\ricar\Documents\Development\Python\COVID-19_Paper\covid_data.csv", encoding='utf-8') #path directo
+
+
+#%%
+def remove_non_conclusive(df):
+    non_conclusive_dictionary = ['TIPO_PACIENTE', 'INTUBADO', 'UCI', 'NEUMONIA']
+    for condition in non_conclusive_dictionary:
+        df.drop(df[df[condition] == 97].index, inplace = True)
+        df.drop(df[df[condition] == 98].index, inplace = True)
+        df.drop(df[df[condition] == 99].index, inplace = True)
+remove_non_conclusive(df)
+
+
 #%%10% de los datos aleatorios
-df = df.sample(frac=0.001)
+df = df.sample(frac=0.01)
+
+
 # %%pca
 class pca():
     def __init__(self,  df=None, titulo="Unspecified", label_y=None):
@@ -136,6 +153,8 @@ class pca():
         plt.savefig("plots/"+self.titulo + "_3D.png", format='png', dpi=1200)
         y = self.df[self.label_y]
         return result, y
+
+
 #%%solamente
 def solamente(df, columna, bool=None):
     if bool == None:
@@ -143,6 +162,8 @@ def solamente(df, columna, bool=None):
     df = df[df[columna] == bool] #filtrar
     df.drop([columna], axis=1, inplace = True)
     return df
+
+
 #%%gridsearchcv
 #checar stratify
 def gridsearchcv(X, y, n_pca=None):
@@ -179,14 +200,16 @@ def gridsearchcv(X, y, n_pca=None):
     print(report)
     print(confusion_matrix(Y_test, grid_predictions))
     return grid, report, X_test, Y_test
+
+
 #%%prediccion de hospitalizacion por covid - PCA
 hosp_data = df.copy()
 hosp_data = solamente(hosp_data,'RESULTADO')
 hosp_data = hosp_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','TIPO_PACIENTE']]
 hosp_data = hosp_data.reset_index(drop=True)
 #visualizacion pca
-hosp_pca = pca(hosp_data, titulo="Grafica PCA Hospitalizacion por COVID", label_y="TIPO_PACIENTE")
-hosp_pca.pca_2D(); hosp_pca.pca_3D()
+#hosp_pca = pca(hosp_data, titulo="Grafica PCA Hospitalizacion por COVID", label_y="TIPO_PACIENTE")
+#hosp_pca.pca_2D(); hosp_pca.pca_3D()
 #separar datos
 X = hosp_data.loc[:, hosp_data.columns != 'TIPO_PACIENTE']
 y = hosp_data.loc[:,'TIPO_PACIENTE']
@@ -201,88 +224,129 @@ hosp_data_grid_report.to_csv("models/hosp_data_grid_report.csv", index=True)
 hosp_data_grid_load = joblib.load('models/hosp_data_grid.pkl')
 hosp_data_grid_report = pd.read_csv("models/hosp_data_grid_report.csv", index_col=0)
 #prueba el modelo load con input sin preprocesamiento
-Y_test.iloc[50]
-hosp_data_grid_load.predict(X_test.iloc[50,:].values.reshape(1,-1)) 
+Y_test.iloc[20]
+hosp_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1)) 
+
+
 #%%Mortalidad de los contagiagos ANTES de ir al hospital
 def_data = df.copy()
 def_data = solamente(def_data,'TIPO_PACIENTE', bool=0)
 def_data = solamente(def_data,'RESULTADO')
 def_data = def_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','BOOL_DEF']]
-def_pca = pca(df = def_data, titulo="Grafica PCA defuncion antes de hosp por covid", label_y="BOOL_DEF")
-X, y = def_pca.pca_2D()
-def_pca.pca_3D()
+X = def_data.loc[:, def_data.columns != 'BOOL_DEF']
+y = def_data.loc[:,'BOOL_DEF']
+#PCA
+#def_pca = pca(df = def_data, titulo="Grafica PCA defuncion antes de hosp por covid", label_y="BOOL_DEF")
+#def_pca.pca_2D(); def_pca.pca_3D()
 #X, y = def_pca.pca_3D()
 #---->train
-def_data_svm, def_data_svm_report = hyper_svm(X,y)
+def_data_grid, def_data_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=None)
 #guarda el modelo y su reporte
-joblib.dump(def_data_svm.best_estimator_, 'def_data_svm.pkl', compress = 1)
-def_data_svm_report = report_df(def_data_svm_report, "def_data_svm_report")
+joblib.dump(def_data_grid, 'models/def_data_grid.pkl', compress = 1)
+def_data_grid_report.to_csv("models/def_data_grid_report.csv", index=True)
+#importa el modelo y su rendimiento
+def_data_grid_load = joblib.load('models/def_data_grid.pkl')
+def_data_grid_report = pd.read_csv("models/def_data_grid_report.csv", index_col=0)
+#prueba el modelo load con input sin preprocesamiento
+Y_test.iloc[20]
+def_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
+
+
 #%%Mortalidad de los contagiagos DEESPUES de ir al hospital
 def_hosp_data = df.copy()
 def_hosp_data = solamente(def_hosp_data,'TIPO_PACIENTE')
 def_hosp_data = solamente(def_hosp_data,'RESULTADO')
 def_hosp_data = def_hosp_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','BOOL_DEF','INTUBADO','UCI']]
-def_hosp_pca = pca(df = def_hosp_data, titulo="Grafica PCA defuncion despues de hosp por covid", label_y="BOOL_DEF")
-X, y = def_hosp_pca.pca_2D()
-def_hosp_pca.pca_3D()
-#X, y = def_pca.pca_3D()
+X = def_hosp_data.loc[:, def_hosp_data.columns != 'BOOL_DEF']
+y = def_hosp_data.loc[:,'BOOL_DEF']
 #---->train
-def_hosp_data_svm, def_hosp_data_svm_report = hyper_svm(X,y)
+def_hosp_data_grid, def_hosp_data_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=None)
 #guarda el modelo y su reporte
-joblib.dump(def_hosp_data_svm.best_estimator_, 'def_hosp_data_svm.pkl', compress = 1)
-def_hosp_data_svm_report = report_df(def_hosp_data_svm_report, "def_hosp_data_svm_report")
+joblib.dump(def_hosp_data_grid, 'models/def_hosp_data_grid.pkl', compress = 1)
+def_hosp_data_grid_report.to_csv("models/def_hosp_data_grid_report.csv", index=True)
+#importa el modelo y su rendimiento
+def_hosp_data_grid_load = joblib.load('models/def_hosp_data_grid.pkl')
+def_hosp_data_grid_report = pd.read_csv("models/def_hosp_data_grid_report.csv", index_col=0)
+#prueba el modelo load con input sin preprocesamiento
+Y_test.iloc[20]
+def_hosp_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
+
+
 #%%
 df.UCI.value_counts() #-->validar
+
+
 #%%Necesidad de ICU ANTES de saber si o no tiene neumonia
 icu_data = df.copy()
 icu_data = solamente(icu_data,'RESULTADO')
 icu_data = icu_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','UCI']]
-icu_data_pca = pca(df = icu_data, titulo="Grafica PCA Intubado por covid antes de saber neumonia", label_y="UCI")
-X, y = icu_data_pca.pca_2D()
-icu_data_pca.pca_3D()
-#X, y = icu_data_pca.pca_3D()
+X = icu_data.loc[:, icu_data.columns != 'UCI']
+y = icu_data.loc[:,'UCI']
 #---->train
-icu_data_svm, icu_data_svm_report = hyper_svm(X,y)
+icu_data_grid, icu_data_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=None)
 #guarda el modelo y su reporte
-joblib.dump(def_hosp_data_svm.best_estimator_, 'icu_data_svm.pkl', compress = 1)
-icu_data_svm_report = report_df(icu_data_svm_report, "icu_data_svm_report")
+joblib.dump(icu_data_grid, 'models/icu_data_grid.pkl', compress = 1)
+icu_data_grid_report.to_csv("models/icu_data_grid_report.csv", index=True)
+#importa el modelo y su rendimiento
+icu_data_grid_load = joblib.load('models/icu_data_grid.pkl')
+icu_data_grid_report = pd.read_csv("models/icu_data_grid_report.csv", index_col=0)
+#prueba el modelo load con input sin preprocesamiento
+Y_test.iloc[20]
+icu_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
+
+
 #%%Necesidad de ICU despues de saber si o no tiene neumonia
 icu_neum_data = df.copy()
 icu_neum_data = solamente(icu_neum_data,'RESULTADO')
 icu_neum_data = icu_neum_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','NEUMONIA','UCI']]
-icu_neum_pca = pca(df = icu_neum_data, titulo="Grafica PCA Intubado por covid despues de saber neumonia", label_y="UCI")
-X, y = icu_neum_pca.pca_2D()
-icu_neum_pca.pca_3D()
-#X, y = icu_data_pca.pca_3D()
+X = icu_neum_data.loc[:, icu_neum_data.columns != 'UCI']
+y = icu_neum_data.loc[:,'UCI']
 #---->train
-icu_neum_data_svm, icu_neum_data_svm_report = hyper_svm(X,y)
+icu_neum_data_grid, icu_neum_data_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=None)
 #guarda el modelo y su reporte
-joblib.dump(icu_neum_data_svm.best_estimator_, 'icu_neum_data_svm.pkl', compress = 1)
-icu_neum_data_svm_report = report_df(icu_neum_data_svm_report, "icu_neum_data_svm_report")
+joblib.dump(icu_neum_data_grid, 'models/icu_neum_data_grid.pkl', compress = 1)
+icu_neum_data_grid_report.to_csv("models/icu_neum_data_grid_report.csv", index=True)
+#importa el modelo y su rendimiento
+icu_neum_data_grid_load = joblib.load('models/icu_neum_data_grid.pkl')
+icu_neum_data_grid_report = pd.read_csv("models/icu_neum_data_grid_report.csv", index_col=0)
+#prueba el modelo load con input sin preprocesamiento
+Y_test.iloc[20]
+def_hosp_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
+
+
 #%%necesidad de ventilador antes de saber si desarrollo neumonia o necesita ICU
 vent_data = df.copy()
 vent_data = solamente(vent_data,'RESULTADO')
 vent_data = vent_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','INTUBADO']]
-vent_data_pca = pca(df = vent_data, titulo="Grafica PCA Intubado por covid antes de saber neumonia/UCI", label_y="INTUBADO")
-X, y = vent_data_pca.pca_2D()
-vent_data_pca.pca_3D()
-#X, y = icu_data_pca.pca_3D()
+X = vent_data.loc[:, vent_data.columns != 'INTUBADO']
+y = vent_data.loc[:,'INTUBADO']
 #---->train
-vent_data_svm, vent_data_svm_report = hyper_svm(X,y)
+vent_data_grid, vent_data_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=None)
 #guarda el modelo y su reporte
-joblib.dump(vent_data_svm.best_estimator_, 'vent_data_svm.pkl', compress = 1)
-vent_data_svm_report = report_df(vent_data_svm_report, "vent_data_svm_report")
+joblib.dump(vent_data_grid, 'models/vent_data_grid.pkl', compress = 1)
+vent_data_grid_report.to_csv("models/vent_data_grid_report.csv", index=True)
+#importa el modelo y su rendimiento
+vent_data_grid_load = joblib.load('models/vent_data_grid.pkl')
+vent_data_grid_report = pd.read_csv("models/vent_data_grid_report.csv", index_col=0)
+#prueba el modelo load con input sin preprocesamiento
+Y_test.iloc[20]
+vent_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
+
+
 #%%necesidad de ventilador despues de saber si desarrollo neumonia o necesita ICU
 vent_ucineum_data = df.copy()
 vent_ucineum_data = solamente(vent_ucineum_data,'RESULTADO')
 vent_ucineum_data = vent_ucineum_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','INTUBADO','ICU','NEUMONIA']]
-vent_ucineum_data_pca = pca(df = vent_ucineum_data, titulo="Grafica PCA Intubado por covid despues de saber neumonia/UCI", label_y="INTUBADO")
-X, y = vent_ucineum_data_pca.pca_2D()
-vent_ucineum_data_pca.pca_3D()
-#X, y = icu_data_pca.pca_3D()
+X = vent_ucineum_data.loc[:, vent_ucineum_data.columns != 'INTUBADO']
+y = vent_ucineum_data.loc[:,'INTUBADO']
 #---->train
-vent_ucineum_data_svm, vent_ucineum_data_svm_report = hyper_svm(X,y)
+vent_ucineum_data_grid, vent_ucineum_data_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=None)
 #guarda el modelo y su reporte
-joblib.dump(vent_ucineum_data_svm.best_estimator_, 'vent_ucineum_data_svm.pkl', compress = 1)
-vent_ucineum_data_svm_report = report_df(vent_ucineum_data_svm_report, "vent_ucineum_data_svm_report")
-
+joblib.dump(vent_ucineum_data_grid, 'models/vent_ucineum_data_grid.pkl', compress = 1)
+vent_ucineum_data_grid_report.to_csv("models/vent_ucineum_data_grid_report.csv", index=True)
+#importa el modelo y su rendimiento
+vent_ucineum_data_grid_load = joblib.load('models/vent_ucineumdata_grid.pkl')
+vent_ucineum_data_grid_report = pd.read_csv("models/vent_ucineum_data_grid_report.csv", index_col=0)
+#prueba el modelo load con input sin preprocesamiento
+Y_test.iloc[20]
+vent_ucineum_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
