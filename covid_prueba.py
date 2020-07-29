@@ -98,7 +98,7 @@ def filter_pregnant_men(df):
 def print_df(df):
 #Se imprime el dataframe    
     #print(df)
-    df.to_csv('covid_data.csv', index=False)
+    df.to_csv('covid_data.csv.zip', index=False, compression="zip")
     print("Se ha generado el archivo .csv")
 
 #Se ejecutan las funciones
