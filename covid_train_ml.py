@@ -4,12 +4,8 @@ robust versions of logistic regression
 support vector machines
 random forests
 gradient boosted decision trees
-
-1) solo entrenar 10% de df y hacer pruebas
-2) buscar otros algoritmos (agregar random forest classifier)
-2.5) agregar simple PCA
-3) agregar ui para acceder a los modelos entrenados
 '''
+
 import os, sys
 import pandas as pd
 import numpy as np
@@ -30,16 +26,13 @@ from sklearn.pipeline import Pipeline
 
 
 #%%abrir csv
-"""pathname = os.path.dirname(sys.argv[0]) 
-fullpath = os.path.abspath(pathname)       
-print('path del codigo: ', fullpath) 
-os.chdir(fullpath) #cambia directorio de trabajo en la dir del codigo
-print('getcwd: ',os.getcwd())
-df = pd.read_csv("covid_data.csv")""" #Path absoluto
-df = pd.read_csv(r"D:\ricar\Documents\Development\Python\COVID-19_Paper\covid_data.csv", encoding='utf-8') #path directo
-
-
-#%%
+path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
+#path = "D:\ricar\Documents\Development\Python\COVID-19_Paper"
+os.chdir(os.path.join(path)) 
+df = pd.read_csv("covid_data.csv.zip")
+#df = pd.read_csv(r"D:\ricar\Documents\Development\Python\COVID-19_Paper\covid_data.csv.zip", encoding='utf-8') #path directo
+#%%Verificar si mejora el rendimento al eliminar datos invalidos
+'''
 def remove_non_conclusive(df):
     non_conclusive_dictionary = ['TIPO_PACIENTE', 'INTUBADO', 'UCI', 'NEUMONIA']
     for condition in non_conclusive_dictionary:
@@ -47,12 +40,16 @@ def remove_non_conclusive(df):
         df.drop(df[df[condition] == 98].index, inplace = True)
         df.drop(df[df[condition] == 99].index, inplace = True)
 remove_non_conclusive(df)
-
+'''
 
 #%%10% de los datos aleatorios
 df = df.sample(frac=0.01)
-
-
+#%%Valida si existen las carpetas
+try:
+    os.makedirs("plots")
+    os.makedirs("models")
+except FileExistsError:
+    pass
 # %%pca
 class pca():
     def __init__(self,  df=None, titulo="Unspecified", label_y=None):
