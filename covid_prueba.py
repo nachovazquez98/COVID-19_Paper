@@ -10,6 +10,7 @@ import datetime
 
 #Se extrae el csv de la web
 url = "http://187.191.75.115/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip"
+path = '/home/nacho/Documents/coronavirus/rangel/datos_abiertos_covid19.zip' #del archivo .zip
 
 def filter_only_positive(df):
     df = df[df.RESULTADO == 1] #En caso de que se quiera filtrar por solo los que dieron positivo
@@ -113,7 +114,7 @@ except (ConnectionResetError, timeout) as error: #Si se falla al obtener el arch
     print(error.args) #Se omite el uso de una función en este segmento para evitar errores con las variables
     #print("ConnectionResetError or Timeout")
     print("Conexión fallida, se usará el último archivo local...")
-    zipfile = ZipFile('/home/nacho/Documents/coronavirus/rangel/datos_abiertos_covid19.zip', 'r')
+    zipfile = ZipFile(path, 'r')
     extracted_file = zipfile.open(zipfile.namelist()[0])
     df = pd.read_csv(extracted_file, encoding = "ISO-8859-1")
     _ = df
