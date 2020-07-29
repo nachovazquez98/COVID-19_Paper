@@ -9,7 +9,9 @@ from collections import Counter
 from matplotlib.offsetbox import AnchoredText
 #%%
 os.getcwd()
-os.chdir('/home/nacho/Documents/coronavirus/COVID-19_Paper/')
+path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
+#path = "D:\ricar\Documents\Development\Python\COVID-19_Paper"
+os.chdir(os.path.join(path)) 
 df = pd.read_csv("covid_data.csv.zip")
 #%%
 try:
