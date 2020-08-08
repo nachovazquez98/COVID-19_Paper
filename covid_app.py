@@ -3,9 +3,6 @@ import os
 import numpy as np
 import pandas as pd
 from PIL import Image
-import matplotlib.pyplot as ptl
-import matplotlib
-matplotlib.use('Agg')
 import joblib
 
 df = pd.read_csv("covid_data.csv.zip")

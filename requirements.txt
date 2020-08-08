@@ -27,7 +27,6 @@ boto3==1.14.33
 botocore==1.17.33
 brotlipy==0.7.0
 cachetools @ file:///home/conda/feedstock_root/build_artifacts/cachetools_1593420445823/work
-camera-calibration-parsers==1.11.13
 catkin==0.7.26
 catkin-pkg==0.4.16
 certifi==2020.6.20
@@ -181,14 +180,6 @@ PyWavelets==1.1.1
 pyxdg==0.26
 PyYAML==5.3.1
 pyzmq==18.1.1
-QDarkStyle==2.8.1
-qt-dotgraph==0.4.1
-qt-gui==0.4.1
-qt-gui-cpp==0.4.1
-qt-gui-py-common==0.4.1
-QtAwesome @ file:///home/conda/feedstock_root/build_artifacts/qtawesome_1588715536397/work
-qtconsole==4.7.2
-QtPy==1.9.0
 requests @ file:///home/conda/feedstock_root/build_artifacts/requests_1592425495151/work
 requests-oauthlib==1.2.0
 resource-retriever==1.12.6
