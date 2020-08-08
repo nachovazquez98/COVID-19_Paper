@@ -14,6 +14,7 @@ joblib = "*"
 xlrd = "*"
 pillow = "*"
 seaborn = "*"
+sklearn = "*"
 
 [requires]
 python_version = "3.6"

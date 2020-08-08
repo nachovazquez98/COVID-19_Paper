@@ -48,11 +48,10 @@ def grafica1():
     plot_date(ax)
     fig.tight_layout()
     plt.savefig('plots/entidades_casos_pos.png', format='png', dpi=1200)
-    #plt.close(fig)
+    plt.close(fig)
 grafica1()
 
 def grafica3():
-    #print("Pacientes con covid ambulatorios o hospitalizados:\n", df['TIPO_PACIENTE'].value_counts())
     fig, ax = plt.subplots() 
     plot_date(ax)
     ax.bar((df['TIPO_PACIENTE'].value_counts()).index, (df['TIPO_PACIENTE'].value_counts()).values) 
@@ -60,10 +59,13 @@ def grafica3():
     ax.set_xlabel('Ambulatorios - Hospitalizados') 
     ax.set_ylabel('No. casos')
     ax.set_xticks((df['TIPO_PACIENTE'].value_counts()).index)
+    texto="hosp: \n%"+str(round(df['TIPO_PACIENTE'].value_counts().values[1]/len(df['TIPO_PACIENTE'])*100,2))
+    anchored_text = AnchoredText(texto, loc="center right")
+    ax.add_artist(anchored_text)
     plot_date(ax)
     fig.tight_layout()
     plt.savefig('plots/amb_hosp_casos_pos.png', format='png', dpi=1200)
-    #plt.close(fig)
+    plt.close(fig)
 grafica3()
 
 def grafica4():
@@ -79,7 +81,7 @@ def grafica4():
     ax.set_xlabel('No Intubados - Intubados') 
     ax.set_ylabel('No. casos')
     ax.set_xticks((df_aux['INTUBADO'].value_counts()).index)
-    texto="hosp e intubados: \n%"+str(round(((df['INTUBADO'].value_counts()).values[1]/(df['INTUBADO'].value_counts()).values[0])*100,2))
+    texto="hosp e intubados: \n%"+str(round(df['INTUBADO'].value_counts().values[1]/len(df['INTUBADO'])*100,2))
     anchored_text = AnchoredText(texto, loc="center right")
     ax.add_artist(anchored_text)
     plot_date(ax)
@@ -90,7 +92,7 @@ grafica4()
 
 def grafica5():
     #print("Casos con covid fallecidos:\n", df['BOOL_DEF'].value_counts())
-    #print("Porcentaje de mortalidad: ",((df['BOOL_DEF'].value_counts()).values[1]/(df['BOOL_DEF'].value_counts()).values[0])*100)
+    #print("Porcentaje de mortalidad: ",((df['BOOL_DEF'].value_counts()).values[1]/len(df['BOOL_DEF'])*100))
     fig, ax = plt.subplots() 
     plot_date(ax)
     ax.bar((df['BOOL_DEF'].value_counts()).index, (df['BOOL_DEF'].value_counts()).values) 
@@ -98,7 +100,7 @@ def grafica5():
     ax.set_xlabel('No fallecidos - fallecidos') 
     ax.set_ylabel('No. casos')
     ax.set_xticks((df['BOOL_DEF'].value_counts()).index)
-    texto="Tasa letalidad: \n%"+str(round(((df['BOOL_DEF'].value_counts()).values[1]/(df['BOOL_DEF'].value_counts()).values[0])*100,2))
+    texto="Tasa letalidad: \n%"+str(round(df['BOOL_DEF'].value_counts().values[1]/len(df['BOOL_DEF'])*100,2))
     anchored_text = AnchoredText(texto, loc="center right")
     ax.add_artist(anchored_text)
     plot_date(ax)
@@ -106,6 +108,7 @@ def grafica5():
     plt.savefig('plots/def_pos.png', format='png', dpi=1200)
     plt.close(fig)
 grafica5()
+
 
 def grafica6():
     fig, ax = plt.subplots()
@@ -245,15 +248,16 @@ grafica12()
 
 def grafica13():
     x= ['EPOC_', 'UCI_', 'INTUBADO_']
-    y = [len((df[df.EPOC == 1])), len((df[df.UCI == 1])),len((df[df.INTUBADO == 1]))]
+    hosp = len(df[df.TIPO_PACIENTE == 1])
+    y = [len(df[df.EPOC == 1])*100/hosp,len(df[df.UCI == 1])*100/hosp,len(df[df.INTUBADO == 1])*100/hosp]
     fig, ax = plt.subplots()
     g = sns.catplot(x=x, y=y, data=df, height=6, kind="bar", palette="muted")
     g.despine(left=True)
     g.set_ylabels("No. casos")
-    plt.title("Casos de COVID en Mexico")
+    plt.title("Porcentaje de hospitalizaciones en Mexico")
     plt.xlabel(None)
-    plot_date(ax)
-    plt.savefig('plots/barplot_casos_hos_def.png', format='png', dpi=1200)
+    #plot_date(ax)
+    plt.savefig('plots/barplot_casos_uci_int.png', format='png', dpi=1200)
     plt.close(fig)
 grafica13()
 

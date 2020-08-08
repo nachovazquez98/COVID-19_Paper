@@ -3,7 +3,6 @@ import os
 import numpy as np
 import pandas as pd
 from PIL import Image
-import covid_graficas as cg
 import matplotlib.pyplot as ptl
 import matplotlib
 matplotlib.use('Agg')
@@ -60,12 +59,17 @@ def main():
     image = Image.open('covid.jpg')
     st.image(image, use_column_width=True)
     ##
-    menu = ['README', 'Hospitalización','Mortalidad antes de hopitalización','Mortalidad hopitalizado','ICU antes del diagnostico de neumonia','ICU despues del diagnostico de neumonia']
+    menu = ['README', 'Hospitalización','Mortalidad antes de hopitalización','Mortalidad hopitalizado','ICU antes del diagnostico de neumonia','ICU despues del diagnostico de neumonia','Ventilador antes de un diagnostico de neumonia y de ICU','Ventilador despues de un diagnostico de neumonia y de ICU']
     submenu = ['Plot', 'Prediction']
     choice = st.sidebar.selectbox("Menu",menu)
     if choice == 'README':
         st.subheader("Acerca de este proyecto")
         st.text("Con este proyecto se pretende...")
+        st.image(Image.open('plots/barplot_casos_hos_def.png'), use_column_width=True)
+        st.image(Image.open('plots/Casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)        
+        st.image(Image.open('plots/Casos de COVID en Mexico por sexo.png'), use_column_width=True)        
+        st.image(Image.open('plots/corrmatrix_1.png'), use_column_width=True)        
+
         st.write(df.head())
         st.write(df_descrip)
     elif choice == 'Hospitalización':
@@ -74,10 +78,10 @@ def main():
         if activity == "Plot":
             st.subheader("Data plot")
             #vuelve a correr todo el scripty es lento
-            cg.grafica1()
-            st.pyplot()
-            cg.grafica3()
-            st.pyplot()
+            st.image(Image.open('plots/sin_hosp_boxplot.png'), use_column_width=True)
+            st.image(Image.open('plots/amb_hosp_casos_pos.png'), use_column_width=True)
+            st.image(Image.open('plots/barplot_hospitalizacion_edad.png'), use_column_width=True)
+    
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
             st.write(pd.read_csv("models/hosp_data_grid_report.csv", index_col=0))
@@ -107,10 +111,11 @@ def main():
         if activity == "Plot":
             st.subheader("Data plot")
             #vuelve a correr todo el scripty es lento
-            #cg.grafica1()
-            #st.pyplot()
-            #cg.grafica3()
-            #st.pyplot()
+            st.image(Image.open('plots/def_pos.png'), use_column_width=True)
+            st.image(Image.open('plots/def_edad_histograma.png'), use_column_width=True)
+            st.image(Image.open('plots/def_sin_boxplot.png'), use_column_width=True)
+            st.image(Image.open('plots/barplot_defuncion_edad.png'), use_column_width=True)
+
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
             st.write(pd.read_csv("models/def_data_grid_report.csv", index_col=0))
@@ -135,11 +140,10 @@ def main():
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
-            #vuelve a correr todo el scripty es lento
-            #cg.grafica1()
-            #st.pyplot()
-            #cg.grafica3()
-            #st.pyplot()
+            st.image(Image.open('plots/def_pos.png'), use_column_width=True)
+            st.image(Image.open('plots/def_edad_histograma.png'), use_column_width=True)
+            st.image(Image.open('plots/barplot_defuncion_edad.png'), use_column_width=True)
+
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
             st.write(pd.read_csv("models/def_hosp_data_grid_report.csv", index_col=0))
@@ -162,11 +166,11 @@ def main():
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
-            #vuelve a correr todo el scripty es lento
-            #cg.grafica1()
-            #st.pyplot()
-            #cg.grafica3()
-            #st.pyplot()
+            st.image(Image.open('plots/barplot_casos_uci_int.png'), use_column_width=True)
+            st.image(Image.open('plots/Casos de COVID hospitalarios en Mexico por rangos de edad.png'), use_column_width=True)
+            st.image(Image.open('plots/Casos de COVID hospitalarios en Mexico por sexo.png'), use_column_width=True)
+            st.image(Image.open('plots/Porcentaje de casos de hospitalizacion por COVID en Mexico por rangos de edad.png'), use_column_width=True)
+
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
             st.write(pd.read_csv("models/icu_data_grid_report.csv", index_col=0))
@@ -187,11 +191,11 @@ def main():
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
-            #vuelve a correr todo el scripty es lento
-            #cg.grafica1()
-            #st.pyplot()
-            #cg.grafica3()
-            #st.pyplot()
+            st.image(Image.open('plots/barplot_casos_uci_int.png'), use_column_width=True)
+            st.image(Image.open('plots/Casos de COVID hospitalarios en Mexico por rangos de edad.png'), use_column_width=True)
+            st.image(Image.open('plots/Casos de COVID hospitalarios en Mexico por sexo.png'), use_column_width=True)
+            st.image(Image.open('plots/Porcentaje de casos de hospitalizacion por COVID en Mexico por rangos de edad.png'), use_column_width=True)
+
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
             st.write(pd.read_csv("models/icu_neum_data_grid_report.csv", index_col=0))
@@ -213,11 +217,12 @@ def main():
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
-            #vuelve a correr todo el scripty es lento
-            #cg.grafica1()
-            #st.pyplot()
-            #cg.grafica3()
-            #st.pyplot()
+            st.image(Image.open('plots/hosp_intubados_pos.png'), use_column_width=True)
+            st.image(Image.open('plots/barplot_casos_uci_int.png'), use_column_width=True)
+            st.image(Image.open('plots/Casos de COVID hospitalarios en Mexico por rangos de edad.png'), use_column_width=True)
+            st.image(Image.open('plots/Casos de COVID hospitalarios en Mexico por sexo.png'), use_column_width=True)
+            st.image(Image.open('plots/Porcentaje de casos de hospitalizacion por COVID en Mexico por rangos de edad.png'), use_column_width=True)
+
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
             st.write(pd.read_csv("models/vent_data_grid_report.csv", index_col=0))
@@ -239,11 +244,11 @@ def main():
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
-            #vuelve a correr todo el scripty es lento
-            #cg.grafica1()
-            #st.pyplot()
-            #cg.grafica3()
-            #st.pyplot()
+            st.image(Image.open('plots/barplot_casos_uci_int.png'), use_column_width=True)
+            st.image(Image.open('plots/Casos de COVID hospitalarios en Mexico por rangos de edad.png'), use_column_width=True)
+            st.image(Image.open('plots/Casos de COVID hospitalarios en Mexico por sexo.png'), use_column_width=True)
+            st.image(Image.open('plots/Porcentaje de casos de hospitalizacion por COVID en Mexico por rangos de edad.png'), use_column_width=True)
+
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
             st.write(pd.read_csv("models/vent_ucineum_data_grid_report.csv", index_col=0))
@@ -263,3 +268,7 @@ def main():
                 st.success("No es probable que necesite ventilador")
 if __name__ == '__main__':
     main()
+
+[len(df[df.EPOC == 1])*100/len(df[df.TIPO_PACIENTE == 1]),
+len(df[df.UCI == 1])*100/len(df[df.TIPO_PACIENTE == 1]),
+len(df[df.INTUBADO == 1])*100/len(df[df.TIPO_PACIENTE == 1])]
