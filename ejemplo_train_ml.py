@@ -199,7 +199,7 @@ def gridsearchcv(X, y, n_pca):
     }
     pipeline = Pipeline(pipe_steps)
     for cv in range(4,6):
-        grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, cv=cv)
+        grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, cv=cv, n_jobs=-1)
         grid.fit(X_train, Y_train)
         print ("score for %d fold CV := %3.2f" %(cv, grid.score(X_test, Y_test)))
     print ("Best-Fit Parameters From Training Data:\n",grid.best_params_)

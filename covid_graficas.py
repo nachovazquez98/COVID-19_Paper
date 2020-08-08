@@ -14,26 +14,28 @@ path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
 os.chdir(os.path.join(path)) 
 df = pd.read_csv("covid_data.csv.zip")
 #%%
-try:
-    os.makedirs("plots")
-except FileExistsError:
-    pass
-#%%
 #SOLO CASOS POSITIVOS COVID
 df = df[df.RESULTADO == 1] #En caso de que se quiera filtrar por s{olo los que dieron positivo
 df.drop(['RESULTADO'], axis=1, inplace = True)
 #lista de columnas
 list(df)
+#%%Numero de casos
+print("Numero de casos positivos de COVID: ", len(df))
+print("Numero de hospitalizados por COVID: ", df.TIPO_PACIENTE.value_counts()[1])
+print("Numero de intubados por COVID: ", df.INTUBADO.value_counts()[1])
+print("Numero de fallecidos por COVID: ", df.BOOL_DEF.value_counts()[1])
+print("Numero de UCI por COVID: ", df.UCI.value_counts()[1])
 #%%valida si existe la carpeta "plots"
 try:
     os.makedirs("plots")
 except FileExistsError:
     pass
-#%%
+#%%Graficas
 def plot_date(ax):
     txtbox = ax.text(0.0, 0.975, datetime.datetime.now().strftime('%b %d, %Y'), transform=ax.transAxes, fontsize=7,
         verticalalignment='center', bbox=dict(boxstyle='round', facecolor='w',alpha=0.5)) 
     txtbox.set_x(1.0-(txtbox.figure.bbox.bounds[2]-(txtbox.clipbox.bounds[2]-txtbox.clipbox.bounds[0]))/txtbox.figure.bbox.bounds[2])
+#%%
 #PreAnalisis
 def grafica1():
     #print("Entidades de residencia con caso de covid:\n", df['ENTIDAD_RES'].value_counts())
@@ -46,7 +48,7 @@ def grafica1():
     plot_date(ax)
     fig.tight_layout()
     plt.savefig('plots/entidades_casos_pos.png', format='png', dpi=1200)
-    plt.close(fig)
+    #plt.close(fig)
 grafica1()
 
 def grafica3():
@@ -61,7 +63,7 @@ def grafica3():
     plot_date(ax)
     fig.tight_layout()
     plt.savefig('plots/amb_hosp_casos_pos.png', format='png', dpi=1200)
-    plt.close(fig)
+    #plt.close(fig)
 grafica3()
 
 def grafica4():
@@ -118,14 +120,16 @@ def grafica7():
     fig, ax = plt.subplots()
     plot_date(ax)
     df_solodef = df.loc[df.BOOL_DEF == 1]
-    sns.distplot(df_solodef['DIAS_DIF_DEF']).set_title("Días entre los primeros síntomas y defunción")      
+    sns.boxenplot(df_solodef['DIAS_DIF_DEF']).set_title("Días entre los primeros síntomas y defunción")      
+    plt.savefig('plots/def_sin_boxplot.png', format='png', dpi=1200)
     plt.close(fig)
 grafica7()
 
 def grafica8():
     fig, ax = plt.subplots()
     plot_date(ax)
-    sns.distplot(df['DIAS_DIF_HOSP']).set_title("Dias entre los primeros sintomas y hospitalizacion")      
+    sns.boxenplot(df['DIAS_DIF_HOSP']).set_title("Días entre los primeros síntomas y hospitalización")      
+    plt.savefig('plots/sin_hosp_boxplot.png', format='png', dpi=1200)    
     plt.close(fig)
 grafica8()
 
@@ -595,4 +599,3 @@ def mat_corr():
     fig.savefig('plots/corrmatrix_1.png', format='png', dpi=1200)
     plt.close(fig)
 mat_corr()
-#%%

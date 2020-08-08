@@ -24,24 +24,12 @@ import joblib
 sns.set(color_codes=True)
 from sklearn.pipeline import Pipeline
 
-
 #%%abrir csv
 path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
 #path = "D:\ricar\Documents\Development\Python\COVID-19_Paper"
 os.chdir(os.path.join(path)) 
 df = pd.read_csv("covid_data.csv.zip")
 #df = pd.read_csv(r"D:\ricar\Documents\Development\Python\COVID-19_Paper\covid_data.csv.zip", encoding='utf-8') #path directo
-#%%Verificar si mejora el rendimento al eliminar datos invalidos
-'''
-def remove_non_conclusive(df):
-    non_conclusive_dictionary = ['TIPO_PACIENTE', 'INTUBADO', 'UCI', 'NEUMONIA']
-    for condition in non_conclusive_dictionary:
-        df.drop(df[df[condition] == 97].index, inplace = True)
-        df.drop(df[df[condition] == 98].index, inplace = True)
-        df.drop(df[df[condition] == 99].index, inplace = True)
-remove_non_conclusive(df)
-'''
-
 #%%10% de los datos aleatorios
 df = df.sample(frac=0.01)
 #%%Valida si existen las carpetas
@@ -164,31 +152,28 @@ def solamente(df, columna, bool=None):
 #%%gridsearchcv
 #checar stratify
 def gridsearchcv(X, y, n_pca=None):
+    X_train, X_test, Y_train, Y_test = train_test_split(X,y,
+                                            test_size=0.2, 
+                                            stratify=y, 
+                                            #random_state=False,
+                                            shuffle=True)
+    pipe_steps_pca = [('scaler', StandardScaler()),('pca', PCA()), ('SupVM', SVC(kernel='rbf'))]
+    param_grid_pca= {
+        'pca__n_components': [n_pca], 
+        'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
+        'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
+    }
+    pipe_steps = [('scaler', StandardScaler()), ('SupVM', SVC(kernel='rbf'))]
+    param_grid= {
+            'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
+            'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
+    }
     if n_pca != None:
-        X_train, X_test, Y_train, Y_test = train_test_split(X,y,
-                                                            test_size=0.2, 
-                                                            #stratify=y, 
-                                                            #random_state=False,
-                                                            shuffle=True)
-        pipe_steps = [('scaler', StandardScaler()),('pca', PCA()), ('SupVM', SVC(kernel='rbf'))]
-        param_grid= {
-            'pca__n_components': [n_pca], 
-            'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
-            'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
-        }
+        pipeline = Pipeline(pipe_steps_pca)
+        grid = GridSearchCV(pipeline, param_grid_pca,refit = True,verbose = 3, n_jobs=-1,probability=True)
     else:
-        X_train, X_test, Y_train, Y_test = train_test_split(X,y,
-                                                    test_size=0.2, 
-                                                    #stratify=y, 
-                                                    #random_state=False,
-                                                    shuffle=True)
-        pipe_steps = [('scaler', StandardScaler()), ('SupVM', SVC(kernel='rbf'))]
-        param_grid= {
-            'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
-            'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
-        }
-    pipeline = Pipeline(pipe_steps)
-    grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1)
+        pipeline = Pipeline(pipe_steps)
+        grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1,probability=True)
     grid.fit(X_train, Y_train)
     print ("Best-Fit Parameters From Training Data:\n",grid.best_params_)
     grid_predictions = grid.predict(X_test) 
@@ -224,10 +209,9 @@ hosp_data_grid_report = pd.read_csv("models/hosp_data_grid_report.csv", index_co
 Y_test.iloc[20]
 hosp_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1)) 
 
-
 #%%Mortalidad de los contagiagos ANTES de ir al hospital
 def_data = df.copy()
-def_data = solamente(def_data,'TIPO_PACIENTE', bool=0)
+def_data = solamente(def_data,'TIPO_PACIENTE', bool=0) #revisar si mejora el rendimiento
 def_data = solamente(def_data,'RESULTADO')
 def_data = def_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','BOOL_DEF']]
 X = def_data.loc[:, def_data.columns != 'BOOL_DEF']
@@ -253,7 +237,7 @@ def_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
 def_hosp_data = df.copy()
 def_hosp_data = solamente(def_hosp_data,'TIPO_PACIENTE')
 def_hosp_data = solamente(def_hosp_data,'RESULTADO')
-def_hosp_data = def_hosp_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','BOOL_DEF','INTUBADO','UCI']]
+def_hosp_data = def_hosp_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','INTUBADO','UCI','BOOL_DEF']]
 X = def_hosp_data.loc[:, def_hosp_data.columns != 'BOOL_DEF']
 y = def_hosp_data.loc[:,'BOOL_DEF']
 #---->train
@@ -328,7 +312,7 @@ vent_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
 #%%necesidad de ventilador despues de saber si desarrollo neumonia o necesita ICU
 vent_ucineum_data = df.copy()
 vent_ucineum_data = solamente(vent_ucineum_data,'RESULTADO')
-vent_ucineum_data = vent_ucineum_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','INTUBADO','ICU','NEUMONIA']]
+vent_ucineum_data = vent_ucineum_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','ICU','NEUMONIA','INTUBADO']]
 X = vent_ucineum_data.loc[:, vent_ucineum_data.columns != 'INTUBADO']
 y = vent_ucineum_data.loc[:,'INTUBADO']
 #---->train
