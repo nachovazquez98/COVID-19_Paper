@@ -13,6 +13,7 @@ matplotlib = "*"
 joblib = "*"
 xlrd = "*"
 pillow = "*"
+seaborn = "*"
 
 [requires]
 python_version = "3.6"
