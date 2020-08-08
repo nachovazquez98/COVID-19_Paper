@@ -1,0 +1,3 @@
+#cat .slugignore
+*.ipynb
+datos_abiertos_covid19.zip
