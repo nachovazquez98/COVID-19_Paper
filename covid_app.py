@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 from PIL import Image
-#import covid_graficas as cg
+import covid_graficas as cg
 import matplotlib.pyplot as ptl
 import matplotlib
 matplotlib.use('Agg')
@@ -74,10 +74,10 @@ def main():
         if activity == "Plot":
             st.subheader("Data plot")
             #vuelve a correr todo el scripty es lento
-            #cg.grafica1()
-            #st.pyplot()
-            #cg.grafica3()
-            #st.pyplot()
+            cg.grafica1()
+            st.pyplot()
+            cg.grafica3()
+            st.pyplot()
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
             st.write(pd.read_csv("models/hosp_data_grid_report.csv", index_col=0))
