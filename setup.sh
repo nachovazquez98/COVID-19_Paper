@@ -1,7 +1,7 @@
 mkdir -p ~/.streamlit/
 echo "\
 [server]\n\
-headledd = true\n\
+headless = true\n\
 port = $PORT\n\
 enableCORS = false\n\
 \n\
