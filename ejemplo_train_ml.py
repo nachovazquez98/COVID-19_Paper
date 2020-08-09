@@ -185,24 +185,27 @@ def plot_svm_2d(grid, X_test, Y_test):
     #plt.savefig('ClassifyMalignant_Benign2D_Decs_FunctG10.png', dpi=300)
     plt.show()
 #%%
-def gridsearchcv(X, y, n_pca):
-    X_train, X_test, Y_train, Y_test = train_test_split(X,y,
-                                                        test_size=0.2, 
-                                                        #stratify=y, 
-                                                        #random_state=False,
-                                                        shuffle=True)
-    pipe_steps = [('scaler', StandardScaler()),('pca', PCA()), ('SupVM', SVC(kernel='rbf'))]
-    param_grid= {
+def gridsearchcv(X, y, n_pca=None):
+    X_train, X_test, Y_train, Y_test = train_test_split(X,y,test_size=0.2, stratify=y, shuffle=True)
+    pipe_steps_pca = [('scaler', StandardScaler()),('pca', PCA()), ('SupVM', SVC(kernel='rbf'))]
+    param_grid_pca= {
         'pca__n_components': [n_pca], 
         'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
         'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
     }
-    pipeline = Pipeline(pipe_steps)
-    for cv in range(4,6):
-        grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, cv=cv, n_jobs=-1)
-        grid.fit(X_train, Y_train)
-        print ("score for %d fold CV := %3.2f" %(cv, grid.score(X_test, Y_test)))
-    print ("Best-Fit Parameters From Training Data:\n",grid.best_params_)
+    pipe_steps = [('scaler', StandardScaler()), ('SupVM', SVC(kernel='rbf'))]
+    param_grid= {
+            'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
+            'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
+    }
+    if n_pca != None:
+        pipeline = Pipeline(pipe_steps_pca)
+        grid = GridSearchCV(pipeline, param_grid_pca,refit = True,verbose = 3, n_jobs=-1,probability=True)
+    else:
+        pipeline = Pipeline(pipe_steps)
+        grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1,probability=True)
+    grid.fit(X_train, Y_train)
+    print("Best-Fit Parameters From Training Data:\n",grid.best_params_)
     grid_predictions = grid.predict(X_test) 
     report = classification_report(Y_test, grid_predictions, output_dict=True)
     report = pd.DataFrame(report).transpose()
