@@ -9,9 +9,9 @@ from collections import Counter
 from matplotlib.offsetbox import AnchoredText
 #%%
 os.getcwd()
-path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
+#path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
 #path = "D:\ricar\Documents\Development\Python\COVID-19_Paper"
-os.chdir(os.path.join(path)) 
+#os.chdir(os.path.join(path)) 
 df = pd.read_csv("covid_data.csv.zip")
 #%%
 #SOLO CASOS POSITIVOS COVID
@@ -155,7 +155,7 @@ def grafica99():
     g.despine(left=True)
     g.set_ylabels("No. casos")
     plt.title("Casos de COVID en Mexico")
-    plt.xlabel(None)
+    plt.xlabel("")
     plt.savefig('plots/barplot_casos_hos_def.png', format='png', dpi=1200)
     plt.close(fig)
 grafica99()

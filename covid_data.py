@@ -14,7 +14,8 @@ import requests
 #Se extrae el csv de la web
 #url = "http://187.191.75.115/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip"
 url = 'http://datosabiertos.salud.gob.mx/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip'
-path = '/home/nacho/Documents/coronavirus/rangel/datos_abiertos_covid19.zip' #del archivo .zip
+#path = '/home/nacho/Documents/coronavirus/rangel/datos_abiertos_covid19.zip' #del archivo .zip
+path = "/app"
 
 def filter_only_positive(df):
     df = df[df.RESULTADO == 1] #En caso de que se quiera filtrar por solo los que dieron positivo
@@ -105,7 +106,6 @@ def print_df(df):
     #print(df)
     df.to_csv('covid_data.csv.zip', index=False, compression="zip")
     print("Se ha generado el archivo .csv")
-MAX_RETRY = 5
 
 #Se ejecutan las funciones
 try: #Se obtiene el archivo más reciente
