@@ -71,7 +71,7 @@ def main():
         st.subheader("Acerca de este proyecto")
         st.text("Con este proyecto se pretende...")
         img = load_img1()
-        st.image(img)
+        st.image(img, use_column_width=True)
         #st.image(Image.open('plots/barplot_casos_hos_def.png'), use_column_width=True)
         st.image(Image.open('plots/Casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)        
         st.image(Image.open('plots/Casos de COVID en Mexico por sexo.png'), use_column_width=True)        
