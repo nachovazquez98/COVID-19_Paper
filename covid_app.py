@@ -10,51 +10,6 @@ def load_data():
     df = pd.read_csv("covid_data.csv.zip",nrows=10)
     df_descrip = pd.read_excel("diccionario_datos_covid19/Descriptores.xlsx")
     return df, df_descrip
-    
-@st.cache(ttl=3600*24, show_spinner=False)
-def load_img1():
-    img1 = Image.open('plots/barplot_casos_hos_def.png')
-    img2 = Image.open('plots/Casos de COVID en Mexico por rangos de edad.png')
-    img3 = Image.open('plots/Casos de COVID en Mexico por sexo.png') 
-    img4 = Image.open('plots/corrmatrix_1.png') 
-    return img1,img2,img3,img4
-
-@st.cache(ttl=3600*24, show_spinner=False)
-def load_img2():
-    img1=Image.open('plots/sin_hosp_boxplot.png')
-    img2=Image.open('plots/amb_hosp_casos_pos.png')
-    img3=Image.open('plots/barplot_hospitalizacion_edad.png')
-    img4=Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png')
-    return img1,img2,img3,img4
-
-@st.cache(ttl=3600*24, show_spinner=False)
-def load_img3():
-    img1 = Image.open('plots/def_pos.png')
-    img2 = Image.open('plots/def_edad_histograma.png')
-    img3 = Image.open('plots/barplot_defuncion_edad.png')
-    img4 = Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png')
-    img5 = Image.open('plots/Tasa de letalidad de COVID en México.png')
-    return img1,img2,img3,img4,img5
-img31,img32,img33,img34,img35 = load_img3()
-
-@st.cache(ttl=3600*24, show_spinner=False)
-def load_img4():
-    img1=Image.open('plots/barplot_casos_uci_int.png')
-    img2=Image.open('plots/Casos de COVID hospitalarios en Mexico por rangos de edad.png')
-    img3=Image.open('plots/Casos de COVID hospitalarios en Mexico por sexo.png')
-    img4=Image.open('plots/Porcentaje de casos de hospitalizacion por COVID en Mexico por rangos de edad.png')
-    return img1,img2,img3,img4
-img51,img52,img53,img54=load_img4()
-
-@st.cache(ttl=3600*24, show_spinner=False)
-def load_img5():
-    img1=Image.open('plots/hosp_intubados_pos.png')
-    img2=Image.open('plots/barplot_casos_uci_int.png')
-    img3=Image.open('plots/Casos de COVID hospitalarios en Mexico por rangos de edad.png')
-    img4=Image.open('plots/Casos de COVID hospitalarios en Mexico por sexo.png')
-    img5=Image.open('plots/Porcentaje de casos de hospitalizacion por COVID en Mexico por rangos de edad.png')
-    return img1,img2,img3,img4,img5
-img71,img72,img73,img74,img75=load_img5()
 
 genero_dict = {'Hombre':0,'Mujer':1}
 feature_dict = {'No':0,'Si':1}
@@ -109,6 +64,13 @@ def main():
     submenu = ['Plot', 'Prediction']
     choice = st.sidebar.selectbox("Menu",menu)
     if choice == 'README':
+        @st.cache(ttl=3600*24, show_spinner=False)
+        def load_img1():
+            img1 = Image.open('plots/barplot_casos_hos_def.png')
+            img2 = Image.open('plots/Casos de COVID en Mexico por rangos de edad.png')
+            img3 = Image.open('plots/Casos de COVID en Mexico por sexo.png') 
+            img4 = Image.open('plots/corrmatrix_1.png') 
+            return img1,img2,img3,img4
         st.header("Acerca de este proyecto")
         st.text("Con este proyecto se pretende...")
         img11,img12,img13,img14 = load_img1()
@@ -117,9 +79,16 @@ def main():
         st.image(img13, use_column_width=True)  
         st.image(img14, use_column_width=True)      
 
-        st.dataframe(df.head)
+        st.dataframe(df)
         st.dataframe(df_descrip)
     elif choice == 'Hospitalización':
+        @st.cache(ttl=3600*24, show_spinner=False)
+        def load_img2():
+            img1=Image.open('plots/sin_hosp_boxplot.png')
+            img2=Image.open('plots/amb_hosp_casos_pos.png')
+            img3=Image.open('plots/barplot_hospitalizacion_edad.png')
+            img4=Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png')
+            return img1,img2,img3,img4
         st.subheader("Se pretende predecir en base a los descriptores si el paciente contagiado de CoV-2 necesitará hospitalización")
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
@@ -154,10 +123,19 @@ def main():
             # st.json(prob_score)
         ####
     elif choice == 'Mortalidad antes de hopitalización':
+        @st.cache(ttl=3600*24, show_spinner=False)
+        def load_img3():
+            img1 = Image.open('plots/def_pos.png')
+            img2 = Image.open('plots/def_edad_histograma.png')
+            img3 = Image.open('plots/barplot_defuncion_edad.png')
+            img4 = Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png')
+            img5 = Image.open('plots/Tasa de letalidad de COVID en México.png')
+            return img1,img2,img3,img4,img5
         st.subheader("Se pretende predecir en base a los descriptores la mortalidad del paciente contagiado de CoV-2 antes de estar internado en el hospital")
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
+            img31,img32,img33,img34,img35 = load_img3()
             st.image(img31, use_column_width=True)
             st.image(img32, use_column_width=True)
             st.image(img33, use_column_width=True)
@@ -184,10 +162,18 @@ def main():
             else:
                 st.success("No es probable que fallezca")
     elif choice == 'Mortalidad hopitalizado':
+        def load_img3():
+            img1 = Image.open('plots/def_pos.png')
+            img2 = Image.open('plots/def_edad_histograma.png')
+            img3 = Image.open('plots/barplot_defuncion_edad.png')
+            img4 = Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png')
+            img5 = Image.open('plots/Tasa de letalidad de COVID en México.png')
+            return img1,img2,img3,img4,img5
         st.subheader("Se pretende predecir en base a los descriptores la mortalidad del paciente contagiado de CoV-2 al estar internado en el hospital")
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
+            img31,img32,img33,img34,img35 = load_img3()
             st.image(img31, use_column_width=True)
             st.image(img32, use_column_width=True)
             st.image(img33, use_column_width=True)
@@ -212,10 +198,18 @@ def main():
             else:
                 st.success("No es probable que fallezca")
     elif choice == 'ICU antes del diagnostico de neumonia':
+        @st.cache(ttl=3600*24, show_spinner=False)
+        def load_img4():
+            img1=Image.open('plots/barplot_casos_uci_int.png')
+            img2=Image.open('plots/Casos de COVID hospitalarios en Mexico por rangos de edad.png')
+            img3=Image.open('plots/Casos de COVID hospitalarios en Mexico por sexo.png')
+            img4=Image.open('plots/Porcentaje de casos de hospitalizacion por COVID en Mexico por rangos de edad.png')
+            return img1,img2,img3,img4
         st.subheader("Se pretende predecir en base a los descriptores la necesidad de la Unidad de Cuidados Intensivos del paciente contagiado de CoV-2 al estar internado en el hospital sin tener un diagnostico de neumonia")
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
+            img51,img52,img53,img54=load_img4()
             st.image(img51, use_column_width=True)
             st.image(img52, use_column_width=True)
             st.image(img53, use_column_width=True)
@@ -237,9 +231,17 @@ def main():
             else:
                 st.success("No es probable que necesite ICU")
     elif choice == 'ICU despues del diagnostico de neumonia':
+        @st.cache(ttl=3600*24, show_spinner=False)
+        def load_img4():
+            img1=Image.open('plots/barplot_casos_uci_int.png')
+            img2=Image.open('plots/Casos de COVID hospitalarios en Mexico por rangos de edad.png')
+            img3=Image.open('plots/Casos de COVID hospitalarios en Mexico por sexo.png')
+            img4=Image.open('plots/Porcentaje de casos de hospitalizacion por COVID en Mexico por rangos de edad.png')
+            return img1,img2,img3,img4
         st.subheader("Se pretende predecir en base a los descriptores la necesidad de la Unidad de Cuidados Intensivos del paciente contagiado de CoV-2 con un diagnostico de neumonia al estar internado en el hospital")
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
+            img51,img52,img53,img54=load_img4()
             st.image(img51, use_column_width=True)
             st.image(img52, use_column_width=True)
             st.image(img53, use_column_width=True)
@@ -262,10 +264,19 @@ def main():
             else:
                 st.success("No es probable que necesite ICU")
     elif choice == 'Ventilador antes de un diagnostico de neumonia y de ICU':
+        @st.cache(ttl=3600*24, show_spinner=False)
+        def load_img5():
+            img1=Image.open('plots/hosp_intubados_pos.png')
+            img2=Image.open('plots/barplot_casos_uci_int.png')
+            img3=Image.open('plots/Casos de COVID hospitalarios en Mexico por rangos de edad.png')
+            img4=Image.open('plots/Casos de COVID hospitalarios en Mexico por sexo.png')
+            img5=Image.open('plots/Porcentaje de casos de hospitalizacion por COVID en Mexico por rangos de edad.png')
+            return img1,img2,img3,img4,img5
         st.subheader("Se pretende predecir en base a los descriptores la necesidad de un ventilador invasivo del paciente contagiado de CoV-2 sin un diagnostico de neumonia y sin haber requerido de ICU al estar internado en el hospital")
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
+            img71,img72,img73,img74,img75=load_img5()
             st.image(img71, use_column_width=True)
             st.image(img72, use_column_width=True)
             st.image(img73, use_column_width=True)
@@ -289,10 +300,19 @@ def main():
             else:
                 st.success("No es probable que necesite ventilador")
     elif choice == 'Ventilador despues de un diagnostico de neumonia y de ICU':
+        @st.cache(ttl=3600*24, show_spinner=False)
+        def load_img5():
+            img1=Image.open('plots/hosp_intubados_pos.png')
+            img2=Image.open('plots/barplot_casos_uci_int.png')
+            img3=Image.open('plots/Casos de COVID hospitalarios en Mexico por rangos de edad.png')
+            img4=Image.open('plots/Casos de COVID hospitalarios en Mexico por sexo.png')
+            img5=Image.open('plots/Porcentaje de casos de hospitalizacion por COVID en Mexico por rangos de edad.png')
+            return img1,img2,img3,img4,img5
         st.subheader("Se pretende predecir en base a los descriptores la necesidad de un ventilador invasivo del paciente contagiado de CoV-2 con un diagnostico de neumonia y haber requerido de ICU al estar internado en el hospital")
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
+            img71,img72,img73,img74,img75=load_img5()
             st.image(img71, use_column_width=True)
             st.image(img72, use_column_width=True)
             st.image(img73, use_column_width=True)
