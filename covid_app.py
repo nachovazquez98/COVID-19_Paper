@@ -7,7 +7,7 @@ import joblib
 
 @st.cache(ttl=3600*24, show_spinner=False)
 def load_data():
-    df = pd.read_csv("covid_data.csv.zip")
+    df = pd.read_csv("covid_data.csv.zip",nrows=10)
     df_descrip = pd.read_excel("diccionario_datos_covid19/Descriptores.xlsx")
     return df, df_descrip
     
@@ -117,7 +117,7 @@ def main():
         st.image(img13, use_column_width=True)  
         st.image(img14, use_column_width=True)      
 
-        st.dataframe(df.head())
+        st.dataframe(df.head)
         st.dataframe(df_descrip)
     elif choice == 'Hospitalización':
         st.subheader("Se pretende predecir en base a los descriptores si el paciente contagiado de CoV-2 necesitará hospitalización")
