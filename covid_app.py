@@ -5,8 +5,11 @@ import pandas as pd
 from PIL import Image
 import joblib
 
-df = pd.read_csv("covid_data.csv.zip")
-df_descrip = pd.read_excel("diccionario_datos_covid19/Descriptores.xlsx")
+@st.cache(ttl=3600*24, show_spinner=False)
+def load_data():
+    df = pd.read_csv("covid_data.csv.zip")
+    df_descrip = pd.read_excel("diccionario_datos_covid19/Descriptores.xlsx")
+    return df, df_descip
 
 genero_dict = {'Hombre':0,'Mujer':1}
 feature_dict = {'No':0,'Si':1}
@@ -48,6 +51,7 @@ def descriptores():
     return age, emb, ren_cron, diab, inms, epoc, obes, otro, hiper, tab, cardio, asma, sex
 
 def main():
+    df, df_descip = load_data()
     st.title("Análisis y diagnostico de COVID-19 en México")
     st.markdown("subtitulo") 
     st.sidebar.title("Casos")
@@ -78,7 +82,8 @@ def main():
             st.image(Image.open('plots/sin_hosp_boxplot.png'), use_column_width=True)
             st.image(Image.open('plots/amb_hosp_casos_pos.png'), use_column_width=True)
             st.image(Image.open('plots/barplot_hospitalizacion_edad.png'), use_column_width=True)
-    
+            st.image(Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)
+
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
             st.write(pd.read_csv("models/hosp_data_grid_report.csv", index_col=0))
@@ -112,6 +117,7 @@ def main():
             st.image(Image.open('plots/def_edad_histograma.png'), use_column_width=True)
             st.image(Image.open('plots/def_sin_boxplot.png'), use_column_width=True)
             st.image(Image.open('plots/barplot_defuncion_edad.png'), use_column_width=True)
+            st.image(Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)
 
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
@@ -140,6 +146,7 @@ def main():
             st.image(Image.open('plots/def_pos.png'), use_column_width=True)
             st.image(Image.open('plots/def_edad_histograma.png'), use_column_width=True)
             st.image(Image.open('plots/barplot_defuncion_edad.png'), use_column_width=True)
+            st.image(Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)
 
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")

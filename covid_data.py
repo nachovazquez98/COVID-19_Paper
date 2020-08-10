@@ -107,36 +107,9 @@ def print_df(df):
     print("Se ha generado el archivo .csv")
 MAX_RETRY = 5
 
-def get_html(html_url, timeout=10, decode='ISO-8859-1'):
-    for tries in range(MAX_RETRY):
-        try:
-            with urllib.request.urlopen(html_url, timeout=timeout) as response:
-                return response.read().decode(decode)
-        except Exception as e:
-            logging.warning(str(e) + ',html_url:{0}'.format(html_url))
-            if tries < (MAX_RETRY - 1):
-                continue
-            else:
-                print('Has tried {0} times to access url {1}, all failed!'.format(MAX_RETRY, html_url))
-                return None
-def download_file(url):
-    local_filename = url.split('/')[-1]
-    # NOTE the stream=True parameter below
-    with requests.get(url, stream=True) as r:
-        r.raise_for_status()
-        with open(local_filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192): 
-                # If you have chunk encoded response uncomment if
-                # and set chunk_size parameter to None.
-                #if chunk: 
-                f.write(chunk)
-    return local_filename
-
 #Se ejecutan las funciones
 try: #Se obtiene el archivo más reciente
     resp = urlopen(url, timeout=10).read() #Se omite el uso de una función en este segmento para evitar errores con las variables
-    #resp = get_html(url)
-    #resp = download_file(url)
     zipfile = ZipFile(BytesIO(resp))
     extracted_file = zipfile.open(zipfile.namelist()[0])
     df = pd.read_csv(extracted_file, encoding = "ISO-8859-1")

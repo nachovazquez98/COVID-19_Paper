@@ -5,6 +5,7 @@ Created on Mon Jul 13 15:37:12 2020
 
 @author: nacho
 """
+#%%
 import sys, os
 import pandas as pd
 import numpy as np
@@ -18,9 +19,11 @@ from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import GridSearchCV 
 import joblib
 from sklearn.pipeline import Pipeline
+from sklearn.model_selection import learning_curve
 #%%           
-pathname = os.path.dirname(sys.argv[0]) 
-fullpath = os.path.abspath(pathname)       
+#pathname = os.path.dirname(sys.argv[0]) 
+#fullpath = os.path.abspath(pathname)   
+fullpath = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"    
 print('path del codigo: ', fullpath) 
 os.chdir(fullpath) #cambia directorio de trabajo en la dir del codigo
 os.getcwd()
@@ -185,25 +188,26 @@ def plot_svm_2d(grid, X_test, Y_test):
     #plt.savefig('ClassifyMalignant_Benign2D_Decs_FunctG10.png', dpi=300)
     plt.show()
 #%%
+#sklearn.metrics.SCORERS.keys()
 def gridsearchcv(X, y, n_pca=None):
     X_train, X_test, Y_train, Y_test = train_test_split(X,y,test_size=0.2, stratify=y, shuffle=True)
-    pipe_steps_pca = [('scaler', StandardScaler()),('pca', PCA()), ('SupVM', SVC(kernel='rbf'))]
+    pipe_steps_pca = [('scaler', StandardScaler()),('pca', PCA()), ('SupVM', SVC(kernel='rbf',probability=True))]
     param_grid_pca= {
         'pca__n_components': [n_pca], 
         'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
         'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
     }
-    pipe_steps = [('scaler', StandardScaler()), ('SupVM', SVC(kernel='rbf'))]
+    pipe_steps = [('scaler', StandardScaler()), ('SupVM', SVC(kernel='rbf',probability=True))]
     param_grid= {
             'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
             'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
     }
     if n_pca != None:
         pipeline = Pipeline(pipe_steps_pca)
-        grid = GridSearchCV(pipeline, param_grid_pca,refit = True,verbose = 3, n_jobs=-1,probability=True)
+        grid = GridSearchCV(pipeline, param_grid_pca,refit = True,verbose = 3, n_jobs=-1,scoring='accuracy')
     else:
         pipeline = Pipeline(pipe_steps)
-        grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1,probability=True)
+        grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1,scoring='accuracy')
     grid.fit(X_train, Y_train)
     print("Best-Fit Parameters From Training Data:\n",grid.best_params_)
     grid_predictions = grid.predict(X_test) 
@@ -241,8 +245,13 @@ cancer_grid_report.to_csv("models/cancer_grid_report.csv", index=True)
 #importa el modelo y su rendimiento
 cancer_grid_load = joblib.load('models/cancer_grid.pkl')
 cancer_grid_report = pd.read_csv("models/cancer_svm_report.csv", index_col=0)
+#%%
 #probar input del modelo
-input = df.iloc[222,:-1].values.reshape(1,-1) #selecciona la fila 222 y todas las columnas excepto label
+input = df.iloc[222,:-1].values.reshape(1,-1) #selecciona la fila y todas las columnas excepto label
 input_label = df.iloc[222,-1]
-cancer_grid_load.predict(input)
+print(cancer_grid_load.predict(input))
+print(cancer_grid_load.predict_proba(input))
 #grid_predictions_prueba = cancer_grid.predict(X_test.iloc[0,:].values.reshape(1,-1)) 
+
+
+# %%

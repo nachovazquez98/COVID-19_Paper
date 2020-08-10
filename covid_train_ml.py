@@ -151,29 +151,30 @@ def solamente(df, columna, bool=None):
 
 #%%gridsearchcv
 #checar stratify
+#sklearn.metrics.SCORERS.keys()
 def gridsearchcv(X, y, n_pca=None):
     X_train, X_test, Y_train, Y_test = train_test_split(X,y,
                                             test_size=0.2, 
                                             stratify=y, 
                                             #random_state=False,
                                             shuffle=True)
-    pipe_steps_pca = [('scaler', StandardScaler()),('pca', PCA()), ('SupVM', SVC(kernel='rbf'))]
+    pipe_steps_pca = [('scaler', StandardScaler()),('pca', PCA()), ('SupVM', SVC(kernel='rbf',probability=True))]
     param_grid_pca= {
         'pca__n_components': [n_pca], 
         'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
         'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
     }
-    pipe_steps = [('scaler', StandardScaler()), ('SupVM', SVC(kernel='rbf'))]
+    pipe_steps = [('scaler', StandardScaler()), ('SupVM', SVC(kernel='rbf',probability=True))]
     param_grid= {
             'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
             'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
     }
     if n_pca != None:
         pipeline = Pipeline(pipe_steps_pca)
-        grid = GridSearchCV(pipeline, param_grid_pca,refit = True,verbose = 3, n_jobs=-1,probability=True)
+        grid = GridSearchCV(pipeline, param_grid_pca,refit = True,verbose = 3, n_jobs=-1,scoring='accuracy')
     else:
         pipeline = Pipeline(pipe_steps)
-        grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1,probability=True)
+        grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1,scoring='accuracy')
     grid.fit(X_train, Y_train)
     print("Best-Fit Parameters From Training Data:\n",grid.best_params_)
     grid_predictions = grid.predict(X_test) 
