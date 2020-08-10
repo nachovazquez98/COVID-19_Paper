@@ -35,6 +35,7 @@ def load_img3():
     img4 = Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png')
     img5 = Image.open('plots/Tasa de letalidad de COVID en México.png')
     return img1,img2,img3,img4,img5
+img31,img32,img33,img34,img35 = load_img3()
 
 @st.cache(ttl=3600*24, show_spinner=False)
 def load_img4():
@@ -43,6 +44,7 @@ def load_img4():
     img3=Image.open('plots/Casos de COVID hospitalarios en Mexico por sexo.png')
     img4=Image.open('plots/Porcentaje de casos de hospitalizacion por COVID en Mexico por rangos de edad.png')
     return img1,img2,img3,img4
+img51,img52,img53,img54=load_img4()
 
 @st.cache(ttl=3600*24, show_spinner=False)
 def load_img5():
@@ -52,6 +54,7 @@ def load_img5():
     img4=Image.open('plots/Casos de COVID hospitalarios en Mexico por sexo.png')
     img5=Image.open('plots/Porcentaje de casos de hospitalizacion por COVID en Mexico por rangos de edad.png')
     return img1,img2,img3,img4,img5
+img71,img72,img73,img74,img75=load_img5()
 
 genero_dict = {'Hombre':0,'Mujer':1}
 feature_dict = {'No':0,'Si':1}
@@ -155,7 +158,6 @@ def main():
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
-            img31,img32,img33,img34,img35 = load_img3()
             st.image(img31, use_column_width=True)
             st.image(img32, use_column_width=True)
             st.image(img33, use_column_width=True)
@@ -186,12 +188,11 @@ def main():
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
-            img41,img42,img43,img44,img45 = load_img3()
-            st.image(img41, use_column_width=True)
-            st.image(img42, use_column_width=True)
-            st.image(img43, use_column_width=True)
-            st.image(img44, use_column_width=True)
-            st.image(img45, use_column_width=True)
+            st.image(img31, use_column_width=True)
+            st.image(img32, use_column_width=True)
+            st.image(img33, use_column_width=True)
+            st.image(img34, use_column_width=True)
+            st.image(img35, use_column_width=True)
 
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
@@ -215,7 +216,6 @@ def main():
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
-            img51,img52,img53,img54=load_img4()
             st.image(img51, use_column_width=True)
             st.image(img52, use_column_width=True)
             st.image(img53, use_column_width=True)
@@ -240,11 +240,10 @@ def main():
         st.subheader("Se pretende predecir en base a los descriptores la necesidad de la Unidad de Cuidados Intensivos del paciente contagiado de CoV-2 con un diagnostico de neumonia al estar internado en el hospital")
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
-            img61,img62,img63,img64=load_img4()
-            st.image(img61, use_column_width=True)
-            st.image(img62, use_column_width=True)
-            st.image(img63, use_column_width=True)
-            st.image(img64, use_column_width=True)
+            st.image(img51, use_column_width=True)
+            st.image(img52, use_column_width=True)
+            st.image(img53, use_column_width=True)
+            st.image(img54, use_column_width=True)
 
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
@@ -267,8 +266,7 @@ def main():
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
-            img71,img72,img73,img74,img75=load_img5()
-            st.image(mg71, use_column_width=True)
+            st.image(img71, use_column_width=True)
             st.image(img72, use_column_width=True)
             st.image(img73, use_column_width=True)
             st.image(img74, use_column_width=True)
@@ -295,12 +293,11 @@ def main():
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
-            img81,img82,img83,img84,img85 =load_img5()
-            st.image(img81, use_column_width=True)
-            st.image(img82, use_column_width=True)
-            st.image(img83, use_column_width=True)
-            st.image(img84, use_column_width=True)
-            st.image(img85, use_column_width=True)
+            st.image(img71, use_column_width=True)
+            st.image(img72, use_column_width=True)
+            st.image(img73, use_column_width=True)
+            st.image(img74, use_column_width=True)
+            st.image(img75, use_column_width=True)
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
             st.write(pd.read_csv("models/vent_ucineum_data_grid_report.csv", index_col=0))
