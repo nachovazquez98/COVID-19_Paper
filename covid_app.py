@@ -9,7 +9,7 @@ import joblib
 def load_data():
     df = pd.read_csv("covid_data.csv.zip")
     df_descrip = pd.read_excel("diccionario_datos_covid19/Descriptores.xlsx")
-    return df, df_descip
+    return df, df_descrip
 
 genero_dict = {'Hombre':0,'Mujer':1}
 feature_dict = {'No':0,'Si':1}
@@ -51,7 +51,7 @@ def descriptores():
     return age, emb, ren_cron, diab, inms, epoc, obes, otro, hiper, tab, cardio, asma, sex
 
 def main():
-    df, df_descip = load_data()
+    df, df_descrip = load_data()
     st.title("Análisis y diagnostico de COVID-19 en México")
     st.markdown("subtitulo") 
     st.sidebar.title("Casos")
