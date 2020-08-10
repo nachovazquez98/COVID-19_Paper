@@ -64,9 +64,14 @@ def main():
     submenu = ['Plot', 'Prediction']
     choice = st.sidebar.selectbox("Menu",menu)
     if choice == 'README':
+        @st.cache(ttl=3600*24, show_spinner=False)
+        def load_img1():
+            img = Image.open('plots/barplot_casos_hos_def.png')
+            return img
         st.subheader("Acerca de este proyecto")
         st.text("Con este proyecto se pretende...")
-        st.image(Image.open('plots/barplot_casos_hos_def.png'), use_column_width=True)
+        img = load_img1()
+        #st.image(Image.open('plots/barplot_casos_hos_def.png'), use_column_width=True)
         st.image(Image.open('plots/Casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)        
         st.image(Image.open('plots/Casos de COVID en Mexico por sexo.png'), use_column_width=True)        
         st.image(Image.open('plots/corrmatrix_1.png'), use_column_width=True)        
@@ -272,7 +277,3 @@ def main():
                 st.success("No es probable que necesite ventilador")
 if __name__ == '__main__':
     main()
-
-[len(df[df.EPOC == 1])*100/len(df[df.TIPO_PACIENTE == 1]),
-len(df[df.UCI == 1])*100/len(df[df.TIPO_PACIENTE == 1]),
-len(df[df.INTUBADO == 1])*100/len(df[df.TIPO_PACIENTE == 1])]
