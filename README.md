@@ -5,12 +5,12 @@ Con este proyecto se pretende seguir la evolución y los patrones generados por 
 
 **Table of Contents**
 
-[TOC]
+- [TOC]
 
-##Motivación
+## Motivación
 Proporcionar a la gente con un análisis que evita mostrar conclusiones ambiguas acerca del estado actual del país para asistir una toma de decisiones objetiva tanto por parte de autoridades como de ciudadanos.
 
-##Tecnologías usadas
+## Tecnologías usadas
 - **Python** 3.6.11
 - **Urlib:** Se utilizó para descargar el .zip
 - **io:** Se utilizó para guardar el dataset en memoria
@@ -24,10 +24,10 @@ Proporcionar a la gente con un análisis que evita mostrar conclusiones ambiguas
 - **Streamlit:** Se utilizó para generar una aplicación web dinámica
 - **Heroku:** Se utilizópara hostear la aplicación web en un contenedor de linux
 
-##Funciones
+## Funciones
 El proyecto utliza los datos abiertos de la secretaría de salud, y se actualizan diariamente. Se puede utlizar abriendo la aplicación web.
 
-##Instalación
+## Instalación
 Para poder ejecutar los archivos de forma local se recomienda crear un virtual environment con python 3.6.11  por:  
 
 - **Anaconda**
@@ -60,7 +60,7 @@ Instalación: https://pipenv-fork.readthedocs.io/en/latest/basics.html
 
 Para instalar las librerias necesarias se utliza este comando `pip install –r /path/to/requirements.txt` dentro del environment activado.
 
-###Ejemplos de código
+### Ejemplos de código
 Primero para conseguir el dataset, se descarga el .zip, despues se guarda en la memoria,  se extrae y se convierte a formato Dataframe.
 ```python
 url = 'http://datosabiertos.salud.gob.mx/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip' 
@@ -225,7 +225,7 @@ hosp_data_grid_load = joblib.load('models/hosp_data_grid.pkl')
 hosp_data_grid_report = pd.read_csv("models/hosp_data_grid_report.csv", index_col=0)
 ```
 
-###Pruebas
+### Pruebas
 Para probar que se esta ejecutnado correctamente de forma local corra los siguientes comandos.
 
 `python covid_data.py` en la terminal debe de imprimir `Se ha generado el archivo .csv` si se ejecuto de forma correcta.
@@ -234,7 +234,7 @@ Para probar que se esta ejecutnado correctamente de forma local corra los siguie
 
 `python ejemplo_train_ml.py` en la terminal para porbar si la librería sklearn esta instalada en la version adecuada y debe de generar unas graficas de resultado.
 
-###¿Cómo usarlo?
+### ¿Cómo usarlo?
 Para utlizar este proyecto hay 3 modalidades. 
 
 La primera es abriendo la aplicación web https://covid19-analytics-app.herokuapp.com/
@@ -243,15 +243,15 @@ La siguiente es abrir los archivos .ipynb en este repositorio o en google collab
 
 La ultima es descargar este repositorio y correrlo de forma local. Se puede correr en un ide (visual studio code, spyder, etc) los archivos .ipynb o .py. Para poder ejecutarlos se tiene que cambiar el path o la direccion de la carpeta donde se encuentra el repositorio para que pueda leer el dataset y generar las graficas . Para hacer el entrenamiento se recomienda usar un porcentaje de los datos  df = df.sample(frac=0.01) para que el tiempo de entrenamiento no sea muy tardado
 
-###Discusión
+### Discusión
 Debido al alto costo computacional del entrenamiento con el dataset, no se pudieron realizar pruebas para mejorar la precision, ya sea mejorando los parametros del algoritmo de clasificacion o acomodar la informacion de la manera decuada, como por ejemplo descartar a la gente que no ha tenido neumonia para predecir si va a necesitar un ventilador, etc. Nos basamos en la froma en la aocmodo la infroamcion del articulo https://www.medrxiv.org/content/10.1101/2020.05.03.20089813v1.full.pdf mas no entrenamos el modelo con el 100% de los datos debido su complejidad. 
 
 Queremos realizar las pruebas al eliminar los datos invalidos del dataset como lo son NO APLICA, SE IGNORA, NO ESPECIFICADO en lugar de convertilos a falso y comparar su rendimiento. En un fututo tambien se pretende comparar diferentes algoritmos de clasificacion como lo son: robust versions of logistic regression, random forests, gradient boosted decision trees, y usar en la aplicacion web el modelo con el mejor rendimiento.
 
-##Contribuye
+## Contribuye
 Si hay algun tipo de grafica útil nos lo puedes hacer saber para desarrollarla y subirla al repositorio, asi como algun algorimo de clasificación también lo podemos incluir.
 
-##Créditos
+## Créditos
 - Hrisko, J. (2020, April 11). Visualizing COVID-19 Data in Python. Retrieved July 30, 2020, from https://makersportal.com/blog/2020/4/5/visualizing-covid-19-data-in-python
 - Sarkar, T. (2020, March 31). Analyze NY Times Covid-19 Dataset. Retrieved July 30, 2020, from https://towardsdatascience.com/analyze-ny-times-covid-19-dataset-86c802164210
 - Wollenstein-Betech, S., Cassandras, C. G., & Paschalidis, I. C. (2020). Personalized Predictive Models for Symptomatic COVID-19 Patients Using Basic Preconditions: Hospitalizations, Mortality, and the Need for an ICU or Ventilator. doi:10.1101/2020.05.03.20089813
@@ -261,7 +261,7 @@ Si hay algun tipo de grafica útil nos lo puedes hacer saber para desarrollarla 
 - COVID-19 Tablero México. (n.d.). Retrieved July 30, 2020, from https://coronavirus.gob.mx/datos/
 - Información referente a casos COVID-19 en México - Bases de datos COVID-19 - datos.gob.mx/busca. (n.d.). Retrieved July 30, 2020, from https://datos.gob.mx/busca/dataset/informacion-referente-a-casos-covid-19-en-mexico/resource/e8c7079c-dc2a-4b6e-8035-08042ed37165
 
-##Licencia
+## Licencia
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 - **[MIT license](http://opensource.org/licenses/mit-license.php)**
