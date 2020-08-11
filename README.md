@@ -6,6 +6,7 @@ Con este proyecto se pretende seguir la evolución y los patrones generados por 
 **Table of Contents**
 - [Análisis y Predicción de Riesgos por COVID-19 en México](#Análisis-y-Predicción-de-Riesgos-por-COVID-19-en-México)
   * [Motivación](#Motivación)
+  * [Dataset](#Dataset)
   * [Tecnologías usadas](#Tecnologías-usadas)
   * [Funciones](#Funciones)
   * [Instalación](#Instalación)
@@ -19,6 +20,9 @@ Con este proyecto se pretende seguir la evolución y los patrones generados por 
 
 ## Motivación
 Proporcionar a la gente con un análisis que evita mostrar conclusiones ambiguas acerca del estado actual del país para asistir una toma de decisiones objetiva tanto por parte de autoridades como de ciudadanos.
+
+## Dataset
+Se utilizaron los datos abiertos de la Dirección General de Epidemiología y la Secretaría de Salud
 
 ## Tecnologías usadas
 - **Python** 3.6.11
@@ -92,21 +96,21 @@ binary_values_dictionary = ['RESULTADO', 'SEXO', 'INTUBADO', 'NEUMONIA', 'EMBARA
 
 for condition in binary_values_dictionary: 
 
-df.loc[df[condition] == 2, [condition]] = 0 
+	df.loc[df[condition] == 2, [condition]] = 0 
 
-df.loc[df[condition] == 97, [condition]] = 0 
+	df.loc[df[condition] == 97, [condition]] = 0 
 
-df.loc[df[condition] == 98, [condition]] = 0 
+	df.loc[df[condition] == 98, [condition]] = 0 
 
-df.loc[df[condition] == 3, [condition]] = 2 
+	df.loc[df[condition] == 3, [condition]] = 2 
 
-df.loc[df[condition] == 99, [condition]] = 0 
+	df.loc[df[condition] == 99, [condition]] = 0 
 
-df.loc[df['TIPO_PACIENTE'] == 1, ['TIPO_PACIENTE']] = 0 
+	df.loc[df['TIPO_PACIENTE'] == 1, ['TIPO_PACIENTE']] = 0 
 
-df.loc[df['TIPO_PACIENTE'] == 2, ['TIPO_PACIENTE']] = 1 
+	df.loc[df['TIPO_PACIENTE'] == 2, ['TIPO_PACIENTE']] = 1 
 
-df.loc[df['TIPO_PACIENTE'] == 99, ['TIPO_PACIENTE']] = 0 
+	df.loc[df['TIPO_PACIENTE'] == 99, ['TIPO_PACIENTE']] = 0 
 ```
 
 Al realizar las graficas se filtro solamente los positivos de COVID.
@@ -120,17 +124,13 @@ En esta grafica se filtra a todas las defunciones y se usa la columna edad para 
 
 def grafica6():
 
-fig, ax = plt.subplots()
+	fig, ax = plt.subplots()
 
-plot_date(ax)
+	plot_date(ax)
 
-df_solodef = df.loc[df.BOOL_DEF == 1]
+	df_solodef = df.loc[df.BOOL_DEF == 1]
 
-sns.distplot(df_solodef['EDAD']).set_title("Muertes de COVID-19 por edades en Mexico")
-
-plt.savefig('plots/def_edad_histograma.png', format='png', dpi=1200)
-
-plt.close(fig)
+	sns.distplot(df_solodef['EDAD']).set_title("Muertes de COVID-19 por edades en Mexico")
 
 grafica6()
 ```
@@ -140,63 +140,63 @@ Para realizar el entrenamiento y clasificación se uso una pipeline y realiza to
 ```python
 def gridsearchcv(X, y, n_pca=None): 
 
-X_train, X_test, Y_train, Y_test = train_test_split(X,y, 
+	X_train, X_test, Y_train, Y_test = train_test_split(X,y, 
 
-test_size=0.2,  
+	test_size=0.2,  
 
-stratify=y,  
+	stratify=y,  
 
-#random_state=False, 
+	#random_state=False, 
 
-shuffle=True) 
+	shuffle=True) 
 
-pipe_steps_pca = [('scaler', StandardScaler()),('pca', PCA()), ('SupVM', SVC(kernel='rbf'))] 
+	pipe_steps_pca = [('scaler', StandardScaler()),('pca', PCA()), ('SupVM', SVC(kernel='rbf'))] 
 
-param_grid_pca= { 
+	param_grid_pca= { 
 
-'pca__n_components': [n_pca],  
+	'pca__n_components': [n_pca],  
 
-'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000],  
+	'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000],  
 
-'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50] 
+	'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50] 
 
-} 
+	} 
 
-pipe_steps = [('scaler', StandardScaler()), ('SupVM', SVC(kernel='rbf'))] 
+	pipe_steps = [('scaler', StandardScaler()), ('SupVM', SVC(kernel='rbf'))] 
 
-param_grid= { 
+	param_grid= { 
 
-'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000],  
+	'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000],  
 
-'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50] 
+	'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50] 
 
-} 
+	} 
 
-if n_pca != None: 
+	if n_pca != None: 
 
-pipeline = Pipeline(pipe_steps_pca) 
+	pipeline = Pipeline(pipe_steps_pca) 
 
-grid = GridSearchCV(pipeline, param_grid_pca,refit = True,verbose = 3, n_jobs=-1,probability=True) 
+	grid = GridSearchCV(pipeline, param_grid_pca,refit = True,verbose = 3, n_jobs=-1,probability=True) 
 
-else: 
+	else: 
 
-pipeline = Pipeline(pipe_steps) 
+	pipeline = Pipeline(pipe_steps) 
 
-grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1,probability=True) 
+	grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1,probability=True) 
 
-grid.fit(X_train, Y_train) 
+	grid.fit(X_train, Y_train) 
 
-print("Best-Fit Parameters From Training Data:\n",grid.best_params_) 
+	print("Best-Fit Parameters From Training Data:\n",grid.best_params_) 
 
-grid_predictions = grid.predict(X_test)  
+	grid_predictions = grid.predict(X_test)  
 
-report = classification_report(Y_test, grid_predictions, output_dict=True) 
+	report = classification_report(Y_test, grid_predictions, output_dict=True) 
 
-report = pd.DataFrame(report).transpose() 
+	report = pd.DataFrame(report).transpose() 
 
-print(report) 
+	print(report) 
 
-print(confusion_matrix(Y_test, grid_predictions)) 
+	print(confusion_matrix(Y_test, grid_predictions)) 
 
 return grid, report, X_test, Y_test 
 ```
