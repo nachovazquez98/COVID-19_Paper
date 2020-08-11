@@ -138,12 +138,8 @@ grafica6()
 Para realizar el entrenamiento y clasificación se uso una pipeline y realiza todas las combinaciones de los hiperparametros y devuelve el mejor modelo asi como su redimiento.
 
 ```python
-def gridsearchcv(X, y, n_pca=None): 
-	X_train, X_test, Y_train, Y_test = train_test_split(X,y, 
-	test_size=0.2,  
-	stratify=y,  
-	#random_state=False, 
-	shuffle=True) 
+def gridsearchcv(X, y): 
+	X_train, X_test, Y_train, Y_test = train_test_split(X,y, test_size=0.2, stratify=y, shuffle=True) 
 	pipe_steps = [('scaler', StandardScaler()), ('SupVM', SVC(kernel='rbf'))] 
 	param_grid= { 
 	'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000],  
