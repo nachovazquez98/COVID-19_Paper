@@ -62,7 +62,7 @@ Instalación: https://pipenv-fork.readthedocs.io/en/latest/basics.html
 
 `pipenv --python 3.6`
 
-- **pipenv shell**
+`pipenv shell`
 
 `pipenv install -r requirements.txt`
 
@@ -254,9 +254,9 @@ La siguiente es abrir los archivos .ipynb en este repositorio o en google collab
 La ultima es descargar este repositorio y correrlo de forma local. Se puede correr en un ide (visual studio code, spyder, etc) los archivos .ipynb o .py. Para poder ejecutarlos se tiene que cambiar el path o la direccion de la carpeta donde se encuentra el repositorio para que pueda leer el dataset y generar las graficas . Para hacer el entrenamiento se recomienda usar un porcentaje de los datos  df = df.sample(frac=0.01) para que el tiempo de entrenamiento no sea muy tardado
 
 ### Discusión
-Debido al alto costo computacional del entrenamiento con el dataset, no se pudieron realizar pruebas para mejorar la precision, ya sea mejorando los parametros del algoritmo de clasificacion o acomodar la informacion de la manera decuada, como por ejemplo descartar a la gente que no ha tenido neumonia para predecir si va a necesitar un ventilador, etc. Nos basamos en la froma en la aocmodo la infroamcion del articulo https://www.medrxiv.org/content/10.1101/2020.05.03.20089813v1.full.pdf mas no entrenamos el modelo con el 100% de los datos debido su complejidad. 
+Debido al alto costo computacional del entrenamiento con el dataset, no se pudieron realizar pruebas para mejorar la precision, ya sea mejorando los parametros del algoritmo de clasificacion o acomodar la informacion de la manera adecuada, como por ejemplo descartar a la gente que no ha tenido neumonia para predecir si va a necesitar un ventilador, etc. La forma del acomodo de los datos del entrenamiento se baso en este articulo https://www.medrxiv.org/content/10.1101/2020.05.03.20089813v1.full.pdf mas no entrenamos el modelo con el 100% de los datos debido su complejidad. 
 
-Queremos realizar las pruebas al eliminar los datos invalidos del dataset como lo son NO APLICA, SE IGNORA, NO ESPECIFICADO en lugar de convertilos a falso y comparar su rendimiento. En un fututo tambien se pretende comparar diferentes algoritmos de clasificacion como lo son: robust versions of logistic regression, random forests, gradient boosted decision trees, y usar en la aplicacion web el modelo con el mejor rendimiento.
+Queremos realizar las pruebas al eliminar los datos invalidos del dataset como lo son NO APLICA, SE IGNORA, NO ESPECIFICADO en lugar de convertilos a falso y comparar su rendimiento. En un futuro tambien se pretende comparar diferentes algoritmos de clasificacion como lo son: robust versions of logistic regression, random forests, gradient boosted decision trees, y usar en la aplicacion web el modelo con el mejor rendimiento.
 
 ## Contribuye
 Si hay algun tipo de grafica útil nos lo puedes hacer saber para desarrollarla y subirla al repositorio, asi como algun algorimo de clasificación también lo podemos incluir.
