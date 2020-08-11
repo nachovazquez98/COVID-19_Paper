@@ -4,8 +4,18 @@
 Con este proyecto se pretende seguir la evolución y los patrones generados por el COVID-19 mediante gráficas y datos sencillos de visualizar para así generar conciencia de los riesgos que una persona dada pueda llegar a tener tomando en cuenta sus descriptores particulares. 
 
 **Table of Contents**
-
-- [TOC]
+- [Análisis y Predicción de Riesgos por COVID-19 en México](#Análisis y Predicción de Riesgos por COVID-19 en México)
+  * [Motivación](#Motivación)
+  * [Tecnologías usadas](#Tecnologías usadas)
+  * [Funciones](#Funciones)
+  * [Instalación](#Instalación)
+    + [Ejemplos de código](#Ejemplos de código)
+	+ [Pruebas](#Pruebas)
+	+ [¿Cómo usarlo?](#¿Cómo usarlo?)
+	+ [Discusión](#Discusión)
+  * [Contribuye](#Contribuye)
+  * [Créditos](#Créditos)
+  * [Licencia](#Licencia)
 
 ## Motivación
 Proporcionar a la gente con un análisis que evita mostrar conclusiones ambiguas acerca del estado actual del país para asistir una toma de decisiones objetiva tanto por parte de autoridades como de ciudadanos.
