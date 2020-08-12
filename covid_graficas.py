@@ -40,9 +40,22 @@ def plot_date(ax):
 def grafica1():
     #print("Entidades de residencia con caso de covid:\n", df['ENTIDAD_RES'].value_counts())
     #
+    df_estados = pd.read_csv("diccionario_datos_covid19/diccionario_estados.csv",index_col=False)
+    df_estados = df_estados.iloc[:,[0,2]]
+    dict_estados = df_estados.set_index('CLAVE_ENTIDAD').T.to_dict('list')
+    def get_value(val, my_dict):
+        for key,value in my_dict.items():
+            if val == key:
+                return value
     fig, ax = plt.subplots() 
-    ax.bar((df['ENTIDAD_RES'].value_counts()).index, (df['ENTIDAD_RES'].value_counts()).values) 
+    height = df['ENTIDAD_RES'].value_counts().sort_values(ascending=False).values
+    bars = np.asarray(df['ENTIDAD_RES'].value_counts().sort_values(ascending=False).index)
+    string_bars = [get_value(bars[i],dict_estados) for i in range(len(bars))]
+    string_bars = [i[0] for i in string_bars]
+    y_pos = np.arange(len(bars))
+    ax.bar(y_pos, height) 
     ax.set_title('Entidades de residencia con caso de covid') 
+    plt.xticks(y_pos, string_bars,rotation='vertical')
     ax.set_xlabel('ENTIDAD_RES') 
     ax.set_ylabel('No. casos')
     plot_date(ax)
@@ -51,6 +64,32 @@ def grafica1():
     plt.close(fig)
 grafica1()
 
+def grafica2():
+    df = df[df.BOOL_DEF == 1]
+    df_estados = pd.read_csv("diccionario_datos_covid19/diccionario_estados.csv",index_col=False)
+    df_estados = df_estados.iloc[:,[0,2]]
+    dict_estados = df_estados.set_index('CLAVE_ENTIDAD').T.to_dict('list')
+    def get_value(val, my_dict):
+        for key,value in my_dict.items():
+            if val == key:
+                return value
+    fig, ax = plt.subplots() 
+    height = df['ENTIDAD_RES'].value_counts().sort_values(ascending=False).values
+    bars = np.asarray(df['ENTIDAD_RES'].value_counts().sort_values(ascending=False).index)
+    string_bars = [get_value(bars[i],dict_estados) for i in range(len(bars))]
+    string_bars = [i[0] for i in string_bars]
+    y_pos = np.arange(len(bars))
+    ax.bar(y_pos, height) 
+    ax.set_title('Entidades de residencia con defunciones de covid') 
+    plt.xticks(y_pos, string_bars,rotation='vertical')
+    ax.set_xlabel('ENTIDAD_RES') 
+    ax.set_ylabel('No. casos')
+    plot_date(ax)
+    fig.tight_layout()
+    plt.savefig('plots/entidades_def_pos.png', format='png', dpi=1200)
+    plt.close(fig)
+grafica2()
+#%%
 def grafica3():
     fig, ax = plt.subplots() 
     plot_date(ax)
@@ -334,7 +373,7 @@ def grafica15():
     plt.savefig("plots/Casos de COVID hospitalarios en Mexico por sexo.png", format='png', dpi=1200)
     plt.close(fig)
 grafica15()
-
+#%%
 def casos_nuevos_indiv(titulo, columna_fecha, npol, estado):
     if estado != False:
         df_aux = df.copy()
@@ -354,16 +393,18 @@ def casos_nuevos_indiv(titulo, columna_fecha, npol, estado):
     fechas_total.index = fechas_total.index.date
     fechas_total = pd.merge(fechas_total,fechas, how='left',left_index=True,right_index=True)
     fechas_total = fechas_total.fillna(0)
+    fechas_total.index= pd.to_datetime(fechas_total.index) 
+    fechas_total=fechas_total.resample('W').sum()
     #poly fit
-    xaxis = range(len(fechas_total.index))
-    coefficients = np.polyfit(xaxis,fechas_total['casos'],npol)
-    y_poly = np.poly1d(coefficients)(xaxis).clip(min=0) 
-    fechas_total['poly'] = y_poly
+    # xaxis = range(len(fechas_total.index))
+    # coefficients = np.polyfit(xaxis,fechas_total['casos'],npol)
+    # y_poly = np.poly1d(coefficients)(xaxis).clip(min=0) 
+    # fechas_total['poly'] = y_poly
     #plot
     fig, ax = plt.subplots()
     plot_date(ax)
-    plt.plot(fechas_total.index,fechas_total['casos'], label="real")
-    plt.plot(fechas_total.index,y_poly, label="polinomial")
+    plt.plot(fechas_total.index,fechas_total['casos'], label="suma semanal")
+    # plt.plot(fechas_total.index,y_poly, label="polinomial")
     plt.title(titulo)
     plt.gcf().autofmt_xdate()
     plt.ylabel("No. de casos")
@@ -374,8 +415,8 @@ def casos_nuevos_indiv(titulo, columna_fecha, npol, estado):
 #genero df de los 3 tipos de fechas
 casos_nuevos_indiv(titulo="Fecha de nuevos casos de sintomas de COVID en Mexico",columna_fecha='FECHA_SINTOMAS',npol=6, estado=False)
 casos_nuevos_indiv(titulo="Fecha de nuevos casos de hospitalizacion de COVID en Mexico",columna_fecha='FECHA_INGRESO',npol=6, estado=False)
-casos_nuevos_indiv(titulo="Fecha de nuevos casos de funcion de COVID en Mexico",columna_fecha='FECHA_DEF',npol=6, estado=False)
 casos_nuevos_indiv(titulo="Fecha de nuevos casos de sintomas de COVID en CDMX",columna_fecha='FECHA_SINTOMAS',npol=6, estado=9)
+casos_nuevos_indiv(titulo="Fecha de nuevos casos defuncion de COVID en Mexico",columna_fecha='FECHA_DEF',npol=6, estado=False)
 
 def casos_nuevos_total(estado, npol, estado_str):
     columnas_fechas = ['FECHA_SINTOMAS', 'FECHA_INGRESO', 'FECHA_DEF']
@@ -385,17 +426,22 @@ def casos_nuevos_total(estado, npol, estado_str):
     #genera nuevo dataframe con faechas como index
     df_fechas_mex = pd.DataFrame(index=np.arange(np.datetime64(min(df['FECHA_INGRESO'])), np.datetime64(max(df['FECHA_INGRESO']))))
     df_fechas_mex.index = df_fechas_mex.index.date
+    df_fechas_mex.index = pd.to_datetime(df_fechas_mex.index) 
+    df_fechas_mex=df_fechas_mex.resample('W').sum()
     #juntar las 3 columnas polinomios de fechas en df_fechas_mex
     total_fechas=[]
     for i in range(3):
-        df_fechas_mex = pd.merge(df_fechas_mex,list_df[i].iloc[:,1], how='left',left_index=True,right_index=True)
-        total_fechas.append(list_df[i].iloc[:,0].sum()) #guardar el total de las columnas fechas
+        df_fechas_mex = pd.merge(df_fechas_mex,list_df[i].iloc[:,0], how='left',left_index=True,right_index=True)
+        # total_fechas.append(list_df[i].iloc[:,0].sum()) #guardar el total de las columnas fechas
+    df_fechas_mex = df_fechas_mex.rename(columns={'casos_x':'síntomas', 'casos_y':'hospitalización','casos':'defunción'}) #nombra las columnas
+    df_fechas_mex.index.name = 'fecha'
     #plot
-    fig, ax = plt.subplots()
-    texto="Total\nsíntomas: "+str(total_fechas[0])+"\ningreso: "+str(total_fechas[1])+"\ndefunción: "+str(total_fechas[2])
-    anchored_text = AnchoredText(texto, loc="center left")
-    ax.add_artist(anchored_text)
+    # fig, ax = plt.subplots()
+    # texto="Total\nsíntomas: "+str(total_fechas[0])+"\ningreso: "+str(total_fechas[1])+"\ndefunción: "+str(total_fechas[2])
+    # anchored_text = AnchoredText(texto, loc="center left")
+    # ax.add_artist(anchored_text)
     #################################
+    fig, ax = plt.subplots()
     plot_date(ax)
     ax.plot(df_fechas_mex.index,df_fechas_mex.iloc[:,0], label='síntomas')
     ax.plot(df_fechas_mex.index,df_fechas_mex.iloc[:,1], label='hospitalización')
@@ -405,13 +451,14 @@ def casos_nuevos_total(estado, npol, estado_str):
     plt.ylabel("No. de casos")
     plt.legend()
     plt.tight_layout()
-    plt.savefig("plots/Fecha de nuevos casos de COVID en "+str(estado_str)+'.png', format='png', dpi=1200)
-    plt.close(fig)
+    plt.savefig("plots/Fecha de nuevos casos por semana de COVID en "+str(estado_str)+'.png', format='png', dpi=1200)
+    #plt.close(fig)
+    print(df_fechas_mex.tail(6))
 casos_nuevos_total(estado=False, npol=6, estado_str='México')
 casos_nuevos_total(estado=9, npol=6, estado_str='CDMX')
 casos_nuevos_total(estado=14, npol=10, estado_str='Jalisco')
 casos_nuevos_total(estado=22, npol=6, estado_str='Querétaro')
-
+#%%
 def casos_acum_indiv(titulo, columna_fecha, estado=None):
     if estado != None:
         df_aux = df.copy()

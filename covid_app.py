@@ -7,9 +7,10 @@ import joblib
 
 @st.cache(ttl=3600*24, show_spinner=False)
 def load_data():
-    df = pd.read_csv("covid_data.csv.zip",nrows=10)
+    df = pd.read_csv("covid_data.csv.zip")
     df_descrip = pd.read_excel("diccionario_datos_covid19/Descriptores.xlsx")
-    return df, df_descrip
+    df_estados = pd.read_csv("diccionario_datos_covid19/diccionario_estados.csv")
+    return df, df_descrip,df_estados
 
 genero_dict = {'Hombre':0,'Mujer':1}
 feature_dict = {'No':0,'Si':1}
@@ -51,9 +52,10 @@ def descriptores():
     return age, emb, ren_cron, diab, inms, epoc, obes, otro, hiper, tab, cardio, asma, sex
 
 def main():
-    df, df_descrip = load_data()
-    st.title("Análisis y diagnostico de COVID-19 en México")
-    st.markdown("subtitulo") 
+    df, df_descrip,df_estados = load_data()
+    st.image(Image.open('plots/entidades_def_pos.png'), use_column_width=True)
+    st.title("Análisis y diagnóstico de COVID-19 en México")
+    st.header("Una herramienta para visualizar y prevenir") 
     st.sidebar.title("Casos")
     st.sidebar.markdown("Seleccione en el menu una opcion")
 
@@ -64,15 +66,37 @@ def main():
     submenu = ['Plot', 'Prediction']
     choice = st.sidebar.selectbox("Menu",menu)
     if choice == 'README':
-        st.header("Acerca de este proyecto")
-        st.text("Con este proyecto se pretende...")
+        #st.header("Acerca de este proyecto")
+        st.subheader("Análisis y Predicción de Riesgos por COVID-19 en México")
+        st.write("Con este proyecto se pretende seguir la evolución y los patrones generados por el COVID-19 mediante gráficas y datos sencillos de visualizar para así generar conciencia de los riesgos que una persona dada pueda llegar a tener tomando en cuenta sus descriptores particulares.")
+        st.subheader("Motivación")
+        st.write("Proporcionar a la gente con un análisis que evita mostrar conclusiones ambiguas acerca del estado actual del país para asistir una toma de decisiones objetiva tanto por parte de autoridades como de ciudadanos. ")
+        st.subheader("Datos actuales")
+        st.write("Número de casos positivos de COVID: ", len(df))
+        st.write("Número de hospitalizados por COVID: ", df.TIPO_PACIENTE.value_counts()[1])
+        st.write("Número de intubados por COVID: ", df.INTUBADO.value_counts()[1])
+        st.write("Número de fallecidos por COVID: ", df.BOOL_DEF.value_counts()[1])
+        st.write("Número de UCI por COVID: ", df.UCI.value_counts()[1])
+        st.subheader("Muestra del dataset y su diccionario de fuentes oficiales")
+        st.dataframe(df.head())
+        st.dataframe(df_descrip)
         st.image(Image.open('plots/barplot_casos_hos_def.png'), use_column_width=True)
         st.image(Image.open('plots/Casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)    
         st.image(Image.open('plots/Casos de COVID en Mexico por sexo.png') , use_column_width=True)  
-        st.image(Image.open('plots/corrmatrix_1.png') , use_column_width=True)      
+        st.image(Image.open('plots/entidades_casos_pos.png') , use_column_width=True)  
+        st.image(Image.open('plots/corrmatrix_1.png') , use_column_width=True)    
 
-        st.dataframe(df)
-        st.dataframe(df_descrip)
+        st.write(df_estados.iloc[:,:-1])
+        st.image(Image.open('plots/entidades_casos_pos.png'), use_column_width=True)
+        dict_estados = dict(zip(list(df_estados.iloc[:,0]),list(df_estados.iloc[:,1])))
+        st.write(dict_estados)
+        
+        st.write("<hr>", unsafe_allow_html=True)
+        st.write(
+        "Visita el repositorio en [Github](https://github.com/CT-6282/COVID-19_Paper), "
+        "descarga la [Bases de datos Covid-19 en México](https://www.gob.mx/salud/documentos/datos-abiertos-152127), "
+        "visita el [Tablero informativo de Covid-19 de México](https://coronavirus.gob.mx/datos/#DOView), "
+        "este proyecto fue basado principalmente en este [artículo](https://www.medrxiv.org/content/10.1101/2020.05.03.20089813v1.full.pdf)")
     elif choice == 'Hospitalización':
         st.subheader("Se pretende predecir en base a los descriptores si el paciente contagiado de CoV-2 necesitará hospitalización")
         activity = st.selectbox("Activity", submenu)
@@ -116,6 +140,7 @@ def main():
             st.image(Image.open('plots/barplot_defuncion_edad.png'), use_column_width=True)
             st.image(Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)
             st.image(Image.open('plots/Tasa de letalidad de COVID en México.png'), use_column_width=True)
+            st.image(Image.open('plots/entidades_def_pos.png'), use_column_width=True)
 
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
@@ -146,6 +171,7 @@ def main():
             st.image(Image.open('plots/barplot_defuncion_edad.png'), use_column_width=True)
             st.image(Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)
             st.image(Image.open('plots/Tasa de letalidad de COVID en México.png'), use_column_width=True)
+            st.image(Image.open('plots/entidades_def_pos.png'), use_column_width=True)
 
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
