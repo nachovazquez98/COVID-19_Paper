@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3411fe3b15b493ae340e84d199beb097823d00f35629331b420cd5c171ddd22c"
+            "sha256": "7c85405bd5726f1e5c19512edb71b0207e25a2ecb83479d8043cc665a4593200"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -583,6 +583,14 @@
             "index": "pypi",
             "version": "==7.2.0"
         },
+        "plotly": {
+            "hashes": [
+                "sha256:257f530ffd73754bd008454826905657b329053364597479bb9774437a396837",
+                "sha256:7c7b613af8def74f48b1298f08a49086bb9792104119feb4a137f737533021e1"
+            ],
+            "index": "pypi",
+            "version": "==4.9.0"
+        },
         "prometheus-client": {
             "hashes": [
                 "sha256:983c7ac4b47478720db338f1491ef67a100b474e3bc7dafcbaefb7d0b8f9b01c",
@@ -753,6 +761,12 @@
             ],
             "index": "pypi",
             "version": "==2.24.0"
+        },
+        "retrying": {
+            "hashes": [
+                "sha256:08c039560a6da2fe4f2c426d0766e284d3b736e355f8dd24b37367b0bb41973b"
+            ],
+            "version": "==1.3.3"
         },
         "s3transfer": {
             "hashes": [

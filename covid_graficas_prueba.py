@@ -349,7 +349,7 @@ def grafica15(df):
     plt.close(fig)
 
 #%%
-def casos_nuevos_indiv(df,titulo, columna_fecha, npol, estado):
+def casos_nuevos_indiv(df,titulo, columna_fecha, estado):
     if estado != False:
         df_aux = df.copy()
         df_aux.drop(df_aux[(df_aux['ENTIDAD_UM'] != estado)].index, inplace = True)
@@ -389,11 +389,11 @@ def casos_nuevos_indiv(df,titulo, columna_fecha, npol, estado):
     return fechas_total
 
 
-def casos_nuevos_total(df,estado, npol, estado_str):
+def casos_nuevos_total(df,estado, estado_str,show=None):
     columnas_fechas = ['FECHA_SINTOMAS', 'FECHA_INGRESO', 'FECHA_DEF']
     list_df = []
     for i, word in enumerate(columnas_fechas):
-        list_df.append(casos_nuevos_indiv(df,titulo= str(word)+" nuevos de COVID en "+str(estado_str),columna_fecha=str(word),npol=npol, estado = estado))
+        list_df.append(casos_nuevos_indiv(df,titulo= str(word)+" nuevos de COVID en "+str(estado_str),columna_fecha=str(word), estado = estado))
     #genera nuevo dataframe con faechas como index
     df_fechas_mex = pd.DataFrame(index=np.arange(np.datetime64(min(df['FECHA_INGRESO'])), np.datetime64(max(df['FECHA_INGRESO']))))
     df_fechas_mex.index = df_fechas_mex.index.date
@@ -403,16 +403,15 @@ def casos_nuevos_total(df,estado, npol, estado_str):
     total_fechas=[]
     for i in range(3):
         df_fechas_mex = pd.merge(df_fechas_mex,list_df[i].iloc[:,0], how='left',left_index=True,right_index=True)
-        # total_fechas.append(list_df[i].iloc[:,0].sum()) #guardar el total de las columnas fechas
+        total_fechas.append(list_df[i].iloc[:,0].mean()) #guardar el total de las columnas fechas
     df_fechas_mex = df_fechas_mex.rename(columns={'casos_x':'síntomas', 'casos_y':'hospitalización','casos':'defunción'}) #nombra las columnas
     df_fechas_mex.index.name = 'fecha'
     #plot
-    # fig, ax = plt.subplots()
-    # texto="Total\nsíntomas: "+str(total_fechas[0])+"\ningreso: "+str(total_fechas[1])+"\ndefunción: "+str(total_fechas[2])
-    # anchored_text = AnchoredText(texto, loc="center left")
-    # ax.add_artist(anchored_text)
-    #################################
     fig, ax = plt.subplots()
+    texto="Promedio sem\nsínt: "+str(int(total_fechas[0]))+"\nhosp: "+str(int(total_fechas[1]))+"\ndef: "+str(int(total_fechas[2]))
+    anchored_text = AnchoredText(texto, loc="center left")
+    ax.add_artist(anchored_text)
+    #################################
     plot_date(ax)
     ax.plot(df_fechas_mex.index,df_fechas_mex.iloc[:,0], label='síntomas')
     ax.plot(df_fechas_mex.index,df_fechas_mex.iloc[:,1], label='hospitalización')
@@ -422,9 +421,11 @@ def casos_nuevos_total(df,estado, npol, estado_str):
     plt.ylabel("No. de casos")
     plt.legend()
     plt.tight_layout()
+    #print(df_fechas_mex.tail(6))
     plt.savefig("plots/Fecha de nuevos casos por semana de COVID en "+str(estado_str)+'.png', format='png', dpi=1200)
-    plt.close(fig)
-    print(df_fechas_mex.tail(6))
+    if show==None:
+        plt.close(fig)
+    return df_fechas_mex.tail(6)
 
 #%%
 def casos_acum_indiv(df,titulo, columna_fecha, estado=None):
@@ -459,7 +460,7 @@ def casos_acum_indiv(df,titulo, columna_fecha, estado=None):
     plt.close(fig)    
     return fechas_total
 
-def casos_acum_total(df,estado, estado_str):
+def casos_acum_total(df,estado, estado_str,show=None):
     columnas_fechas = ['FECHA_SINTOMAS', 'FECHA_INGRESO', 'FECHA_DEF']
     list_df = []
     for i, word in enumerate(columnas_fechas):
@@ -474,7 +475,7 @@ def casos_acum_total(df,estado, estado_str):
         total_fechas.append(list_df[i].iloc[-1:,0][0]) #guardar el ultimo valor de la columna
     #plot
     fig, ax = plt.subplots()
-    texto="Total\nsíntomas: "+str(total_fechas[0])+"\ningreso: "+str(total_fechas[1])+"\ndefunción: "+str(total_fechas[2])
+    texto="Total\nsíntomas: "+str(int(total_fechas[0]))+"\ningreso: "+str(int(total_fechas[1]))+"\ndefunción: "+str(int(total_fechas[2]))
     anchored_text = AnchoredText(texto, loc="center left")
     ax.add_artist(anchored_text)
     #################################
@@ -488,7 +489,8 @@ def casos_acum_total(df,estado, estado_str):
     plt.legend()
     plt.tight_layout()
     plt.savefig("plots/Fecha de casos acumulados de COVID en "+str(estado_str)+'.png', format='png', dpi=1200)
-    plt.close(fig)
+    if show==None:
+        plt.close(fig)
 
 def grafica16(df):
     df['edad_rango'] = pd.cut(x=df['EDAD'], bins=[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,max(df['EDAD'])], 
@@ -612,7 +614,8 @@ def mat_corr(df):
     plt.close(fig)
 
 
-def main():
+
+if __name__ == '__main__':
     os.getcwd()
     #path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
     #path = "D:\ricar\Documents\Development\Python\COVID-19_Paper"
@@ -650,14 +653,14 @@ def main():
     grafica13(df)
     grafica14(df)
     grafica15(df)
-    casos_nuevos_indiv(df,titulo="Fecha de nuevos casos de sintomas de COVID en Mexico",columna_fecha='FECHA_SINTOMAS',npol=6, estado=False)
-    casos_nuevos_indiv(df,titulo="Fecha de nuevos casos de hospitalizacion de COVID en Mexico",columna_fecha='FECHA_INGRESO',npol=6, estado=False)
-    casos_nuevos_indiv(df,titulo="Fecha de nuevos casos de sintomas de COVID en CDMX",columna_fecha='FECHA_SINTOMAS',npol=6, estado=9)
-    casos_nuevos_indiv(df,titulo="Fecha de nuevos casos defuncion de COVID en Mexico",columna_fecha='FECHA_DEF',npol=6, estado=False)
-    casos_nuevos_total(df,estado=False, npol=6, estado_str='México')
-    casos_nuevos_total(df,estado=9, npol=6, estado_str='CDMX')
-    casos_nuevos_total(df,estado=14, npol=10, estado_str='Jalisco')
-    casos_nuevos_total(df,estado=22, npol=6, estado_str='Querétaro')
+    casos_nuevos_indiv(df,titulo="Fecha de nuevos casos de sintomas de COVID en Mexico",columna_fecha='FECHA_SINTOMAS', estado=False)
+    casos_nuevos_indiv(df,titulo="Fecha de nuevos casos de hospitalizacion de COVID en Mexico",columna_fecha='FECHA_INGRESO', estado=False)
+    casos_nuevos_indiv(df,titulo="Fecha de nuevos casos de sintomas de COVID en CDMX",columna_fecha='FECHA_SINTOMAS', estado=9)
+    casos_nuevos_indiv(df,titulo="Fecha de nuevos casos defuncion de COVID en Mexico",columna_fecha='FECHA_DEF', estado=False)
+    casos_nuevos_total(df,estado=False, estado_str='México')
+    casos_nuevos_total(df,estado=9, estado_str='CDMX')
+    casos_nuevos_total(df,estado=14, estado_str='Jalisco')
+    casos_nuevos_total(df,estado=22, estado_str='Querétaro')
     casos_acum_indiv(df,titulo="Fecha de casos acumulados de sintomas de COVID en Mexico",columna_fecha='FECHA_SINTOMAS')
     casos_acum_indiv(df,titulo="Fecha de casos acumulados de sintomas de COVID en CDMX",columna_fecha='FECHA_SINTOMAS', estado=9)
     casos_acum_total(df,estado=None, estado_str='México')
@@ -669,5 +672,3 @@ def main():
     grafica16(df)
     grafica17(df)
     mat_corr(df)
-if __name__ == '__main__':
-    main()

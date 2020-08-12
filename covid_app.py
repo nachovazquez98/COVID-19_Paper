@@ -4,6 +4,9 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 import joblib
+import plotly.express as px
+from covid_graficas_prueba import casos_nuevos_total
+from covid_graficas_prueba import casos_acum_total
 
 @st.cache(ttl=3600*24, show_spinner=False)
 def load_data():
@@ -22,7 +25,7 @@ def get_value(val, my_dict):
 
 def get_key(val, my_dict):
     for key,value in my_dict.items():
-        if val == key:
+        if val == value:
             return key
 
 def get_fval(val):
@@ -30,6 +33,7 @@ def get_fval(val):
     for key,value in feature_dict.items():
         if val == key:
             return value
+
 #carga modelo de ml
 def load_model(model_file):
     loaded_model = joblib.load(open(os.path.join(model_file), 'rb'))
@@ -53,7 +57,7 @@ def descriptores():
 
 def main():
     df, df_descrip,df_estados = load_data()
-    st.image(Image.open('plots/entidades_def_pos.png'), use_column_width=True)
+    df = df[df.RESULTADO == 1]
     st.title("Análisis y diagnóstico de COVID-19 en México")
     st.header("Una herramienta para visualizar y prevenir") 
     st.sidebar.title("Casos")
@@ -83,14 +87,31 @@ def main():
         st.image(Image.open('plots/barplot_casos_hos_def.png'), use_column_width=True)
         st.image(Image.open('plots/Casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)    
         st.image(Image.open('plots/Casos de COVID en Mexico por sexo.png') , use_column_width=True)  
-        st.image(Image.open('plots/entidades_casos_pos.png') , use_column_width=True)  
         st.image(Image.open('plots/corrmatrix_1.png') , use_column_width=True)    
 
-        st.write(df_estados.iloc[:,:-1])
+        st.write(df_estados.iloc[:,[1,2]])
         st.image(Image.open('plots/entidades_casos_pos.png'), use_column_width=True)
         dict_estados = dict(zip(list(df_estados.iloc[:,0]),list(df_estados.iloc[:,1])))
-        st.write(dict_estados)
         
+        #st.write(dict_estados)
+        #st.write(dict_estados.values())
+        selected_metrics = st.selectbox(label="Elije un estado...", options=list(dict_estados.values()))
+        #st.write(selected_metrics)
+        int_estado = get_key(selected_metrics,dict_estados)
+        #st.write(int_estado)
+        if int_estado == 36:
+            ult_sem=casos_nuevos_total(df,estado=False, estado_str='México',show=True)
+            st.pyplot()
+            casos_acum_total(df,estado=None, estado_str='México',show=True)
+            st.pyplot()
+        else:
+            ult_sem = casos_nuevos_total(df,estado=int_estado, estado_str=selected_metrics,show=True)
+            st.pyplot()
+            casos_acum_total(df,estado=int_estado, estado_str=selected_metrics,show=True)
+            st.pyplot()
+        st.write("Suma semanal de casos")
+        st.write(ult_sem)
+
         st.write("<hr>", unsafe_allow_html=True)
         st.write(
         "Visita el repositorio en [Github](https://github.com/CT-6282/COVID-19_Paper), "
