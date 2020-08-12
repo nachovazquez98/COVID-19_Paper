@@ -5,8 +5,8 @@ import pandas as pd
 from PIL import Image
 import joblib
 import plotly.express as px
-from covid_graficas_prueba import casos_nuevos_total
-from covid_graficas_prueba import casos_acum_total
+from covid_graficas import casos_nuevos_total
+from covid_graficas import casos_acum_total
 
 @st.cache(ttl=3600*24, show_spinner=False)
 def load_data():
