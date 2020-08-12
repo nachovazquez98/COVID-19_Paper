@@ -7,29 +7,6 @@ sns.set(color_codes=True)
 import os, datetime
 from collections import Counter
 from matplotlib.offsetbox import AnchoredText
-#%%
-os.getcwd()
-#path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
-#path = "D:\ricar\Documents\Development\Python\COVID-19_Paper"
-#os.chdir(os.path.join(path)) 
-df = pd.read_csv("covid_data.csv.zip")
-#%%
-#SOLO CASOS POSITIVOS COVID
-df = df[df.RESULTADO == 1] #En caso de que se quiera filtrar por s{olo los que dieron positivo
-df.drop(['RESULTADO'], axis=1, inplace = True)
-#lista de columnas
-list(df)
-#%%Numero de casos
-print("Numero de casos positivos de COVID: ", len(df))
-print("Numero de hospitalizados por COVID: ", df.TIPO_PACIENTE.value_counts()[1])
-print("Numero de intubados por COVID: ", df.INTUBADO.value_counts()[1])
-print("Numero de fallecidos por COVID: ", df.BOOL_DEF.value_counts()[1])
-print("Numero de UCI por COVID: ", df.UCI.value_counts()[1])
-#%%valida si existe la carpeta "plots"
-try:
-    os.makedirs("plots")
-except FileExistsError:
-    pass
 #%%Graficas
 def plot_date(ax):
     txtbox = ax.text(0.0, 0.975, datetime.datetime.now().strftime('%b %d, %Y'), transform=ax.transAxes, fontsize=7,
@@ -37,7 +14,7 @@ def plot_date(ax):
     txtbox.set_x(1.0-(txtbox.figure.bbox.bounds[2]-(txtbox.clipbox.bounds[2]-txtbox.clipbox.bounds[0]))/txtbox.figure.bbox.bounds[2])
 #%%
 #PreAnalisis
-def grafica1():
+def grafica1(df):
     #print("Entidades de residencia con caso de covid:\n", df['ENTIDAD_RES'].value_counts())
     #
     df_estados = pd.read_csv("diccionario_datos_covid19/diccionario_estados.csv",index_col=False)
@@ -62,9 +39,9 @@ def grafica1():
     fig.tight_layout()
     plt.savefig('plots/entidades_casos_pos.png', format='png', dpi=1200)
     plt.close(fig)
-grafica1()
 
-def grafica2():
+
+def grafica2(df):
     df = df[df.BOOL_DEF == 1]
     df_estados = pd.read_csv("diccionario_datos_covid19/diccionario_estados.csv",index_col=False)
     df_estados = df_estados.iloc[:,[0,2]]
@@ -88,9 +65,9 @@ def grafica2():
     fig.tight_layout()
     plt.savefig('plots/entidades_def_pos.png', format='png', dpi=1200)
     plt.close(fig)
-grafica2()
+
 #%%
-def grafica3():
+def grafica3(df):
     fig, ax = plt.subplots() 
     plot_date(ax)
     ax.bar((df['TIPO_PACIENTE'].value_counts()).index, (df['TIPO_PACIENTE'].value_counts()).values) 
@@ -105,9 +82,9 @@ def grafica3():
     fig.tight_layout()
     plt.savefig('plots/amb_hosp_casos_pos.png', format='png', dpi=1200)
     plt.close(fig)
-grafica3()
 
-def grafica4():
+
+def grafica4(df):
     df['TIPO_PACIENTE'].value_counts()
     df_aux = df.loc[df.TIPO_PACIENTE == 1]
     df_aux.drop(['TIPO_PACIENTE'], axis=1, inplace = True)
@@ -127,9 +104,9 @@ def grafica4():
     fig.tight_layout()
     plt.savefig('plots/hosp_intubados_pos.png', format='png', dpi=1200)
     plt.close(fig)
-grafica4()
 
-def grafica5():
+
+def grafica5(df):
     #print("Casos con covid fallecidos:\n", df['BOOL_DEF'].value_counts())
     #print("Porcentaje de mortalidad: ",((df['BOOL_DEF'].value_counts()).values[1]/len(df['BOOL_DEF'])*100))
     fig, ax = plt.subplots() 
@@ -146,36 +123,35 @@ def grafica5():
     fig.tight_layout()
     plt.savefig('plots/def_pos.png', format='png', dpi=1200)
     plt.close(fig)
-grafica5()
 
 
-def grafica6():
+def grafica6(df):
     fig, ax = plt.subplots()
     plot_date(ax)
     df_solodef = df.loc[df.BOOL_DEF == 1]
     sns.distplot(df_solodef['EDAD']).set_title("Muertes de COVID-19 por edades en Mexico")  
     plt.savefig('plots/def_edad_histograma.png', format='png', dpi=1200)
     plt.close(fig)
-grafica6()
 
-def grafica7():
+
+def grafica7(df):
     fig, ax = plt.subplots()
     plot_date(ax)
     df_solodef = df.loc[df.BOOL_DEF == 1]
     sns.boxenplot(df_solodef['DIAS_DIF_DEF']).set_title("Días entre los primeros síntomas y defunción")      
     plt.savefig('plots/def_sin_boxplot.png', format='png', dpi=1200)
     plt.close(fig)
-grafica7()
 
-def grafica8():
+
+def grafica8(df):
     fig, ax = plt.subplots()
     plot_date(ax)
     sns.boxenplot(df['DIAS_DIF_HOSP']).set_title("Días entre los primeros síntomas y hospitalización")      
     plt.savefig('plots/sin_hosp_boxplot.png', format='png', dpi=1200)    
     plt.close(fig)
-grafica8()
 
-def grafica9():
+
+def grafica9(df):
     df['edad_rango'] = pd.cut(x=df['EDAD'], bins=[0,17,44,64,74,max(df['EDAD'])], labels=['0-17','18-44','45-64','65-74','+75'])
     fig, ax = plt.subplots()
     g = sns.catplot(x="edad_rango", y="BOOL_DEF", hue="SEXO", data=df,
@@ -184,9 +160,9 @@ def grafica9():
     g.set_ylabels("Porcentaje defunción")
     plt.savefig('plots/barplot_defuncion_edad.png', format='png', dpi=1200)
     plt.close(fig)
-grafica9()
 
-def grafica99():
+
+def grafica99(df):
     x= ['covid_rate', 'hosp_rate', 'death_rate']
     y = [len(df), len((df[df.TIPO_PACIENTE == 1])), len((df[df.BOOL_DEF == 1]))]
     fig, ax = plt.subplots()
@@ -197,9 +173,9 @@ def grafica99():
     plt.xlabel("")
     plt.savefig('plots/barplot_casos_hos_def.png', format='png', dpi=1200)
     plt.close(fig)
-grafica99()
 
-def grafica10():
+
+def grafica10(df):
     df['edad_rango'] = pd.cut(x=df['EDAD'], bins=[0,17,44,64,74,max(df['EDAD'])], labels=['0-17','18-44','45-64','65-74','+75'])
     fig, ax = plt.subplots()
     g = sns.catplot(x="edad_rango", y="TIPO_PACIENTE", hue="SEXO", data=df,
@@ -208,9 +184,9 @@ def grafica10():
     g.set_ylabels("Hospitalizacion")
     plt.savefig('plots/barplot_hospitalizacion_edad.png', format='png', dpi=1200)
     plt.close(fig)
-grafica10()
 
-def grafica11():
+
+def grafica11(df):
     df['edad_rango'] = pd.cut(x=df['EDAD'], bins=[0,17,44,64,74,max(df['EDAD'])], labels=['0-17','18-44','45-64','65-74','+75'])
     labels = df['edad_rango'].cat.categories.tolist()
     covid_rate, hosp_rate, death_rate = [],[], []
@@ -246,9 +222,9 @@ def grafica11():
     fig.tight_layout()
     plt.savefig("plots/Casos de COVID en Mexico por rangos de edad.png", format='png', dpi=1200)
     plt.close(fig)
-grafica11()
 
-def grafica12():
+
+def grafica12(df):
     labels = ['Hombre', 'Mujer']
     covid_rate, hosp_rate, death_rate = [],[], []
     for i in range(len(labels)):
@@ -283,9 +259,9 @@ def grafica12():
     fig.tight_layout()
     plt.savefig("plots/Casos de COVID en Mexico por sexo.png", format='png', dpi=1200)
     plt.close(fig)
-grafica12()
 
-def grafica13():
+
+def grafica13(df):
     x= ['EPOC_', 'UCI_', 'INTUBADO_']
     hosp = len(df[df.TIPO_PACIENTE == 1])
     y = [len(df[df.EPOC == 1])*100/hosp,len(df[df.UCI == 1])*100/hosp,len(df[df.INTUBADO == 1])*100/hosp]
@@ -298,9 +274,8 @@ def grafica13():
     #plot_date(ax)
     plt.savefig('plots/barplot_casos_uci_int.png', format='png', dpi=1200)
     plt.close(fig)
-grafica13()
 
-def grafica14():
+def grafica14(df):
     df['edad_rango'] = pd.cut(x=df['EDAD'], bins=[0,17,44,64,74,max(df['EDAD'])], labels=['0-17','18-44','45-64','65-74','+75'])
     labels = df['edad_rango'].cat.categories.tolist()
     EPOC_rate, UCI_rate, INTUBADO_rate = [],[], []
@@ -336,9 +311,9 @@ def grafica14():
     fig.tight_layout()
     plt.savefig("plots/Casos de COVID hospitalarios en Mexico por rangos de edad.png", format='png', dpi=1200)
     plt.close(fig)
-grafica14()
 
-def grafica15():
+
+def grafica15(df):
     labels = ['Hombre', 'Mujer']
     covid_rate, hosp_rate, death_rate = [],[], []
     for i in range(len(labels)):
@@ -372,9 +347,9 @@ def grafica15():
     fig.tight_layout()
     plt.savefig("plots/Casos de COVID hospitalarios en Mexico por sexo.png", format='png', dpi=1200)
     plt.close(fig)
-grafica15()
+
 #%%
-def casos_nuevos_indiv(titulo, columna_fecha, npol, estado):
+def casos_nuevos_indiv(df,titulo, columna_fecha, estado):
     if estado != False:
         df_aux = df.copy()
         df_aux.drop(df_aux[(df_aux['ENTIDAD_UM'] != estado)].index, inplace = True)
@@ -412,17 +387,13 @@ def casos_nuevos_indiv(titulo, columna_fecha, npol, estado):
     plt.savefig('plots/'+titulo+'.png', format='png', dpi=1200)
     plt.close(fig)
     return fechas_total
-#genero df de los 3 tipos de fechas
-casos_nuevos_indiv(titulo="Fecha de nuevos casos de sintomas de COVID en Mexico",columna_fecha='FECHA_SINTOMAS',npol=6, estado=False)
-casos_nuevos_indiv(titulo="Fecha de nuevos casos de hospitalizacion de COVID en Mexico",columna_fecha='FECHA_INGRESO',npol=6, estado=False)
-casos_nuevos_indiv(titulo="Fecha de nuevos casos de sintomas de COVID en CDMX",columna_fecha='FECHA_SINTOMAS',npol=6, estado=9)
-casos_nuevos_indiv(titulo="Fecha de nuevos casos defuncion de COVID en Mexico",columna_fecha='FECHA_DEF',npol=6, estado=False)
 
-def casos_nuevos_total(estado, npol, estado_str):
+
+def casos_nuevos_total(df,estado, estado_str,show=None):
     columnas_fechas = ['FECHA_SINTOMAS', 'FECHA_INGRESO', 'FECHA_DEF']
     list_df = []
     for i, word in enumerate(columnas_fechas):
-        list_df.append(casos_nuevos_indiv(titulo= str(word)+" nuevos de COVID en "+str(estado_str),columna_fecha=str(word),npol=npol, estado = estado))
+        list_df.append(casos_nuevos_indiv(df,titulo= str(word)+" nuevos de COVID en "+str(estado_str),columna_fecha=str(word), estado = estado))
     #genera nuevo dataframe con faechas como index
     df_fechas_mex = pd.DataFrame(index=np.arange(np.datetime64(min(df['FECHA_INGRESO'])), np.datetime64(max(df['FECHA_INGRESO']))))
     df_fechas_mex.index = df_fechas_mex.index.date
@@ -432,16 +403,15 @@ def casos_nuevos_total(estado, npol, estado_str):
     total_fechas=[]
     for i in range(3):
         df_fechas_mex = pd.merge(df_fechas_mex,list_df[i].iloc[:,0], how='left',left_index=True,right_index=True)
-        # total_fechas.append(list_df[i].iloc[:,0].sum()) #guardar el total de las columnas fechas
+        total_fechas.append(list_df[i].iloc[:,0].mean()) #guardar el total de las columnas fechas
     df_fechas_mex = df_fechas_mex.rename(columns={'casos_x':'síntomas', 'casos_y':'hospitalización','casos':'defunción'}) #nombra las columnas
     df_fechas_mex.index.name = 'fecha'
     #plot
-    # fig, ax = plt.subplots()
-    # texto="Total\nsíntomas: "+str(total_fechas[0])+"\ningreso: "+str(total_fechas[1])+"\ndefunción: "+str(total_fechas[2])
-    # anchored_text = AnchoredText(texto, loc="center left")
-    # ax.add_artist(anchored_text)
-    #################################
     fig, ax = plt.subplots()
+    texto="Promedio sem\nsínt: "+str(int(total_fechas[0]))+"\nhosp: "+str(int(total_fechas[1]))+"\ndef: "+str(int(total_fechas[2]))
+    anchored_text = AnchoredText(texto, loc="center left")
+    ax.add_artist(anchored_text)
+    #################################
     plot_date(ax)
     ax.plot(df_fechas_mex.index,df_fechas_mex.iloc[:,0], label='síntomas')
     ax.plot(df_fechas_mex.index,df_fechas_mex.iloc[:,1], label='hospitalización')
@@ -451,15 +421,14 @@ def casos_nuevos_total(estado, npol, estado_str):
     plt.ylabel("No. de casos")
     plt.legend()
     plt.tight_layout()
+    #print(df_fechas_mex.tail(6))
     plt.savefig("plots/Fecha de nuevos casos por semana de COVID en "+str(estado_str)+'.png', format='png', dpi=1200)
-    #plt.close(fig)
-    print(df_fechas_mex.tail(6))
-casos_nuevos_total(estado=False, npol=6, estado_str='México')
-casos_nuevos_total(estado=9, npol=6, estado_str='CDMX')
-casos_nuevos_total(estado=14, npol=10, estado_str='Jalisco')
-casos_nuevos_total(estado=22, npol=6, estado_str='Querétaro')
+    if show==None:
+        plt.close(fig)
+    return df_fechas_mex.tail(6)
+
 #%%
-def casos_acum_indiv(titulo, columna_fecha, estado=None):
+def casos_acum_indiv(df,titulo, columna_fecha, estado=None):
     if estado != None:
         df_aux = df.copy()
         df_aux.drop(df_aux[(df_aux['ENTIDAD_UM'] != estado)].index, inplace = True)
@@ -490,14 +459,12 @@ def casos_acum_indiv(titulo, columna_fecha, estado=None):
     plt.savefig('plots/'+titulo+'.png', format='png', dpi=1200)
     plt.close(fig)    
     return fechas_total
-casos_acum_indiv(titulo="Fecha de casos acumulados de sintomas de COVID en Mexico",columna_fecha='FECHA_SINTOMAS')
-casos_acum_indiv(titulo="Fecha de casos acumulados de sintomas de COVID en CDMX",columna_fecha='FECHA_SINTOMAS', estado=9)
 
-def casos_acum_total(estado, estado_str):
+def casos_acum_total(df,estado, estado_str,show=None):
     columnas_fechas = ['FECHA_SINTOMAS', 'FECHA_INGRESO', 'FECHA_DEF']
     list_df = []
     for i, word in enumerate(columnas_fechas):
-        list_df.append(casos_acum_indiv(titulo= str(word)+" acumulados de COVID en "+str(estado_str),columna_fecha=str(word), estado = estado))
+        list_df.append(casos_acum_indiv(df,titulo= str(word)+" acumulados de COVID en "+str(estado_str),columna_fecha=str(word), estado = estado))
     #genera nuevo dataframe con faechas como index
     df_fechas_mex = pd.DataFrame(index=np.arange(np.datetime64(min(df['FECHA_INGRESO'])), np.datetime64(max(df['FECHA_INGRESO']))))
     df_fechas_mex.index = df_fechas_mex.index.date
@@ -508,7 +475,7 @@ def casos_acum_total(estado, estado_str):
         total_fechas.append(list_df[i].iloc[-1:,0][0]) #guardar el ultimo valor de la columna
     #plot
     fig, ax = plt.subplots()
-    texto="Total\nsíntomas: "+str(total_fechas[0])+"\ningreso: "+str(total_fechas[1])+"\ndefunción: "+str(total_fechas[2])
+    texto="Total\nsíntomas: "+str(int(total_fechas[0]))+"\ningreso: "+str(int(total_fechas[1]))+"\ndefunción: "+str(int(total_fechas[2]))
     anchored_text = AnchoredText(texto, loc="center left")
     ax.add_artist(anchored_text)
     #################################
@@ -522,13 +489,10 @@ def casos_acum_total(estado, estado_str):
     plt.legend()
     plt.tight_layout()
     plt.savefig("plots/Fecha de casos acumulados de COVID en "+str(estado_str)+'.png', format='png', dpi=1200)
-    plt.close(fig)
-casos_acum_total(estado=None, estado_str='México')
-casos_acum_total(estado=9, estado_str='CDMX')
-casos_acum_total(estado=14, estado_str='Jalisco')
-casos_acum_total(estado=22, estado_str='Queretaro')
+    if show==None:
+        plt.close(fig)
 
-def grafica16():
+def grafica16(df):
     df['edad_rango'] = pd.cut(x=df['EDAD'], bins=[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,max(df['EDAD'])], 
                               labels=['0-5','6-10','11-15','16-20','21-25','26-30','31-35','36-40','41-45','46-50','51-55','56-60','61-65','66-70','71-75','76+'])
     labels = df['edad_rango'].cat.categories.tolist()
@@ -558,9 +522,9 @@ def grafica16():
     fig.tight_layout()
     plt.savefig("plots/Tasa de casos de COVID en Mexico por rangos de edad.png", format='png', dpi=1200)
     plt.close(fig)
-grafica16()
 
-def grafica17():
+
+def grafica17(df):
     df['edad_rango'] = pd.cut(x=df['EDAD'], bins=[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,max(df['EDAD'])], 
                               labels=['0-5','6-10','11-15','16-20','21-25','26-30','31-35','36-40','41-45','46-50','51-55','56-60','61-65','66-70','71-75','76+'])
     labels = df['edad_rango'].cat.categories.tolist()
@@ -590,13 +554,13 @@ def grafica17():
     fig.tight_layout()
     plt.savefig("plots/Porcentaje de casos de hospitalizacion por COVID en Mexico por rangos de edad.png", format='png', dpi=1200)
     plt.close(fig)
-grafica17()
 
-def mort_porcentaje(estado, estado_str):
+
+def mort_porcentaje(df,estado, estado_str):
     columnas_fechas = ['FECHA_SINTOMAS', 'FECHA_DEF']
     list_df = []
     for i, word in enumerate(columnas_fechas):
-        list_df.append(casos_acum_indiv(titulo= str(word)+" acumulados de COVID en "+str(estado_str),columna_fecha=str(word), estado = estado))
+        list_df.append(casos_acum_indiv(df,titulo= str(word)+" acumulados de COVID en "+str(estado_str),columna_fecha=str(word), estado = estado))
     #genera nuevo dataframe con faechas como index
     df_fechas_mex = pd.DataFrame(index=np.arange(np.datetime64(min(df['FECHA_INGRESO'])), np.datetime64(max(df['FECHA_INGRESO']))))
     df_fechas_mex.index = df_fechas_mex.index.date
@@ -615,12 +579,11 @@ def mort_porcentaje(estado, estado_str):
     plt.tight_layout()
     plt.savefig("plots/Tasa de letalidad de COVID en "+str(estado_str)+'.png', format='png', dpi=1200)
     plt.close(fig)
-mort_porcentaje(estado=None, estado_str='México')
-#mort_porcentaje(estado=9, estado_str='CDMX')
+
 
 #%%
 #MATRIZ CORRELACION
-def mat_corr():
+def mat_corr(df):
     #hacer columna de hombre y de mujer para reemplazar sexo
     data_matcorr = df.copy()
     data_matcorr['HOMBRE'] = ~data_matcorr['SEXO']
@@ -649,4 +612,63 @@ def mat_corr():
     fig.tight_layout()
     fig.savefig('plots/corrmatrix_1.png', format='png', dpi=1200)
     plt.close(fig)
-mat_corr()
+
+
+
+if __name__ == '__main__':
+    os.getcwd()
+    #path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
+    #path = "D:\ricar\Documents\Development\Python\COVID-19_Paper"
+    #os.chdir(os.path.join(path)) 
+    df = pd.read_csv("covid_data.csv.zip")
+    #SOLO CASOS POSITIVOS COVID
+    df = df[df.RESULTADO == 1] #En caso de que se quiera filtrar por s{olo los que dieron positivo
+    df.drop(['RESULTADO'], axis=1, inplace = True)
+    #lista de columnas
+    list(df)
+    #%%Numero de casos
+    print("Numero de casos positivos de COVID: ", len(df))
+    print("Numero de hospitalizados por COVID: ", df.TIPO_PACIENTE.value_counts()[1])
+    print("Numero de intubados por COVID: ", df.INTUBADO.value_counts()[1])
+    print("Numero de fallecidos por COVID: ", df.BOOL_DEF.value_counts()[1])
+    print("Numero de UCI por COVID: ", df.UCI.value_counts()[1])
+    #%%valida si existe la carpeta "plots"
+    try:
+        os.makedirs("plots")
+    except FileExistsError:
+        pass
+    grafica1(df)
+    grafica2(df)
+    grafica3(df)
+    grafica4(df)
+    grafica5(df)
+    grafica6(df)
+    grafica7(df)
+    grafica8(df)
+    grafica9(df)
+    grafica99(df)
+    grafica10(df)
+    grafica11(df)
+    grafica12(df)
+    grafica13(df)
+    grafica14(df)
+    grafica15(df)
+    casos_nuevos_indiv(df,titulo="Fecha de nuevos casos de sintomas de COVID en Mexico",columna_fecha='FECHA_SINTOMAS', estado=False)
+    casos_nuevos_indiv(df,titulo="Fecha de nuevos casos de hospitalizacion de COVID en Mexico",columna_fecha='FECHA_INGRESO', estado=False)
+    casos_nuevos_indiv(df,titulo="Fecha de nuevos casos de sintomas de COVID en CDMX",columna_fecha='FECHA_SINTOMAS', estado=9)
+    casos_nuevos_indiv(df,titulo="Fecha de nuevos casos defuncion de COVID en Mexico",columna_fecha='FECHA_DEF', estado=False)
+    casos_nuevos_total(df,estado=False, estado_str='México')
+    casos_nuevos_total(df,estado=9, estado_str='CDMX')
+    casos_nuevos_total(df,estado=14, estado_str='Jalisco')
+    casos_nuevos_total(df,estado=22, estado_str='Querétaro')
+    casos_acum_indiv(df,titulo="Fecha de casos acumulados de sintomas de COVID en Mexico",columna_fecha='FECHA_SINTOMAS')
+    casos_acum_indiv(df,titulo="Fecha de casos acumulados de sintomas de COVID en CDMX",columna_fecha='FECHA_SINTOMAS', estado=9)
+    casos_acum_total(df,estado=None, estado_str='México')
+    casos_acum_total(df,estado=9, estado_str='CDMX')
+    casos_acum_total(df,estado=14, estado_str='Jalisco')
+    casos_acum_total(df,estado=22, estado_str='Queretaro')
+    mort_porcentaje(df,estado=None, estado_str='México')
+    #mort_porcentaje(estado=9, estado_str='CDMX')
+    grafica16(df)
+    grafica17(df)
+    mat_corr(df)
