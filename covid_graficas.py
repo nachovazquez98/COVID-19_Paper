@@ -66,6 +66,35 @@ def grafica2(df):
     plt.savefig('plots/entidades_def_pos.png', format='png', dpi=1200)
     plt.close(fig)
 
+def sector_barchart(df):
+    df_sector = pd.read_csv("diccionario_datos_covid19/diccionario_sector.csv",index_col=False)
+    dict_sector = df_sector.set_index('CLAVE').T.to_dict('list')
+    def get_value(val, my_dict):
+         for key,value in my_dict.items():
+             if val == key:
+                 return value
+    fig, ax = plt.subplots() 
+    height = df['SECTOR'].value_counts().sort_values(ascending=False).values
+    bars = np.asarray(df['SECTOR'].value_counts().sort_values(ascending=False).index)
+    string_bars = [get_value(bars[i],dict_sector) for i in range(len(bars))]
+    string_bars = [i[0] for i in string_bars]
+    y_pos = np.arange(len(bars))
+    width = 0.75
+    ax.barh(y_pos, height,width)     
+    ax.set_title('Identifica el tipo de institución del\nSistema Nacional de Salud que brindó la atención.') 
+    plt.xticks(rotation=45)
+    #plt.xticks(y_pos, string_bars)
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(string_bars, minor=False)
+    ax.set_xlabel('No. pruebas') 
+    ax.set_ylabel('Sector')
+    plot_date(ax)
+    for i, v in enumerate(height):
+        ax.text(v + 3, i-.25 , str(v), color='black')
+    fig.tight_layout()
+    plt.savefig('plots/sector.png', format='png', dpi=1200)
+    plt.close(fig)
+
 def estados_let(df):
     df_def = df[df.BOOL_DEF == 1]
     df_estados = pd.read_csv("diccionario_datos_covid19/diccionario_estados.csv",index_col=False)
@@ -100,6 +129,9 @@ def estados_let(df):
     fig.tight_layout()
     plt.savefig('plots/entidades_let.png', format='png', dpi=1200)
     plt.close(fig)
+    
+
+    
 
 def grafica3(df):
     fig, ax = plt.subplots() 
@@ -656,6 +688,7 @@ if __name__ == '__main__':
     #path = "D:\ricar\Documents\Development\Python\COVID-19_Paper"
     os.chdir(os.path.join(path)) 
     df = pd.read_csv("covid_data.csv.zip")
+    df_og = df.copy()
     #SOLO CASOS POSITIVOS COVID
     df = df[df.RESULTADO == 1] #En caso de que se quiera filtrar por s{olo los que dieron positivo
     df.drop(['RESULTADO'], axis=1, inplace = True)
@@ -672,9 +705,11 @@ if __name__ == '__main__':
         os.makedirs("plots")
     except FileExistsError:
         pass
+    print("Se estan generando las graficas...")
     grafica1(df)
     grafica2(df)
     estados_let(df)
+    sector_barchart(df_og)
     grafica3(df)
     grafica4(df)
     grafica5(df)
@@ -708,3 +743,4 @@ if __name__ == '__main__':
     grafica16(df)
     grafica17(df)
     mat_corr(df)
+    print("Se han generado todas las graficas...")

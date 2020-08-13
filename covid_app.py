@@ -89,6 +89,7 @@ def main():
         st.image(Image.open('plots/Casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)    
         st.image(Image.open('plots/Casos de COVID en Mexico por sexo.png') , use_column_width=True)  
         st.image(Image.open('plots/corrmatrix_1.png') , use_column_width=True)    
+        st.image(Image.open('plots/sector.png') , use_column_width=True)  
   
 
         st.write("<hr>", unsafe_allow_html=True)

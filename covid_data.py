@@ -15,14 +15,14 @@ import requests
 #url = "http://187.191.75.115/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip"
 url = 'http://datosabiertos.salud.gob.mx/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip'
 #path = '/home/nacho/Documents/coronavirus/rangel/datos_abiertos_covid19.zip' #del archivo .zip
-path = "/app"
+#path = "/app"
 
 def filter_only_positive(df):
     df = df[df.RESULTADO == 1] #En caso de que se quiera filtrar por solo los que dieron positivo
 
 def filter_exclude_columns(df):
     #df.drop(['RESULTADO','FECHA_ACTUALIZACION', 'ID_REGISTRO', 'ORIGEN', 'SECTOR', 'ENTIDAD_UM', 'MIGRANTE', 'PAIS_ORIGEN', 'PAIS_NACIONALIDAD'], axis=1, inplace = True)
-    df.drop(['FECHA_ACTUALIZACION', 'ID_REGISTRO', 'ORIGEN', 'SECTOR', 'MIGRANTE', 'PAIS_ORIGEN', 'PAIS_NACIONALIDAD'], axis=1, inplace = True) #Se eliminan las columnas innecesarias
+    df.drop(['FECHA_ACTUALIZACION', 'ID_REGISTRO', 'ORIGEN', 'MIGRANTE', 'PAIS_ORIGEN', 'PAIS_NACIONALIDAD'], axis=1, inplace = True) #Se eliminan las columnas innecesarias
 
 def date_preprocessing(df):
     #convierte a tipo fecha fecha_sintoma 

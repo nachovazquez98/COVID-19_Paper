@@ -31,7 +31,7 @@ os.chdir(os.path.join(path))
 df = pd.read_csv("covid_data.csv.zip")
 #df = pd.read_csv(r"D:\ricar\Documents\Development\Python\COVID-19_Paper\covid_data.csv.zip", encoding='utf-8') #path directo
 #%%10% de los datos aleatorios
-df = df.sample(frac=0.01)
+df = df.sample(frac=0.001)
 #%%Valida si existen las carpetas
 try:
     os.makedirs("plots")
@@ -196,6 +196,7 @@ hosp_data = hosp_data.reset_index(drop=True)
 #separar datos
 X = hosp_data.loc[:, hosp_data.columns != 'TIPO_PACIENTE']
 y = hosp_data.loc[:,'TIPO_PACIENTE']
+print(y.value_counts())
 #---->train
 #hosp_data_grid, hosp_data_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=2)
 hosp_data_grid, hosp_data_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=None)
@@ -209,7 +210,7 @@ hosp_data_grid_report = pd.read_csv("models/hosp_data_grid_report.csv", index_co
 #prueba el modelo load con input sin preprocesamiento
 Y_test.iloc[20]
 hosp_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1)) 
-
+hosp_data_grid.predict_proba(X_test.iloc[20,:].values.reshape(1,-1))
 #%%Mortalidad de los contagiagos ANTES de ir al hospital
 def_data = df.copy()
 def_data = solamente(def_data,'TIPO_PACIENTE', bool=0) #revisar si mejora el rendimiento
