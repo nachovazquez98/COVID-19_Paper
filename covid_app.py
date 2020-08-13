@@ -9,7 +9,7 @@ from covid_graficas import casos_nuevos_total
 from covid_graficas import casos_acum_total
 from covid_graficas import mort_porcentaje
 
-@st.cache(ttl=3600*24, show_spinner=False)
+#@st.cache(ttl=3600*24, show_spinner=False)
 def load_data():
     df = pd.read_csv("covid_data.csv.zip")
     df_descrip = pd.read_excel("diccionario_datos_covid19/Descriptores.xlsx")
