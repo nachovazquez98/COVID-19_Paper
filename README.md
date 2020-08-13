@@ -40,6 +40,14 @@ Se utilizaron los datos abiertos de la Dirección General de Epidemiología y la
 
 ## Funciones
 El proyecto utliza los datos abiertos de la secretaría de salud, y se actualizan diariamente. Se puede utlizar abriendo la aplicación web.
+El algoritmo de predicción se basa en casos específicos de un paciente contagiado con CoV-2 para poder tomar las medidas adecuadas y tratarse lo antes posible, como lo son:
+- predecir en base a los descriptores si el paciente contagiado de CoV-2 necesitará hospitalización
+- predecir en base a los descriptores la mortalidad del paciente contagiado de CoV-2 antes de estar internado en el hospital
+- predecir en base a los descriptores la mortalidad del paciente contagiado de CoV-2 al estar internado en el hospital
+- predecir en base a los descriptores la necesidad de la Unidad de Cuidados Intensivos del paciente contagiado de CoV-2 al estar internado en el hospital sin tener un diagnóstico de neumonía
+- predecir en base a los descriptores la necesidad de la Unidad de Cuidados Intensivos del paciente contagiado de CoV-2 con un diagnóstico de neumonía  al estar internado en el hospital
+- predecir en base a los descriptores la necesidad de un ventilador invasivo del paciente contagiado de CoV-2 sin un diagnóstico de neumonía y sin haber requerido de ICU al estar internado en el hospital
+- predecir en base a los descriptores la necesidad de un ventilador invasivo del paciente contagiado de CoV-2 con un diagnóstico de neumonía y haber requerido de ICU al estar internado en el hospital
 
 ## Instalación
 Para poder ejecutar los archivos de forma local se recomienda crear un virtual environment con python 3.6.11  por:  
@@ -62,7 +70,7 @@ Instalación: https://pipenv-fork.readthedocs.io/en/latest/basics.html
 
 `pip install pipenv`
 
-`Cd path/repositorio`
+`cd path/repositorio`
 
 `pipenv --python 3.6`
 
@@ -78,13 +86,9 @@ Para instalar las librerias necesarias se utliza este comando `pip install –r 
 Primero para conseguir el dataset, se descarga el .zip, despues se guarda en la memoria,  se extrae y se convierte a formato Dataframe.
 ```python
 url = 'http://datosabiertos.salud.gob.mx/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip' 
-
 resp = urlopen(url, timeout=10).read() #Se omite el uso de una función en este segmento para evitar errores con las variables 
-
 zipfile = ZipFile(BytesIO(resp)) 
-
 extracted_file = zipfile.open(zipfile.namelist()[0]) 
-
 df = pd.read_csv(extracted_file, encoding = "ISO-8859-1") 
 ```
 Para reallizar el preprocesamiento se eliminan colmnas, los valores se convierten a 0:No y 1:Si para poder manipular el archivo en las graficas y el entrenamiento, y otras operaciones como procesar las fechas y eliminar información invalida.
@@ -95,21 +99,13 @@ df.drop(['FECHA_ACTUALIZACION', 'ID_REGISTRO', 'ORIGEN', 'SECTOR', 'MIGRANTE', '
 binary_values_dictionary = ['RESULTADO', 'SEXO', 'INTUBADO', 'NEUMONIA', 'EMBARAZO', 'HABLA_LENGUA_INDIG', 'DIABETES', 'EPOC', 'ASMA', 'INMUSUPR', 'HIPERTENSION', 'OTRA_COM', 'CARDIOVASCULAR', 'OBESIDAD', 'RENAL_CRONICA', 'TABAQUISMO', 'OTRO_CASO', 'UCI', 'NACIONALIDAD'] 
 
 for condition in binary_values_dictionary: 
-
 	df.loc[df[condition] == 2, [condition]] = 0 
-
 	df.loc[df[condition] == 97, [condition]] = 0 
-
 	df.loc[df[condition] == 98, [condition]] = 0 
-
 	df.loc[df[condition] == 3, [condition]] = 2 
-
 	df.loc[df[condition] == 99, [condition]] = 0 
-
 	df.loc[df['TIPO_PACIENTE'] == 1, ['TIPO_PACIENTE']] = 0 
-
 	df.loc[df['TIPO_PACIENTE'] == 2, ['TIPO_PACIENTE']] = 1 
-
 	df.loc[df['TIPO_PACIENTE'] == 99, ['TIPO_PACIENTE']] = 0 
 ```
 
@@ -117,22 +113,14 @@ Al realizar las graficas se filtro solamente los positivos de COVID.
 
 ```python
 df = df[df.RESULTADO == 1] #En caso de que se quiera filtrar por s{olo los que dieron positivo
-
 df.drop(['RESULTADO'], axis=1, inplace = True)
 
-En esta grafica se filtra a todas las defunciones y se usa la columna edad para hacer una grafica de distribución
-
+#En esta grafica se filtra a todas las defunciones y se usa la columna edad para hacer una grafica de distribución
 def grafica6():
-
 	fig, ax = plt.subplots()
-
 	plot_date(ax)
-
 	df_solodef = df.loc[df.BOOL_DEF == 1]
-
 	sns.distplot(df_solodef['EDAD']).set_title("Muertes de COVID-19 por edades en Mexico")
-
-grafica6()
 ```
 
 Para realizar el entrenamiento y clasificación se uso una pipeline y realiza todas las combinaciones de los hiperparametros y devuelve el mejor modelo asi como su redimiento.
@@ -161,33 +149,19 @@ Se manipula el dataset para poder genear los datos y sus etiquetas y enviarselas
 
 ```python
 hosp_data = df.copy() 
-
 hosp_data = solamente(hosp_data,'RESULTADO') 
-
 hosp_data = hosp_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','TIPO_PACIENTE']] 
-
 hosp_data = hosp_data.reset_index(drop=True) 
-
 #separar datos 
-
 X = hosp_data.loc[:, hosp_data.columns != 'TIPO_PACIENTE'] 
-
 y = hosp_data.loc[:,'TIPO_PACIENTE'] 
-
 #---->train 
-
 hosp_data_grid, hosp_data_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=None) 
-
 #guarda el modelo y su reporte 
-
 joblib.dump(hosp_data_grid, 'models/hosp_data_grid.pkl', compress = 1) 
-
 hosp_data_grid_report.to_csv("models/hosp_data_grid_report.csv", index=True) 
-
 #importa el modelo y su rendimiento 
-
 hosp_data_grid_load = joblib.load('models/hosp_data_grid.pkl') 
-
 hosp_data_grid_report = pd.read_csv("models/hosp_data_grid_report.csv", index_col=0)
 ```
 
