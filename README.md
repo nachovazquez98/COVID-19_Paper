@@ -39,6 +39,11 @@ Se utilizaron los datos abiertos de la Dirección General de Epidemiología y la
 - **Heroku:** Se utilizópara hostear la aplicación web en un contenedor de linux
 
 ## Funciones
+- covid_data.py se usa para descargar el dataset y hacer el preprocesamiento 
+- covid_graficas.py genera las gráficas y las guarda adentro de la carpeta plots 
+- ejemplo_train_ml.py ejecuta el clasificador con un dataset de prueba y genera graficas para visualizar  
+- covid_train_ml.py realiza el entrenamiento y guarda los modelos andentro de la carpeta de models 
+
 El proyecto utliza los datos abiertos de la secretaría de salud, y se actualizan diariamente. Se puede utlizar abriendo la aplicación web.
 El algoritmo de predicción se basa en casos específicos de un paciente contagiado con CoV-2 para poder tomar las medidas adecuadas y tratarse lo antes posible, como lo son:
 - predecir en base a los descriptores si el paciente contagiado de CoV-2 necesitará hospitalización
