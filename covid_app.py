@@ -7,6 +7,7 @@ import joblib
 import plotly.express as px
 from covid_graficas import casos_nuevos_total
 from covid_graficas import casos_acum_total
+from covid_graficas import mort_porcentaje
 
 @st.cache(ttl=3600*24, show_spinner=False)
 def load_data():
@@ -66,7 +67,7 @@ def main():
     image = Image.open('covid.jpg')
     st.image(image, use_column_width=True)
     ##
-    menu = ['README', 'Hospitalización','Mortalidad antes de hopitalización','Mortalidad hopitalizado','ICU antes del diagnostico de neumonia','ICU despues del diagnostico de neumonia','Ventilador antes de un diagnostico de neumonia y de ICU','Ventilador despues de un diagnostico de neumonia y de ICU']
+    menu = ['README', 'Casos estatales','Hospitalización','Mortalidad antes de hopitalización','Mortalidad hopitalizado','ICU antes del diagnostico de neumonia','ICU despues del diagnostico de neumonia','Ventilador antes de un diagnostico de neumonia y de ICU','Ventilador despues de un diagnostico de neumonia y de ICU']
     submenu = ['Plot', 'Prediction']
     choice = st.sidebar.selectbox("Menu",menu)
     if choice == 'README':
@@ -88,11 +89,20 @@ def main():
         st.image(Image.open('plots/Casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)    
         st.image(Image.open('plots/Casos de COVID en Mexico por sexo.png') , use_column_width=True)  
         st.image(Image.open('plots/corrmatrix_1.png') , use_column_width=True)    
+  
 
+        st.write("<hr>", unsafe_allow_html=True)
+        st.write(
+        "Visita el repositorio en [Github](https://github.com/CT-6282/COVID-19_Paper), "
+        "descarga la [Bases de datos Covid-19 en México](https://www.gob.mx/salud/documentos/datos-abiertos-152127), "
+        "visita el [Tablero informativo de Covid-19 de México](https://coronavirus.gob.mx/datos/#DOView), "
+        "este proyecto fue basado principalmente en este [artículo](https://www.medrxiv.org/content/10.1101/2020.05.03.20089813v1.full.pdf)")
+    elif choice == 'Casos estatales':
         st.write(df_estados.iloc[:,[1,2]])
         st.image(Image.open('plots/entidades_casos_pos.png'), use_column_width=True)
+        st.image(Image.open('plots/entidades_def_pos.png'), use_column_width=True)
+        st.image(Image.open('plots/entidades_let.png'), use_column_width=True)
         dict_estados = dict(zip(list(df_estados.iloc[:,0]),list(df_estados.iloc[:,1])))
-        
         #st.write(dict_estados)
         #st.write(dict_estados.values())
         selected_metrics = st.selectbox(label="Elije un estado...", options=list(dict_estados.values()))
@@ -104,20 +114,17 @@ def main():
             st.pyplot()
             casos_acum_total(df,estado=None, estado_str='México',show=True)
             st.pyplot()
+            mort_porcentaje(df,estado=None, estado_str='México',show=True)
+            st.pyplot()
         else:
             ult_sem = casos_nuevos_total(df,estado=int_estado, estado_str=selected_metrics,show=True)
             st.pyplot()
             casos_acum_total(df,estado=int_estado, estado_str=selected_metrics,show=True)
             st.pyplot()
+            mort_porcentaje(df,estado=int_estado, estado_str=selected_metrics,show=True)
+            st.pyplot()
         st.write("Suma semanal de casos")
         st.write(ult_sem)
-
-        st.write("<hr>", unsafe_allow_html=True)
-        st.write(
-        "Visita el repositorio en [Github](https://github.com/CT-6282/COVID-19_Paper), "
-        "descarga la [Bases de datos Covid-19 en México](https://www.gob.mx/salud/documentos/datos-abiertos-152127), "
-        "visita el [Tablero informativo de Covid-19 de México](https://coronavirus.gob.mx/datos/#DOView), "
-        "este proyecto fue basado principalmente en este [artículo](https://www.medrxiv.org/content/10.1101/2020.05.03.20089813v1.full.pdf)")
     elif choice == 'Hospitalización':
         st.subheader("Se pretende predecir en base a los descriptores si el paciente contagiado de CoV-2 necesitará hospitalización")
         activity = st.selectbox("Activity", submenu)
@@ -161,7 +168,6 @@ def main():
             st.image(Image.open('plots/barplot_defuncion_edad.png'), use_column_width=True)
             st.image(Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)
             st.image(Image.open('plots/Tasa de letalidad de COVID en México.png'), use_column_width=True)
-            st.image(Image.open('plots/entidades_def_pos.png'), use_column_width=True)
 
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
@@ -192,7 +198,6 @@ def main():
             st.image(Image.open('plots/barplot_defuncion_edad.png'), use_column_width=True)
             st.image(Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)
             st.image(Image.open('plots/Tasa de letalidad de COVID en México.png'), use_column_width=True)
-            st.image(Image.open('plots/entidades_def_pos.png'), use_column_width=True)
 
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")

@@ -66,7 +66,41 @@ def grafica2(df):
     plt.savefig('plots/entidades_def_pos.png', format='png', dpi=1200)
     plt.close(fig)
 
-#%%
+def estados_let(df):
+    df_def = df[df.BOOL_DEF == 1]
+    df_estados = pd.read_csv("diccionario_datos_covid19/diccionario_estados.csv",index_col=False)
+    df_estados = df_estados.iloc[:,[0,2]]
+    dict_estados = df_estados.set_index('CLAVE_ENTIDAD').T.to_dict('list')
+    def get_value(val, my_dict):
+        for key,value in my_dict.items():
+            if val == key:
+                return value
+    fig, ax = plt.subplots() 
+    height = df['ENTIDAD_RES'].value_counts().rename_axis('unique_values').to_frame('counts')
+    height_def = df_def['ENTIDAD_RES'].value_counts().rename_axis('unique_values').to_frame('counts')
+    height.sort_index(inplace=True)
+    height_def.sort_index(inplace=True)
+    let_percentage =  height_def/height*100
+    let_percentage = let_percentage.sort_values('counts', ascending=False)
+    bars = np.asarray(let_percentage.index)
+    let_percentage= let_percentage.values
+    let_percentage = np.array(let_percentage).ravel()
+    string_bars = [get_value(bars[i],dict_estados) for i in range(len(bars))]
+    string_bars = [i[0] for i in string_bars]
+    y_pos = np.arange(len(bars))
+    ax.bar(y_pos, let_percentage)
+    def_mean = let_percentage.mean()
+    plt.axhline(y=def_mean,linewidth=1, color='k',linestyle='--',label='promedio nacional')
+    ax.set_title('Entidades de residencia con letalidad de covid') 
+    plt.xticks(y_pos, string_bars,rotation='vertical')
+    ax.set_xlabel('ENTIDAD_RES') 
+    ax.set_ylabel('Porcentaje')
+    plot_date(ax)
+    l = plt.legend(loc ='upper right') 
+    fig.tight_layout()
+    plt.savefig('plots/entidades_let.png', format='png', dpi=1200)
+    plt.close(fig)
+
 def grafica3(df):
     fig, ax = plt.subplots() 
     plot_date(ax)
@@ -82,7 +116,6 @@ def grafica3(df):
     fig.tight_layout()
     plt.savefig('plots/amb_hosp_casos_pos.png', format='png', dpi=1200)
     plt.close(fig)
-
 
 def grafica4(df):
     df['TIPO_PACIENTE'].value_counts()
@@ -556,7 +589,7 @@ def grafica17(df):
     plt.close(fig)
 
 
-def mort_porcentaje(df,estado, estado_str):
+def mort_porcentaje(df,estado, estado_str,show=None):
     columnas_fechas = ['FECHA_SINTOMAS', 'FECHA_DEF']
     list_df = []
     for i, word in enumerate(columnas_fechas):
@@ -578,7 +611,8 @@ def mort_porcentaje(df,estado, estado_str):
     plt.legend()
     plt.tight_layout()
     plt.savefig("plots/Tasa de letalidad de COVID en "+str(estado_str)+'.png', format='png', dpi=1200)
-    plt.close(fig)
+    if show==None:
+        plt.close(fig)
 
 
 #%%
@@ -616,10 +650,11 @@ def mat_corr(df):
 
 
 if __name__ == '__main__':
+    #%%
     os.getcwd()
-    #path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
+    path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
     #path = "D:\ricar\Documents\Development\Python\COVID-19_Paper"
-    #os.chdir(os.path.join(path)) 
+    os.chdir(os.path.join(path)) 
     df = pd.read_csv("covid_data.csv.zip")
     #SOLO CASOS POSITIVOS COVID
     df = df[df.RESULTADO == 1] #En caso de que se quiera filtrar por s{olo los que dieron positivo
@@ -639,6 +674,7 @@ if __name__ == '__main__':
         pass
     grafica1(df)
     grafica2(df)
+    estados_let(df)
     grafica3(df)
     grafica4(df)
     grafica5(df)
