@@ -11,7 +11,7 @@ from covid_graficas import mort_porcentaje
 
 #@st.cache(ttl=3600*24, show_spinner=False)
 def load_data():
-    df = pd.read_csv("covid_data.csv.zip")
+    df = pd.read_csv("covid_data.csv.zip",low_memory = True)
     df_descrip = pd.read_excel("diccionario_datos_covid19/Descriptores.xlsx")
     df_estados = pd.read_csv("diccionario_datos_covid19/diccionario_estados.csv")
     return df, df_descrip,df_estados
