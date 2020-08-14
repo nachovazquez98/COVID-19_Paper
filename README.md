@@ -36,7 +36,6 @@ Se utilizaron los datos abiertos de la Dirección General de Epidemiología y la
 - **Sklearn:** Se utilizó para hacer el entrenamiento y clasificación del dataset
 - **Joblib:** Se utilizó para guardar e importar los modelos
 - **Streamlit:** Se utilizó para generar una aplicación web dinámica
-- **Heroku:** Se utilizópara hostear la aplicación web en un contenedor de linux
 
 ## Funciones
 - covid_data.py se usa para descargar el dataset y hacer el preprocesamiento 
@@ -182,7 +181,7 @@ Para probar que se esta ejecutnado correctamente de forma local corra los siguie
 ### ¿Cómo usarlo?
 Para utlizar este proyecto hay 3 modalidades. 
 
-La primera es abriendo la aplicación web https://covid19-analytics-app.herokuapp.com/
+La primera es abriendo la aplicación web http://52.205.82.130:8501/
 
 La siguiente es abrir los archivos .ipynb en este repositorio o en google collab para evitar la instalacion y configuración de las librerías. En el caso de google collab se tiene que subir el archivo del notebook en File/Open drive notebook y el dataset de forma manual en la ventana izquiera, en el boton de carpeta y adentro de /content la opcion “upload to session storage”
 
