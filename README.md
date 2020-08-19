@@ -203,7 +203,7 @@ Si hay algun tipo de grafica útil nos lo puedes hacer saber para desarrollarla 
 - Bhattacharyya, S. (2019, September 26). Principal Component Analysis and SVM in a Pipeline with Python. Retrieved August 04, 2020, from https://towardsdatascience.com/visualizing-support-vector-machine-decision-boundary-69e7591dacea
 - VanderPlas, J. (n.d.). In-Depth: Support Vector Machines. Retrieved July 30, 2020, from https://jakevdp.github.io/PythonDataScienceHandbook/05.07-support-vector-machines.html
 - COVID-19 Tablero México. (n.d.). Retrieved July 30, 2020, from https://coronavirus.gob.mx/datos/
-- Información referente a casos COVID-19 en México - Bases de datos COVID-19 - datos.gob.mx/busca. (n.d.). Retrieved July 30, 2020, from https://datos.gob.mx/busca/dataset/informacion-referente-a-casos-covid-19-en-mexico/resource/e8c7079c-dc2a-4b6e-8035-08042ed37165
+- Información referente a casos COVID-19 en México - Bases de datos COVID-19 - datos.gob.mx/busca. (n.d.). Retrieved July 30, 2020, from https://www.gob.mx/salud/documentos/datos-abiertos-152127
 
 ## Licencia
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
