@@ -130,9 +130,6 @@ def estados_let(df):
     plt.savefig('plots/entidades_let.png', format='png', dpi=1200)
     plt.close(fig)
     
-
-    
-
 def grafica3(df):
     fig, ax = plt.subplots() 
     plot_date(ax)
@@ -435,11 +432,6 @@ def casos_nuevos_indiv(df,titulo, columna_fecha, estado):
     fechas_total = fechas_total.fillna(0)
     fechas_total.index= pd.to_datetime(fechas_total.index) 
     fechas_total=fechas_total.resample('W').sum()
-    #poly fit
-    # xaxis = range(len(fechas_total.index))
-    # coefficients = np.polyfit(xaxis,fechas_total['casos'],npol)
-    # y_poly = np.poly1d(coefficients)(xaxis).clip(min=0) 
-    # fechas_total['poly'] = y_poly
     #plot
     fig, ax = plt.subplots()
     plot_date(ax)
