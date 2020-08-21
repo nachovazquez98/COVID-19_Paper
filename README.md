@@ -183,7 +183,7 @@ Para utlizar este proyecto hay 3 modalidades.
 
 La primera es abriendo la aplicación web http://52.205.82.130:8501/
 
-La siguiente es abrir los archivos .ipynb en este repositorio o en google collab para evitar la instalacion y configuración de las librerías. En el caso de google collab se tiene que subir el archivo del notebook en File/Open drive notebook y el dataset de forma manual en la ventana izquiera, en el boton de carpeta y adentro de /content la opcion “upload to session storage”
+La segunda es abriendo los archivos jupyter por binder https://notebooks.gesis.org/binder/jupyter/user/ct-6282-covid-19_paper-7hxj79qb/tree/notebooks
 
 La ultima es descargar este repositorio y correrlo de forma local. Se puede correr en un ide (visual studio code, spyder, etc) los archivos .ipynb o .py. Para poder ejecutarlos se tiene que cambiar el path o la direccion de la carpeta donde se encuentra el repositorio para que pueda leer el dataset y generar las graficas . Para hacer el entrenamiento se recomienda usar un porcentaje de los datos  df = df.sample(frac=0.01) para que el tiempo de entrenamiento no sea muy tardado
 
