@@ -36,7 +36,6 @@ Se utilizaron los datos abiertos de la Dirección General de Epidemiología y la
 - **Sklearn:** Se utilizó para hacer el entrenamiento y clasificación del dataset
 - **Joblib:** Se utilizó para guardar e importar los modelos
 - **Streamlit:** Se utilizó para generar una aplicación web dinámica
-- **Heroku:** Se utilizópara hostear la aplicación web en un contenedor de linux
 
 ## Funciones
 - covid_data.py se usa para descargar el dataset y hacer el preprocesamiento 
@@ -182,7 +181,7 @@ Para probar que se esta ejecutnado correctamente de forma local corra los siguie
 ### ¿Cómo usarlo?
 Para utlizar este proyecto hay 3 modalidades. 
 
-La primera es abriendo la aplicación web https://covid19-analytics-app.herokuapp.com/
+La primera es abriendo la aplicación web http://52.205.82.130:8501/
 
 La siguiente es abrir los archivos .ipynb en este repositorio o en google collab para evitar la instalacion y configuración de las librerías. En el caso de google collab se tiene que subir el archivo del notebook en File/Open drive notebook y el dataset de forma manual en la ventana izquiera, en el boton de carpeta y adentro de /content la opcion “upload to session storage”
 
@@ -204,7 +203,7 @@ Si hay algun tipo de grafica útil nos lo puedes hacer saber para desarrollarla 
 - Bhattacharyya, S. (2019, September 26). Principal Component Analysis and SVM in a Pipeline with Python. Retrieved August 04, 2020, from https://towardsdatascience.com/visualizing-support-vector-machine-decision-boundary-69e7591dacea
 - VanderPlas, J. (n.d.). In-Depth: Support Vector Machines. Retrieved July 30, 2020, from https://jakevdp.github.io/PythonDataScienceHandbook/05.07-support-vector-machines.html
 - COVID-19 Tablero México. (n.d.). Retrieved July 30, 2020, from https://coronavirus.gob.mx/datos/
-- Información referente a casos COVID-19 en México - Bases de datos COVID-19 - datos.gob.mx/busca. (n.d.). Retrieved July 30, 2020, from https://datos.gob.mx/busca/dataset/informacion-referente-a-casos-covid-19-en-mexico/resource/e8c7079c-dc2a-4b6e-8035-08042ed37165
+- Información referente a casos COVID-19 en México - Bases de datos COVID-19 - datos.gob.mx/busca. (n.d.). Retrieved July 30, 2020, from https://www.gob.mx/salud/documentos/datos-abiertos-152127
 
 ## Licencia
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
