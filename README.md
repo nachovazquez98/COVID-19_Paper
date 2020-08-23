@@ -41,9 +41,9 @@ Se utilizaron los datos abiertos de la Dirección General de Epidemiología y la
 - covid_data.py se usa para descargar el dataset y hacer el preprocesamiento 
 - covid_graficas.py genera las gráficas y las guarda adentro de la carpeta plots 
 - ejemplo_train_ml.py ejecuta el clasificador con un dataset de prueba y genera graficas para visualizar  
-- covid_train_ml.py realiza el entrenamiento y guarda los modelos andentro de la carpeta de models 
+- covid_train_ml.py realiza el entrenamiento y guarda los modelos adentro de la carpeta de models 
 
-El proyecto utliza los datos abiertos de la secretaría de salud, y se actualizan diariamente. Se puede utlizar abriendo la aplicación web.
+El proyecto utiliza los datos abiertos de la secretaría de salud, y se actualizan diariamente. Se puede utiliza abriendo la aplicación web.
 El algoritmo de predicción se basa en casos específicos de un paciente contagiado con CoV-2 para poder tomar las medidas adecuadas y tratarse lo antes posible, como lo son:
 - predecir en base a los descriptores si el paciente contagiado de CoV-2 necesitará hospitalización
 - predecir en base a los descriptores la mortalidad del paciente contagiado de CoV-2 antes de estar internado en el hospital
@@ -84,10 +84,10 @@ Instalación: https://pipenv-fork.readthedocs.io/en/latest/basics.html
 
 `sudo apt-get install python3-tk`
 
-Para instalar las librerias necesarias se utliza este comando `pip install –r /path/to/requirements.txt` dentro del environment activado.
+Para instalar las librarías necesarias se utiliza este comando `pip install –r /path/to/requirements.txt` dentro del environment activado.
 
 ### Ejemplos de código
-Primero para conseguir el dataset, se descarga el .zip, despues se guarda en la memoria,  se extrae y se convierte a formato Dataframe.
+Primero para conseguir el dataset, se descarga el .zip, despues se guarda en la memoria,  se extrae y se convierte en formato Dataframe.
 ```python
 url = 'http://datosabiertos.salud.gob.mx/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip' 
 resp = urlopen(url, timeout=10).read() #Se omite el uso de una función en este segmento para evitar errores con las variables 
@@ -95,7 +95,7 @@ zipfile = ZipFile(BytesIO(resp))
 extracted_file = zipfile.open(zipfile.namelist()[0]) 
 df = pd.read_csv(extracted_file, encoding = "ISO-8859-1") 
 ```
-Para reallizar el preprocesamiento se eliminan colmnas, los valores se convierten a 0:No y 1:Si para poder manipular el archivo en las graficas y el entrenamiento, y otras operaciones como procesar las fechas y eliminar información invalida.
+Para realizar el preprocesamiento se eliminan columnas, los valores se convierten a 0:No y 1:Si para poder manipular el archivo en las graficas y el entrenamiento, y otras operaciones como procesar las fechas y eliminar información invalida.
 
 ```python
 df.drop(['FECHA_ACTUALIZACION', 'ID_REGISTRO', 'ORIGEN', 'SECTOR', 'MIGRANTE', 'PAIS_ORIGEN', 'PAIS_NACIONALIDAD'], axis=1, inplace = True) #Se eliminan las columnas innecesarias 
@@ -113,7 +113,7 @@ for condition in binary_values_dictionary:
 	df.loc[df['TIPO_PACIENTE'] == 99, ['TIPO_PACIENTE']] = 0 
 ```
 
-Al realizar las graficas se filtro solamente los positivos de COVID.
+Al generar las gráficas se filtro solamente los positivos de COVID.
 
 ```python
 df = df[df.RESULTADO == 1] #En caso de que se quiera filtrar por s{olo los que dieron positivo
@@ -127,7 +127,7 @@ def grafica6():
 	sns.distplot(df_solodef['EDAD']).set_title("Muertes de COVID-19 por edades en Mexico")
 ```
 
-Para realizar el entrenamiento y clasificación se uso una pipeline y realiza todas las combinaciones de los hiperparametros y devuelve el mejor modelo asi como su redimiento.
+Para realizar el entrenamiento y clasificación se uso una pipeline y realiza todas las combinaciones de los hiperpárametros y devuelve el mejor modelo así como su rendimiento.
 
 ```python
 def gridsearchcv(X, y): 
@@ -149,7 +149,7 @@ def gridsearchcv(X, y):
 return grid, report, X_test, Y_test 
 ```
 
-Se manipula el dataset para poder genear los datos y sus etiquetas y enviarselas a la funcion gridsearchcv() para despues guardar e importar los modelos para poder utilizarlos en la interfaz web.
+Se manipula el dataset para poder generar los datos y sus etiquetas y enviárselos a la función gridsearchcv() para después guardar e importar los modelos para poder utilizarlos en la interfaz web.
 
 ```python
 hosp_data = df.copy() 
@@ -170,7 +170,7 @@ hosp_data_grid_report = pd.read_csv("models/hosp_data_grid_report.csv", index_co
 ```
 
 ### Pruebas
-Para probar que se esta ejecutnado correctamente de forma local corra los siguientes comandos.
+Para probar que se esta ejecutando correctamente de forma local corra los siguientes comandos.
 
 `python covid_data.py` en la terminal debe de imprimir `Se ha generado el archivo .csv` si se ejecuto de forma correcta.
 
@@ -185,12 +185,12 @@ La primera es abriendo la aplicación web http://52.205.82.130:8501/
 
 La segunda es abriendo los archivos jupyter por binder https://notebooks.gesis.org/binder/jupyter/user/ct-6282-covid-19_paper-7hxj79qb/tree/notebooks
 
-La ultima es descargar este repositorio y correrlo de forma local. Se puede correr en un ide (visual studio code, spyder, etc) los archivos .ipynb o .py. Para poder ejecutarlos se tiene que cambiar el path o la direccion de la carpeta donde se encuentra el repositorio para que pueda leer el dataset y generar las graficas . Para hacer el entrenamiento se recomienda usar un porcentaje de los datos  df = df.sample(frac=0.01) para que el tiempo de entrenamiento no sea muy tardado
+La ultima es descargar este repositorio y correrlo de forma local. Se puede correr en un ide (visual studio code, spyder, etc) los archivos .ipynb o .py. Para poder ejecutarlos se tiene que cambiar el path o la dirección de la carpeta donde se encuentra el repositorio para que pueda leer el dataset y generar las graficas . Para hacer el entrenamiento se recomienda usar un porcentaje de los datos  df = df.sample(frac=0.01) para que el tiempo de entrenamiento no sea muy tardado
 
 ### Discusión
-Debido al alto costo computacional del entrenamiento con el dataset, no se pudieron realizar pruebas para mejorar la precision, ya sea mejorando los parametros del algoritmo de clasificacion o acomodar la informacion de la manera adecuada, como por ejemplo descartar a la gente que no ha tenido neumonia para predecir si va a necesitar un ventilador, etc. La forma del acomodo de los datos del entrenamiento se baso en este articulo https://www.medrxiv.org/content/10.1101/2020.05.03.20089813v1.full.pdf mas no entrenamos el modelo con el 100% de los datos debido su complejidad. 
+Debido al alto costo computacional del entrenamiento con el dataset, no se pudieron realizar pruebas para mejorar la precisión, ya sea mejorando los parámetros del algoritmo de clasificación o acomodar la información de la manera adecuada, como por ejemplo descartar a la gente que no ha tenido neumonía para predecir si va a necesitar un ventilador, etc. La forma del acomodo de los datos del entrenamiento se baso en este articulo https://www.medrxiv.org/content/10.1101/2020.05.03.20089813v1.full.pdf más no entrenamos el modelo con el 100% de los datos debido su complejidad. 
 
-Queremos realizar las pruebas al eliminar los datos invalidos del dataset como lo son NO APLICA, SE IGNORA, NO ESPECIFICADO en lugar de convertilos a falso y comparar su rendimiento. En un futuro tambien se pretende comparar diferentes algoritmos de clasificacion como lo son: robust versions of logistic regression, random forests, gradient boosted decision trees, y usar en la aplicacion web el modelo con el mejor rendimiento.
+Queremos realizar las pruebas al eliminar los datos inválidos del dataset como lo son NO APLICA, SE IGNORA, NO ESPECIFICADO en lugar de convertilos a falso y comparar su rendimiento. En un futuro también se pretende comparar diferentes algoritmos de clasificación como lo son: robust versions of logistic regression, random forests, gradient boosted decision trees, y usar en la aplicación web el modelo con el mejor rendimiento.
 
 ## Contribuye
 Si hay algun tipo de grafica útil nos lo puedes hacer saber para desarrollarla y subirla al repositorio, asi como algun algorimo de clasificación también lo podemos incluir.
