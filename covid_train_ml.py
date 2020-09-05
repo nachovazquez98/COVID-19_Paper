@@ -28,7 +28,7 @@ from sklearn.pipeline import Pipeline
 path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
 #path = "D:\ricar\Documents\Development\Python\COVID-19_Paper"
 os.chdir(os.path.join(path)) 
-df = pd.read_csv("covid_data.csv.zip")
+df = pd.read_csv("covid_data.zip")
 #df = pd.read_csv(r"D:\ricar\Documents\Development\Python\COVID-19_Paper\covid_data.csv.zip", encoding='utf-8') #path directo
 #%%10% de los datos aleatorios
 df = df.sample(frac=0.001)
