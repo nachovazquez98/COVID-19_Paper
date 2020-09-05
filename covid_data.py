@@ -22,7 +22,7 @@ def filter_only_positive(df):
 
 def filter_exclude_columns(df):
     #df.drop(['RESULTADO','FECHA_ACTUALIZACION', 'ID_REGISTRO', 'ORIGEN', 'SECTOR', 'ENTIDAD_UM', 'MIGRANTE', 'PAIS_ORIGEN', 'PAIS_NACIONALIDAD'], axis=1, inplace = True)
-    df.drop(['FECHA_ACTUALIZACION', 'ID_REGISTRO', 'ORIGEN', 'MIGRANTE', 'PAIS_ORIGEN', 'PAIS_NACIONALIDAD'], axis=1, inplace = True) #Se eliminan las columnas innecesarias
+    df.drop(['FECHA_ACTUALIZACION', 'ID_REGISTRO', 'ORIGEN', 'MIGRANTE', 'PAIS_ORIGEN', 'PAIS_NACIONALIDAD','MUNICIPIO_RES','ENTIDAD_NAC'], axis=1, inplace = True) #Se eliminan las columnas innecesarias
 
 def date_preprocessing(df):
     #convierte a tipo fecha fecha_sintoma 
@@ -104,7 +104,9 @@ def filter_pregnant_men(df):
 def print_df(df):
 #Se imprime el dataframe    
     #print(df)
-    df.to_csv('covid_data.csv.zip', index=False, compression="zip")
+    filename = 'covid_data'
+    compression_options = dict(method='zip', archive_name=f'{filename}.csv')
+    df.to_csv(f'{filename}.zip', compression=compression_options,index=False)
     print("Se ha generado el archivo .csv")
 
 #Se ejecutan las funciones
