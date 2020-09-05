@@ -679,7 +679,7 @@ if __name__ == '__main__':
     path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
     #path = "D:\ricar\Documents\Development\Python\COVID-19_Paper"
     os.chdir(os.path.join(path)) 
-    df = pd.read_csv("covid_data.csv.zip")
+    df = pd.read_csv("covid_data.zip")
     df_og = df.copy()
     #SOLO CASOS POSITIVOS COVID
     df = df[df.RESULTADO == 1] #En caso de que se quiera filtrar por s{olo los que dieron positivo
