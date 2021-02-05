@@ -86,89 +86,6 @@ Instalación: https://pipenv-fork.readthedocs.io/en/latest/basics.html
 
 Para instalar las librarías necesarias se utiliza este comando `pip install –r /path/to/requirements.txt` dentro del environment activado.
 
-### Ejemplos de código
-Primero para conseguir el dataset, se descarga el .zip, despues se guarda en la memoria,  se extrae y se convierte en formato Dataframe.
-```python
-url = 'http://datosabiertos.salud.gob.mx/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip' 
-resp = urlopen(url, timeout=10).read() #Se omite el uso de una función en este segmento para evitar errores con las variables 
-zipfile = ZipFile(BytesIO(resp)) 
-extracted_file = zipfile.open(zipfile.namelist()[0]) 
-df = pd.read_csv(extracted_file, encoding = "ISO-8859-1") 
-```
-Para realizar el preprocesamiento se eliminan columnas, los valores se convierten a 0:No y 1:Si para poder manipular el archivo en las graficas y el entrenamiento, y otras operaciones como procesar las fechas y eliminar información invalida.
-
-```python
-df.drop(['FECHA_ACTUALIZACION', 'ID_REGISTRO', 'ORIGEN', 'SECTOR', 'MIGRANTE', 'PAIS_ORIGEN', 'PAIS_NACIONALIDAD'], axis=1, inplace = True) #Se eliminan las columnas innecesarias 
-
-binary_values_dictionary = ['RESULTADO', 'SEXO', 'INTUBADO', 'NEUMONIA', 'EMBARAZO', 'HABLA_LENGUA_INDIG', 'DIABETES', 'EPOC', 'ASMA', 'INMUSUPR', 'HIPERTENSION', 'OTRA_COM', 'CARDIOVASCULAR', 'OBESIDAD', 'RENAL_CRONICA', 'TABAQUISMO', 'OTRO_CASO', 'UCI', 'NACIONALIDAD'] 
-
-for condition in binary_values_dictionary: 
-	df.loc[df[condition] == 2, [condition]] = 0 
-	df.loc[df[condition] == 97, [condition]] = 0 
-	df.loc[df[condition] == 98, [condition]] = 0 
-	df.loc[df[condition] == 3, [condition]] = 2 
-	df.loc[df[condition] == 99, [condition]] = 0 
-	df.loc[df['TIPO_PACIENTE'] == 1, ['TIPO_PACIENTE']] = 0 
-	df.loc[df['TIPO_PACIENTE'] == 2, ['TIPO_PACIENTE']] = 1 
-	df.loc[df['TIPO_PACIENTE'] == 99, ['TIPO_PACIENTE']] = 0 
-```
-
-Al generar las gráficas se filtro solamente los positivos de COVID.
-
-```python
-df = df[df.RESULTADO == 1] #En caso de que se quiera filtrar por s{olo los que dieron positivo
-df.drop(['RESULTADO'], axis=1, inplace = True)
-
-#En esta grafica se filtra a todas las defunciones y se usa la columna edad para hacer una grafica de distribución
-def grafica6():
-	fig, ax = plt.subplots()
-	plot_date(ax)
-	df_solodef = df.loc[df.BOOL_DEF == 1]
-	sns.distplot(df_solodef['EDAD']).set_title("Muertes de COVID-19 por edades en Mexico")
-```
-
-Para realizar el entrenamiento y clasificación se uso una pipeline y realiza todas las combinaciones de los hiperpárametros y devuelve el mejor modelo así como su rendimiento.
-
-```python
-def gridsearchcv(X, y): 
-	X_train, X_test, Y_train, Y_test = train_test_split(X,y, test_size=0.2, stratify=y, shuffle=True) 
-	pipe_steps = [('scaler', StandardScaler()), ('SupVM', SVC(kernel='rbf'))] 
-	param_grid= { 
-	'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000],  
-	'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50] 
-	} 
-	pipeline = Pipeline(pipe_steps) 
-	grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1,probability=True) 
-	grid.fit(X_train, Y_train) 
-	print("Best-Fit Parameters From Training Data:\n",grid.best_params_) 
-	grid_predictions = grid.predict(X_test)  
-	report = classification_report(Y_test, grid_predictions, output_dict=True) 
-	report = pd.DataFrame(report).transpose() 
-	print(report) 
-	print(confusion_matrix(Y_test, grid_predictions)) 
-return grid, report, X_test, Y_test 
-```
-
-Se manipula el dataset para poder generar los datos y sus etiquetas y enviárselos a la función gridsearchcv() para después guardar e importar los modelos para poder utilizarlos en la interfaz web.
-
-```python
-hosp_data = df.copy() 
-hosp_data = solamente(hosp_data,'RESULTADO') 
-hosp_data = hosp_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','TIPO_PACIENTE']] 
-hosp_data = hosp_data.reset_index(drop=True) 
-#separar datos 
-X = hosp_data.loc[:, hosp_data.columns != 'TIPO_PACIENTE'] 
-y = hosp_data.loc[:,'TIPO_PACIENTE'] 
-#---->train 
-hosp_data_grid, hosp_data_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=None) 
-#guarda el modelo y su reporte 
-joblib.dump(hosp_data_grid, 'models/hosp_data_grid.pkl', compress = 1) 
-hosp_data_grid_report.to_csv("models/hosp_data_grid_report.csv", index=True) 
-#importa el modelo y su rendimiento 
-hosp_data_grid_load = joblib.load('models/hosp_data_grid.pkl') 
-hosp_data_grid_report = pd.read_csv("models/hosp_data_grid_report.csv", index_col=0)
-```
-
 ### Pruebas
 Para probar que se esta ejecutando correctamente de forma local corra los siguientes comandos.
 
@@ -187,10 +104,6 @@ La segunda es abriendo los archivos jupyter por binder https://notebooks.gesis.o
 
 La ultima es descargar este repositorio y correrlo de forma local. Se puede correr en un ide (visual studio code, spyder, etc) los archivos .ipynb o .py. Para poder ejecutarlos se tiene que cambiar el path o la dirección de la carpeta donde se encuentra el repositorio para que pueda leer el dataset y generar las graficas . Para hacer el entrenamiento se recomienda usar un porcentaje de los datos  df = df.sample(frac=0.01) para que el tiempo de entrenamiento no sea muy tardado
 
-### Discusión
-Debido al alto costo computacional del entrenamiento con el dataset, no se pudieron realizar pruebas para mejorar la precisión, ya sea mejorando los parámetros del algoritmo de clasificación o acomodar la información de la manera adecuada, como por ejemplo descartar a la gente que no ha tenido neumonía para predecir si va a necesitar un ventilador, etc. La forma del acomodo de los datos del entrenamiento se baso en este articulo https://www.medrxiv.org/content/10.1101/2020.05.03.20089813v1.full.pdf más no entrenamos el modelo con el 100% de los datos debido su complejidad. 
-
-Queremos realizar las pruebas al eliminar los datos inválidos del dataset como lo son NO APLICA, SE IGNORA, NO ESPECIFICADO en lugar de convertilos a falso y comparar su rendimiento. En un futuro también se pretende comparar diferentes algoritmos de clasificación como lo son: robust versions of logistic regression, random forests, gradient boosted decision trees, y usar en la aplicación web el modelo con el mejor rendimiento.
 
 ## Contribuye
 Si hay algun tipo de grafica útil nos lo puedes hacer saber para desarrollarla y subirla al repositorio, asi como algun algorimo de clasificación también lo podemos incluir.

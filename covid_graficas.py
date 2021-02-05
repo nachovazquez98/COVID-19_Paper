@@ -1,3 +1,6 @@
+'''
+corregir grafica hist de muertes y vent, comparar con notebook jalisco
+'''
 #%%
 import pandas as pd
 import numpy as np
@@ -7,6 +10,7 @@ sns.set(color_codes=True)
 import os, datetime
 from collections import Counter
 from matplotlib.offsetbox import AnchoredText
+import matplotlib.ticker as ticker
 #%%Graficas
 def plot_date(ax):
     txtbox = ax.text(0.0, 0.975, datetime.datetime.now().strftime('%b %d, %Y'), transform=ax.transAxes, fontsize=7,
@@ -39,7 +43,6 @@ def grafica1(df):
     fig.tight_layout()
     plt.savefig('plots/entidades_casos_pos.png', format='png', dpi=1200)
     plt.close(fig)
-
 
 def grafica2(df):
     df = df[df.BOOL_DEF == 1]
@@ -125,7 +128,7 @@ def estados_let(df):
     ax.set_xlabel('ENTIDAD_RES') 
     ax.set_ylabel('Porcentaje')
     plot_date(ax)
-    l = plt.legend(loc ='upper right') 
+    plt.legend(loc ='upper right') 
     fig.tight_layout()
     plt.savefig('plots/entidades_let.png', format='png', dpi=1200)
     plt.close(fig)
@@ -186,30 +189,34 @@ def grafica5(df):
     plt.savefig('plots/def_pos.png', format='png', dpi=1200)
     plt.close(fig)
 
-
-def grafica6(df):
-    fig, ax = plt.subplots()
-    plot_date(ax)
-    df_solodef = df.loc[df.BOOL_DEF == 1]
-    sns.distplot(df_solodef['EDAD']).set_title("Muertes de COVID-19 por edades en Mexico")  
-    plt.savefig('plots/def_edad_histograma.png', format='png', dpi=1200)
-    plt.close(fig)
-
-
 def grafica7(df):
     fig, ax = plt.subplots()
     plot_date(ax)
-    df_solodef = df.loc[df.BOOL_DEF == 1]
-    sns.boxenplot(df_solodef['DIAS_DIF_DEF']).set_title("Días entre los primeros síntomas y defunción")      
+    df_uci = df.loc[df.UCI == 1]['EDAD']
+    df_vent = df.loc[df.INTUBADO == 1]['EDAD']
+    df_epoc = df.loc[df.EPOC == 1]['EDAD']
+    sns.distplot(df_uci, label="uci")
+    sns.distplot(df_vent, label="intub")
+    sns.distplot(df_epoc, label="epoc").set_title("Muertes de COVID-19 por edades")  
+    plt.legend()
     plt.savefig('plots/def_sin_boxplot.png', format='png', dpi=1200)
     plt.close(fig)
 
 
-def grafica8(df):
+def grafica6(df):
     fig, ax = plt.subplots()
-    plot_date(ax)
-    sns.boxenplot(df['DIAS_DIF_HOSP']).set_title("Días entre los primeros síntomas y hospitalización")      
-    plt.savefig('plots/sin_hosp_boxplot.png', format='png', dpi=1200)    
+    def reject_outliers(data, m=2):
+        return data[abs(data - np.mean(data)) < m * np.std(data)]
+    HOSP = reject_outliers(np.asarray(df['DIAS_DIF_HOSP']))
+    DEF = reject_outliers(np.asarray( df.loc[df.BOOL_DEF == 1]['DIAS_DIF_DEF']))
+    a = pd.DataFrame({ 'group' : np.repeat('Hospitalización',len(HOSP)) , 'días' : HOSP })
+    b = pd.DataFrame({ 'group' : np.repeat('Defunción',len(DEF)) , 'días' : DEF })
+    df_box=a.append(b)
+    ax = sns.boxplot(x='días', y='group', data=df_box, flierprops = dict(markerfacecolor = '0.50', markersize = 2))
+    plt.title("Diferencia de días desde los primeros síntomas", loc="left")
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
+    ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
+    plt.savefig('plots/def_edad_histograma.png', format='png', dpi=1200)    
     plt.close(fig)
 
 
@@ -644,12 +651,7 @@ def mort_porcentaje(df,estado, estado_str,show=None):
 def mat_corr(df):
     #hacer columna de hombre y de mujer para reemplazar sexo
     data_matcorr = df.copy()
-    data_matcorr['HOMBRE'] = ~data_matcorr['SEXO']
-    data_matcorr['HOMBRE'] = data_matcorr['HOMBRE'].replace([-2], 0)
-    data_matcorr['HOMBRE'] = data_matcorr['HOMBRE'].abs()
-    data_matcorr['MUJER'] = data_matcorr['SEXO'][data_matcorr['SEXO'] == 1]
-    data_matcorr['MUJER'] = data_matcorr['MUJER'].replace([np.NaN], 0)
-    data_matcorr = data_matcorr.loc[:,['NEUMONIA','EDAD','EMBARAZO','DIABETES','EPOC','ASMA','INMUSUPR','HIPERTENSION','OTRA_COM','CARDIOVASCULAR','OBESIDAD','RENAL_CRONICA','TABAQUISMO','OTRO_CASO','HOMBRE','MUJER','TIPO_PACIENTE','BOOL_DEF','UCI','INTUBADO']]
+    data_matcorr = data_matcorr.loc[:,['NEUMONIA','EDAD','EMBARAZO','DIABETES','EPOC','ASMA','INMUSUPR','HIPERTENSION','OTRA_COM','CARDIOVASCULAR','OBESIDAD','RENAL_CRONICA','TABAQUISMO','OTRO_CASO','TIPO_PACIENTE','BOOL_DEF','UCI','INTUBADO']]
     df1 = data_matcorr.corr()[['TIPO_PACIENTE']] 
     df2 = data_matcorr.corr()[['BOOL_DEF']] 
     df3 = data_matcorr.corr()[['UCI']] 
@@ -707,7 +709,6 @@ if __name__ == '__main__':
     grafica5(df)
     grafica6(df)
     grafica7(df)
-    grafica8(df)
     grafica9(df)
     grafica99(df)
     grafica10(df)

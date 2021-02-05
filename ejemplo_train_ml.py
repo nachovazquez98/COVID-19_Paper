@@ -20,6 +20,7 @@ from sklearn.model_selection import GridSearchCV
 import joblib
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import learning_curve
+from sklearn.model_selection import StratifiedShuffleSplit
 #%%           
 #pathname = os.path.dirname(sys.argv[0]) 
 #fullpath = os.path.abspath(pathname)   
@@ -202,20 +203,41 @@ def gridsearchcv(X, y, n_pca=None):
             'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
             'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
     }
+    #cv = StratifiedShuffleSplit(n_splits=5, random_state=42)
+    cv=10
     if n_pca != None:
         pipeline = Pipeline(pipe_steps_pca)
-        grid = GridSearchCV(pipeline, param_grid_pca,refit = True,verbose = 3, n_jobs=-1,scoring='accuracy')
+        grid = GridSearchCV(pipeline, param_grid_pca,cv = cv,refit = True,verbose = 3, n_jobs=-1,scoring='accuracy')
     else:
         pipeline = Pipeline(pipe_steps)
-        grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1,scoring='accuracy')
+        grid = GridSearchCV(pipeline, param_grid,cv = cv, refit = True,verbose = 3, n_jobs=-1,scoring='accuracy')
     grid.fit(X_train, Y_train)
-    print("Best-Fit Parameters From Training Data:\n",grid.best_params_)
+    print("\nBest-Fit Parameters From Training Data:\n",grid.best_params_)
     grid_predictions = grid.predict(X_test) 
     report = classification_report(Y_test, grid_predictions, output_dict=True)
     report = pd.DataFrame(report).transpose()
     print(report)
     print(confusion_matrix(Y_test, grid_predictions))
-    return grid, report, X_test, Y_test
+    return grid, report, X_test, Y_test, X_train, Y_train, cv
+#%%learning curve
+def learn_curve(estimator, X_train, Y_train, cv):
+    train_sizes, train_scores, test_scores = learning_curve(estimator.best_estimator_, X_train, Y_train, train_sizes=np.linspace(0.1, 1.0, 10), cv=cv, n_jobs=-1)
+    train_mean = np.mean(train_scores, axis=1)
+    train_std = np.std(train_scores, axis=1)
+    test_mean = np.mean(test_scores, axis=1)
+    test_std = np.std(test_scores, axis=1)
+    
+    plt.plot(train_sizes, train_mean, color='blue', marker='o',markersize=5, label='training accuracy')
+    plt.fill_between(train_sizes, train_mean + train_std,train_mean - train_std,alpha=0.15, color='blue')
+    plt.plot(train_sizes, test_mean,color='green', linestyle='--',marker='s', markersize=5,label='validation accuracy')
+    plt.fill_between(train_sizes,test_mean + test_std,test_mean - test_std,alpha=0.15, color='green')
+    plt.grid()
+    plt.xlabel('Number of training samples')
+    plt.ylabel('Accuracy')
+    plt.legend(loc='lower right')
+    plt.ylim([0.8, 1.0])
+    plt.show()
+
 #%%Ejemplo
 # Here we are using inbuilt dataset of scikit learn 
 from sklearn.datasets import load_breast_cancer 
@@ -232,7 +254,12 @@ cancer_pca.pca_2D(); cancer_pca.pca_3D()
 X = df.iloc[:,:-1]
 y = df.iloc[:,-1]
 #train
-cancer_grid, cancer_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=2)
+#cancer_grid, cancer_grid_report, X_test, Y_test = gridsearchcv(X,y, n_pca=2)
+cancer_grid, cancer_grid_report, X_test, Y_test, X_train, Y_train, cv = gridsearchcv(X,y)
+#%%learning curve
+learn_curve(cancer_grid, X_train, Y_train, cv)
+
+#%%
 ############################
 #####grafica modelo en 2d###
 plot_svm_2d(cancer_grid, X_test, Y_test)

@@ -1,3 +1,4 @@
+#https://blog.streamlit.io/uc-davis-tool-tracks-californias-covid-19-cases-by-region/
 import streamlit as st
 import os
 import numpy as np
@@ -8,10 +9,13 @@ import plotly.express as px
 from covid_graficas import casos_nuevos_total
 from covid_graficas import casos_acum_total
 from covid_graficas import mort_porcentaje
-
+'''
+eliminar otro caso
+corregir grafica hist de muertes y vent, comparar con notebook jalisco
+'''
 #@st.cache(ttl=3600*24, show_spinner=False)
 def load_data():
-    df = pd.read_csv("covid_data.csv.zip",low_memory = True)
+    df = pd.read_csv("covid_data.zip",low_memory = True)
     df_descrip = pd.read_excel("diccionario_datos_covid19/Descriptores.xlsx")
     df_estados = pd.read_csv("diccionario_datos_covid19/diccionario_estados.csv")
     return df, df_descrip,df_estados
@@ -131,7 +135,7 @@ def main():
         activity = st.selectbox("Activity", submenu)
         if activity == "Plot":
             st.subheader("Data plot")
-            st.image(Image.open('plots/sin_hosp_boxplot.png'), use_column_width=True)
+            st.image(Image.open('plots/def_sin_boxplot.png'), use_column_width=True)
             st.image(Image.open('plots/amb_hosp_casos_pos.png'), use_column_width=True)
             st.image(Image.open('plots/barplot_hospitalizacion_edad.png'), use_column_width=True)
             st.image(Image.open('plots/Tasa de casos de COVID en Mexico por rangos de edad.png'), use_column_width=True)
@@ -155,9 +159,11 @@ def main():
                 st.warning('Necesitara hospitalización')
             else:
                 st.success("No necesitara hospitalización")
-            # pred_prob = model_load.predict.proba(feature_model)
-            # prob_score = {'Ambulante':pred_prob[0][0]*100,'Hospitalizado':pred_prob[0][1]*100}
-            # st.json(prob_score)
+                
+            pred_prob = model_load.predict_proba(feature_model)
+            st.write(pred_prob)
+            prob_score = {'Ambulante':pred_prob[0][0]*100,'Hospitalizado':pred_prob[0][1]*100}
+            st.json(prob_score)
         ####
     elif choice == 'Mortalidad antes de hopitalización':
         st.subheader("Se pretende predecir en base a los descriptores la mortalidad del paciente contagiado de CoV-2 antes de estar internado en el hospital")

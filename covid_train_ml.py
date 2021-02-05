@@ -4,6 +4,7 @@ robust versions of logistic regression
 support vector machines
 random forests
 gradient boosted decision trees
+https://www.kdnuggets.com/2020/06/simplifying-mixed-feature-type-preprocessing-scikit-learn-pipelines.html
 '''
 
 import os, sys
@@ -12,8 +13,6 @@ import numpy as np
 import seaborn as sns; sns.set()
 from matplotlib import pyplot as plt
 from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-from mpl_toolkits.mplot3d import Axes3D
 from scipy import stats
 from sklearn.svm import SVC
 from matplotlib.colors import ListedColormap
@@ -23,15 +22,16 @@ from sklearn.model_selection import GridSearchCV
 import joblib
 sns.set(color_codes=True)
 from sklearn.pipeline import Pipeline
-
+from sklearn.compose import make_column_selector
+from sklearn.compose import ColumnTransformer
 #%%abrir csv
 path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
 #path = "D:\ricar\Documents\Development\Python\COVID-19_Paper"
 os.chdir(os.path.join(path)) 
-df = pd.read_csv("covid_data.zip")
+#df = pd.read_csv("covid_prediction_data.zip")
 #df = pd.read_csv(r"D:\ricar\Documents\Development\Python\COVID-19_Paper\covid_data.csv.zip", encoding='utf-8') #path directo
 #%%10% de los datos aleatorios
-df = df.sample(frac=0.001)
+#df = df.sample(frac=0.001)
 #%%Valida si existen las carpetas
 try:
     os.makedirs("plots")
@@ -56,11 +56,27 @@ def gridsearchcv(X, y, n_pca=None):
                                             stratify=y, 
                                             #random_state=False,
                                             shuffle=True)
-    pipe_steps = [('scaler', StandardScaler()), ('SupVM', SVC(kernel='rbf',probability=True))]
+    ############
+    # Scale numeric values
+    num_transformer = Pipeline(steps=[
+        ('scaler', StandardScaler())])
+    
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', num_transformer, make_column_selector(pattern='EDAD'))
+            ])
+    ############
+    pipe_steps = [
+        #('scaler', StandardScaler()),
+        ('preprocessor', preprocessor),
+        ('SupVM', SVC(kernel='rbf',probability=True))
+        ]
+    
     param_grid= {
-            'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
-            'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
-    }
+        'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
+        'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
+        }
+    
     pipeline = Pipeline(pipe_steps)
     grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1,scoring='accuracy')
     grid.fit(X_train, Y_train)
@@ -73,18 +89,18 @@ def gridsearchcv(X, y, n_pca=None):
     return grid, report, X_test, Y_test
 
 
-#%%prediccion de hospitalizacion por covid - PCA
-hosp_data = df.copy()
-hosp_data = solamente(hosp_data,'RESULTADO')
-hosp_data = hosp_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','TIPO_PACIENTE']]
-hosp_data = hosp_data.reset_index(drop=True)
+#%%CASO 1: prediccion de hospitalizacion por covid
+hosp_data = pd.read_csv("prediction_data/df_caso1.zip")
+hosp_data = hosp_data.sample(frac=0.001)
+hosp_data = hosp_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','TIPO_PACIENTE']]
+
 #separar datos
 X = hosp_data.loc[:, hosp_data.columns != 'TIPO_PACIENTE']
 y = hosp_data.loc[:,'TIPO_PACIENTE']
 print(y.value_counts())
 #---->train
 hosp_data_grid, hosp_data_grid_report, X_test, Y_test = gridsearchcv(X,y)
-#guarda el modelo y su reporte
+     #guarda el modelo y su reporte
 #joblib.dump(hosp_data_svm.best_estimator_, 'models/hosp_data_svm.pkl', compress = 1)
 joblib.dump(hosp_data_grid, 'models/hosp_data_grid.pkl', compress = 1)
 hosp_data_grid_report.to_csv("models/hosp_data_grid_report.csv", index=True)
@@ -95,14 +111,23 @@ hosp_data_grid_report = pd.read_csv("models/hosp_data_grid_report.csv", index_co
 Y_test.iloc[20]
 hosp_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1)) 
 hosp_data_grid.predict_proba(X_test.iloc[20,:].values.reshape(1,-1))
-
+'''
+              precision    recall  f1-score     support
+0              0.838608  0.946429  0.889262  280.000000
+1              0.375000  0.150000  0.214286   60.000000
+accuracy       0.805882  0.805882  0.805882    0.805882
+macro avg      0.606804  0.548214  0.551774  340.000000
+weighted avg   0.756794  0.805882  0.770148  340.000000
+[[265  15]
+ [ 51   9]]
+'''
 #%%Mortalidad de los contagiagos ANTES de ir al hospital
-def_data = df.copy()
+def_data = pd.read_csv("prediction_data/df_caso1.zip")
 def_data = solamente(def_data,'TIPO_PACIENTE', bool=0) #revisar si mejora el rendimiento
-def_data = solamente(def_data,'RESULTADO')
-def_data = def_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','BOOL_DEF']]
+def_data = def_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','BOOL_DEF']]
 X = def_data.loc[:, def_data.columns != 'BOOL_DEF']
 y = def_data.loc[:,'BOOL_DEF']
+print(y.value_counts())
 #---->train
 def_data_grid, def_data_grid_report, X_test, Y_test = gridsearchcv(X,y)
 #guarda el modelo y su reporte
@@ -114,8 +139,16 @@ def_data_grid_report = pd.read_csv("models/def_data_grid_report.csv", index_col=
 #prueba el modelo load con input sin preprocesamiento
 Y_test.iloc[20]
 def_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
+'''
+TIPO_PACIENTE = 0
+0    1356845
+1      14302
 
+TIPO_PACIENTE = 0 y 1
+0    1552280
+1     143962
 
+'''
 #%%Mortalidad de los contagiagos DEESPUES de ir al hospital
 def_hosp_data = df.copy()
 def_hosp_data = solamente(def_hosp_data,'TIPO_PACIENTE')
