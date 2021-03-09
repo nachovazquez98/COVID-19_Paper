@@ -102,9 +102,9 @@ def filter_pregnant_men(df):
 zipfile = ZipFile(path, 'r')
 extracted_file = zipfile.open(zipfile.namelist()[0])
 df = pd.read_csv(extracted_file, encoding = "ISO-8859-1")
-df = df[df['RESULTADO'] == 1] #filtrar
-#conditions = list(df)
-conditions = ['EMBARAZO', 'RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'OTRO_CASO', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA', 'OTRA_COM', 'TIPO_PACIENTE', 'UCI','INTUBADO']
+#df = df[df['RESULTADO'] == 1] #filtrar
+conditions = list(df)
+#conditions = ['EMBARAZO', 'RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'OTRO_CASO', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA', 'OTRA_COM', 'TIPO_PACIENTE', 'UCI','INTUBADO']
 for i in df[conditions]:
     x = df[i].value_counts()
     print(i,"\n",x)
@@ -214,7 +214,7 @@ def covid_predicion(df):
         df_caso6 = df_caso6.loc[~((df_caso6[condition] == 97) | (df_caso6[condition] == 98) | (df_caso6[condition] == 99))]
         df_caso6.loc[df_caso6[condition] == 2, [condition]] = 0 #0 es NO, 1 es SI
 
-    final_caso6_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','INTUBADO']
+    final_caso6_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','INTUBADO']
     df_caso6 = df_caso6[df_caso6.columns.intersection(final_caso6_columns)]
     
     filename = 'df_caso6'
@@ -229,7 +229,7 @@ def covid_predicion(df):
         df_caso7 = df_caso7.loc[~((df_caso7[condition] == 97) | (df_caso7[condition] == 98) | (df_caso7[condition] == 99))]
         df_caso7.loc[df_caso7[condition] == 2, [condition]] = 0 #0 es NO, 1 es SI
 
-    final_caso7_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','UCI','NEUMONIA','INTUBADO']
+    final_caso7_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','UCI','NEUMONIA','INTUBADO']
     df_caso7 = df_caso7[df_caso7.columns.intersection(final_caso7_columns)]
     
     filename = 'df_caso7'

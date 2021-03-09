@@ -1,0 +1,47 @@
+1) Cuáles modelos
+	robust versions of logistic regression
+	support vector machines
+	random forests
+	gradient boosted decision trees (XGBoost) <--
+	neural networks
+
+2) Articulos de implementacion
+	Articulo SHAP:
+	https://medium.com/analytics-vidhya/shap-part-2-kernel-shap-3c11e7a971b1
+	https://towardsdatascience.com/explain-your-model-with-the-shap-values-bc36aac4de3d
+
+	Preprocessing with Pipelines:
+	https://www.kdnuggets.com/2020/06/simplifying-mixed-feature-type-preprocessing-scikit-learn-pipelines.html
+
+	GridSearchCV:
+	https://www.geeksforgeeks.org/svm-hyperparameter-tuning-using-gridsearchcv-ml/ <-- svm
+	https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74 <-- random forest
+	https://github.com/codebasics/py/blob/master/ML/15_gridsearch/15_grid_search.ipynb <-- compara varios modelos con sus hiperparametros en el mismo gridsearchcv
+	https://machinelearningmastery.com/how-to-tune-algorithm-parameters-with-scikit-learn/
+	https://towardsdatascience.com/logistic-regression-model-tuning-with-scikit-learn-part-1-425142e01af5 <-- logistic regression
+	https://medium.com/vickdata/a-simple-guide-to-scikit-learn-pipelines-4ac0d974bdcf
+	https://stackoverflow.com/questions/50285973/pipeline-multiple-classifiers
+	https://stackoverflow.com/questions/30102973/how-to-get-best-estimator-on-gridsearchcv-random-forest-classifier-scikit <-- random forest
+	https://stackoverflow.com/questions/19018333/gridsearchcv-on-logisticregression-in-scikit-learn <-- logistic regression
+	https://machinelearningmastery.com/grid-search-hyperparameters-deep-learning-models-python-keras/ <-- redes neuronales
+	https://github.com/achyutb6/grid-search-cv/blob/master/SciKitLab2.py <-- compara muchos modelos y sus hiperparametros en el mismo gridsearchcv
+	
+
+3) Preguntas para asesor/ medico
+4) AWS Cloud Credit for Research 
+https://pages.awscloud.com/aws-cloud-credit-for-research.html
+https://aws.amazon.com/government-education/research-and-technical-computing/cloud-credit-for-research/faqs/
+5) Sklearn con aws
+https://docs.aws.amazon.com/sagemaker/latest/dg/sklearn.html
+https://www.analyticsvidhya.com/blog/2020/11/deployment-of-ml-models-in-cloud-aws-sagemaker%e2%80%8ain-built-algorithms/?utm_source=blog&utm_medium=model_depoyment_using_streamlit
+https://pages.awscloud.com/Build-Train-and-Deploy-Machine-Learning-Models-on-AWS-with-Amazon-SageMaker_0910-MCL_OD.html
+https://www.youtube.com/watch?v=Hvz2GGU3Z8g&ab_channel=JulienSimon
+
+lunes 1pm - Junta periodica
+
+**Paper**
+https://www.medrxiv.org/content/10.1101/2020.05.03.20089813v1.full.pdf
+
+**publicar articulo**
+http://carla2021.org/callforpapers
+

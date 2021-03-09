@@ -5,6 +5,10 @@ support vector machines
 random forests
 gradient boosted decision trees
 https://www.kdnuggets.com/2020/06/simplifying-mixed-feature-type-preprocessing-scikit-learn-pipelines.html
+https://www.kaggle.com/kritidoneria/explainable-ai-eli5-lime-and-shap
+https://shap.readthedocs.io/en/latest/example_notebooks/tabular_examples/model_agnostic/Diabetes%20regression.html
+https://kiwidamien.github.io/introducing-the-column-transformer.html
+https://medium.com/analytics-vidhya/shap-part-2-kernel-shap-3c11e7a971b1
 '''
 
 import os, sys
@@ -13,11 +17,13 @@ import numpy as np
 import seaborn as sns; sns.set()
 from matplotlib import pyplot as plt
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from scipy import stats
 from sklearn.svm import SVC
 from matplotlib.colors import ListedColormap
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
+from sklearn import metrics
 from sklearn.model_selection import GridSearchCV 
 import joblib
 sns.set(color_codes=True)
@@ -26,46 +32,30 @@ from sklearn.compose import make_column_selector
 from sklearn.compose import ColumnTransformer
 #%%abrir csv
 path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
-#path = "D:\ricar\Documents\Development\Python\COVID-19_Paper"
 os.chdir(os.path.join(path)) 
-#df = pd.read_csv("covid_prediction_data.zip")
-#df = pd.read_csv(r"D:\ricar\Documents\Development\Python\COVID-19_Paper\covid_data.csv.zip", encoding='utf-8') #path directo
-#%%10% de los datos aleatorios
-#df = df.sample(frac=0.001)
 #%%Valida si existen las carpetas
 try:
     os.makedirs("plots")
     os.makedirs("models")
 except FileExistsError:
     pass
-#%%solamente
-def solamente(df, columna, bool=None):
-    if bool == None:
-        bool = 1
-    df = df[df[columna] == bool] #filtrar
-    df.drop([columna], axis=1, inplace = True)
-    return df
-
 
 #%%gridsearchcv
 #checar stratify
 #sklearn.metrics.SCORERS.keys()
-def gridsearchcv(X, y, n_pca=None):
-    X_train, X_test, Y_train, Y_test = train_test_split(X,y,
-                                            test_size=0.2, 
-                                            stratify=y, 
-                                            #random_state=False,
-                                            shuffle=True)
+def gridsearchcv(X_train, X_test, y_train, y_test):
     ############
     # Scale numeric values
     num_transformer = Pipeline(steps=[
-        ('scaler', StandardScaler())])
+        ('scaler', MinMaxScaler())])
     
     preprocessor = ColumnTransformer(
+        remainder='passthrough',
         transformers=[
             ('num', num_transformer, make_column_selector(pattern='EDAD'))
             ])
     ############
+    
     pipe_steps = [
         #('scaler', StandardScaler()),
         ('preprocessor', preprocessor),
@@ -74,169 +64,123 @@ def gridsearchcv(X, y, n_pca=None):
     
     param_grid= {
         'SupVM__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
-        'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50]
+        'SupVM__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50, 75, 100]
         }
     
     pipeline = Pipeline(pipe_steps)
-    grid = GridSearchCV(pipeline, param_grid,refit = True,verbose = 3, n_jobs=-1,scoring='accuracy')
-    grid.fit(X_train, Y_train)
+    grid = GridSearchCV(pipeline, param_grid,refit = True,cv = 5, verbose = 3, n_jobs=-1,scoring='f1') #'balanced_accuracy'
+    grid.fit(X_train, y_train)
     print("Best-Fit Parameters From Training Data:\n",grid.best_params_)
-    grid_predictions = grid.predict(X_test) 
-    report = classification_report(Y_test, grid_predictions, output_dict=True)
+    grid_predictions = grid.best_estimator_.predict(X_test) 
+    report = classification_report(y_test, grid_predictions, output_dict=True)
     report = pd.DataFrame(report).transpose()
     print(report)
-    print(confusion_matrix(Y_test, grid_predictions))
-    return grid, report, X_test, Y_test
-
+    print(confusion_matrix(y_test, grid_predictions))
+    return grid, report
 
 #%%CASO 1: prediccion de hospitalizacion por covid
 hosp_data = pd.read_csv("prediction_data/df_caso1.zip")
+#Porcentaje de informacion del dataset
 hosp_data = hosp_data.sample(frac=0.001)
-hosp_data = hosp_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','TIPO_PACIENTE']]
 
 #separar datos
 X = hosp_data.loc[:, hosp_data.columns != 'TIPO_PACIENTE']
 y = hosp_data.loc[:,'TIPO_PACIENTE']
 print(y.value_counts())
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42,stratify=y, shuffle=True)
+#%%Entrenamiento (opcional)
 #---->train
-hosp_data_grid, hosp_data_grid_report, X_test, Y_test = gridsearchcv(X,y)
-     #guarda el modelo y su reporte
-#joblib.dump(hosp_data_svm.best_estimator_, 'models/hosp_data_svm.pkl', compress = 1)
-joblib.dump(hosp_data_grid, 'models/hosp_data_grid.pkl', compress = 1)
-hosp_data_grid_report.to_csv("models/hosp_data_grid_report.csv", index=True)
-#importa el modelo y su rendimiento
-hosp_data_grid_load = joblib.load('models/hosp_data_grid.pkl')
-hosp_data_grid_report = pd.read_csv("models/hosp_data_grid_report.csv", index_col=0)
-#prueba el modelo load con input sin preprocesamiento
-Y_test.iloc[20]
-hosp_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1)) 
-hosp_data_grid.predict_proba(X_test.iloc[20,:].values.reshape(1,-1))
+grid, grid_report= gridsearchcv(X_train, X_test, y_train, y_test)
+#guarda el modelo y su reporte
+joblib.dump(grid, 'models/hosp_data_grid.pkl', compress = 1)
+#joblib.dump(hosp_data_grid_report, 'models/hosp_data_grid_report.pkl', compress = 1)
+grid_report.to_csv("models/hosp_data_grid_report.csv", index=True)
 '''
-              precision    recall  f1-score     support
-0              0.838608  0.946429  0.889262  280.000000
-1              0.375000  0.150000  0.214286   60.000000
-accuracy       0.805882  0.805882  0.805882    0.805882
-macro avg      0.606804  0.548214  0.551774  340.000000
-weighted avg   0.756794  0.805882  0.770148  340.000000
-[[265  15]
- [ 51   9]]
+Best-Fit Parameters From Training Data:
+ {'SupVM__C': 500, 'SupVM__gamma': 1}
+              precision    recall  f1-score    support
+0              0.845872  0.964435  0.901271  478.00000
+1              0.645833  0.269565  0.380368  115.00000
+accuracy       0.829680  0.829680  0.829680    0.82968
+macro avg      0.745852  0.617000  0.640819  593.00000
+weighted avg   0.807078  0.829680  0.800253  593.00000
+[[461  17]
+ [ 84  31]]
 '''
-#%%Mortalidad de los contagiagos ANTES de ir al hospital
-def_data = pd.read_csv("prediction_data/df_caso1.zip")
-def_data = solamente(def_data,'TIPO_PACIENTE', bool=0) #revisar si mejora el rendimiento
-def_data = def_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','BOOL_DEF']]
-X = def_data.loc[:, def_data.columns != 'BOOL_DEF']
-y = def_data.loc[:,'BOOL_DEF']
-print(y.value_counts())
-#---->train
-def_data_grid, def_data_grid_report, X_test, Y_test = gridsearchcv(X,y)
-#guarda el modelo y su reporte
-joblib.dump(def_data_grid, 'models/def_data_grid.pkl', compress = 1)
-def_data_grid_report.to_csv("models/def_data_grid_report.csv", index=True)
-#importa el modelo y su rendimiento
-def_data_grid_load = joblib.load('models/def_data_grid.pkl')
-def_data_grid_report = pd.read_csv("models/def_data_grid_report.csv", index_col=0)
-#prueba el modelo load con input sin preprocesamiento
-Y_test.iloc[20]
-def_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
-'''
-TIPO_PACIENTE = 0
-0    1356845
-1      14302
+#%%importa el modelo y su rendimiento
+grid = joblib.load('models/hosp_data_grid.pkl')
+grid_report = pd.read_csv("models/hosp_data_grid_report.csv", index_col=0)
+print("best score from grid search: %f" % grid.best_estimator_.score(X_test, y_test))
+#%%Pipeline without gridsearchcv
 
-TIPO_PACIENTE = 0 y 1
-0    1552280
-1     143962
+num_transformer = Pipeline(steps=[
+    ('scaler', MinMaxScaler())])
 
-'''
-#%%Mortalidad de los contagiagos DEESPUES de ir al hospital
-def_hosp_data = df.copy()
-def_hosp_data = solamente(def_hosp_data,'TIPO_PACIENTE')
-def_hosp_data = solamente(def_hosp_data,'RESULTADO')
-def_hosp_data = def_hosp_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','INTUBADO','UCI','BOOL_DEF']]
-X = def_hosp_data.loc[:, def_hosp_data.columns != 'BOOL_DEF']
-y = def_hosp_data.loc[:,'BOOL_DEF']
-#---->train
-def_hosp_data_grid, def_hosp_data_grid_report, X_test, Y_test = gridsearchcv(X,y)
-#guarda el modelo y su reporte
-joblib.dump(def_hosp_data_grid, 'models/def_hosp_data_grid.pkl', compress = 1)
-def_hosp_data_grid_report.to_csv("models/def_hosp_data_grid_report.csv", index=True)
-#importa el modelo y su rendimiento
-def_hosp_data_grid_load = joblib.load('models/def_hosp_data_grid.pkl')
-def_hosp_data_grid_report = pd.read_csv("models/def_hosp_data_grid_report.csv", index_col=0)
-#prueba el modelo load con input sin preprocesamiento
-Y_test.iloc[20]
-def_hosp_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
+preprocessor = ColumnTransformer(
+    remainder='passthrough',
+    transformers=[
+        ('num', num_transformer, ['EDAD'])])
 
-#%%Necesidad de ICU ANTES de saber si o no tiene neumonia
-icu_data = df.copy()
-icu_data = solamente(icu_data,'RESULTADO')
-icu_data = icu_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','UCI']]
-X = icu_data.loc[:, icu_data.columns != 'UCI']
-y = icu_data.loc[:,'UCI']
-#---->train
-icu_data_grid, icu_data_grid_report, X_test, Y_test = gridsearchcv(X,y)
-#guarda el modelo y su reporte
-joblib.dump(icu_data_grid, 'models/icu_data_grid.pkl', compress = 1)
-icu_data_grid_report.to_csv("models/icu_data_grid_report.csv", index=True)
-#importa el modelo y su rendimiento
-icu_data_grid_load = joblib.load('models/icu_data_grid.pkl')
-icu_data_grid_report = pd.read_csv("models/icu_data_grid_report.csv", index_col=0)
-#prueba el modelo load con input sin preprocesamiento
-Y_test.iloc[20]
-icu_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
+svc_model = Pipeline([
+    #('scaler', StandardScaler()),
+    ('preprocessor', preprocessor),
+    ('SupVM', SVC(kernel='rbf',probability=True))])
 
-#%%Necesidad de ICU despues de saber si o no tiene neumonia
-icu_neum_data = df.copy()
-icu_neum_data = solamente(icu_neum_data,'RESULTADO')
-icu_neum_data = icu_neum_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','NEUMONIA','UCI']]
-X = icu_neum_data.loc[:, icu_neum_data.columns != 'UCI']
-y = icu_neum_data.loc[:,'UCI']
-#---->train
-icu_neum_data_grid, icu_neum_data_grid_report, X_test, Y_test = gridsearchcv(X,y)
-#guarda el modelo y su reporte
-joblib.dump(icu_neum_data_grid, 'models/icu_neum_data_grid.pkl', compress = 1)
-icu_neum_data_grid_report.to_csv("models/icu_neum_data_grid_report.csv", index=True)
-#importa el modelo y su rendimiento
-icu_neum_data_grid_load = joblib.load('models/icu_neum_data_grid.pkl')
-icu_neum_data_grid_report = pd.read_csv("models/icu_neum_data_grid_report.csv", index_col=0)
-#prueba el modelo load con input sin preprocesamiento
-Y_test.iloc[20]
-def_hosp_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
+svc_model.set_params(**grid.best_params_)
+svc_model.get_params("model")
+svc_model.fit(X_train, y_train)
+y_pred = svc_model.predict(X_test)
+metrics.accuracy_score(y_test, y_pred)
+print(classification_report(y_test, y_pred))
+#%%se preprocesan los datos
+X_train_scaled = pd.DataFrame(svc_model.named_steps['preprocessor'].fit_transform(X_train),columns = X_train.columns)
+X_test_scaled = pd.DataFrame(svc_model.named_steps['preprocessor'].fit_transform(X_test),columns = X_test.columns)
+#cambia el orden de edad y sexo
+X_train_scaled[['EDAD','SEXO']]=X_train_scaled[['SEXO','EDAD']]
+X_test_scaled[['EDAD','SEXO']]=X_test_scaled[['SEXO','EDAD']]
 
+#%%
+#prueba el modelo con X_test
+y_test.iloc[20] 
+X_test.iloc[20]
 
-#%%necesidad de ventilador antes de saber si desarrollo neumonia o necesita ICU
-vent_data = df.copy()
-vent_data = solamente(vent_data,'RESULTADO')
-vent_data = vent_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','INTUBADO']]
-X = vent_data.loc[:, vent_data.columns != 'INTUBADO']
-y = vent_data.loc[:,'INTUBADO']
-#---->train
-vent_data_grid, vent_data_grid_report, X_test, Y_test = gridsearchcv(X,y)
-#guarda el modelo y su reporte
-joblib.dump(vent_data_grid, 'models/vent_data_grid.pkl', compress = 1)
-vent_data_grid_report.to_csv("models/vent_data_grid_report.csv", index=True)
-#importa el modelo y su rendimiento
-vent_data_grid_load = joblib.load('models/vent_data_grid.pkl')
-vent_data_grid_report = pd.read_csv("models/vent_data_grid_report.csv", index_col=0)
-#prueba el modelo load con input sin preprocesamiento
-Y_test.iloc[20]
-vent_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
+svc_model.named_steps['SupVM'].predict(X_test_scaled.iloc[20, :].values.reshape(1, -1))
+svc_model.named_steps['SupVM'].predict_proba(X_test_scaled.iloc[20, :].values.reshape(1, -1))
+#%%
+import shap
+# use Kernel SHAP to explain test set predictions
+explainer = shap.KernelExplainer(model = svc_model.named_steps['SupVM'].predict_proba, data = X_train_scaled, link = 'logit')
+shap_values = explainer.shap_values(X = X_test_scaled, nsamples = 30, l1_reg="num_features(12)")
 
-#%%necesidad de ventilador despues de saber si desarrollo neumonia o necesita ICU
-vent_ucineum_data = df.copy()
-vent_ucineum_data = solamente(vent_ucineum_data,'RESULTADO')
-vent_ucineum_data = vent_ucineum_data.loc[:,['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','OTRO_CASO','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','ICU','NEUMONIA','INTUBADO']]
-X = vent_ucineum_data.loc[:, vent_ucineum_data.columns != 'INTUBADO']
-y = vent_ucineum_data.loc[:,'INTUBADO']
-#---->train
-vent_ucineum_data_grid, vent_ucineum_data_grid_report, X_test, Y_test = gridsearchcv(X,y)
-#guarda el modelo y su reporte
-joblib.dump(vent_ucineum_data_grid, 'models/vent_ucineum_data_grid.pkl', compress = 1)
-vent_ucineum_data_grid_report.to_csv("models/vent_ucineum_data_grid_report.csv", index=True)
-#importa el modelo y su rendimiento
-vent_ucineum_data_grid_load = joblib.load('models/vent_ucineumdata_grid.pkl')
-vent_ucineum_data_grid_report = pd.read_csv("models/vent_ucineum_data_grid_report.csv", index_col=0)
-#prueba el modelo load con input sin preprocesamiento
-Y_test.iloc[20]
-vent_ucineum_data_grid_load.predict(X_test.iloc[20,:].values.reshape(1,-1))
+print(f'length of SHAP values: {len(shap_values)}')
+print(f'Shape of each element: {shap_values[0].shape}')
+
+#prediction and probability of model
+X_test.iloc[0, :]
+print(f'Prediction for 1st sample in X_test: ', svc_model.named_steps['SupVM'].predict(X_test_scaled.iloc[[0], :])[0])
+print(f'Prediction probability for 1st sample in X_test: ', svc_model.named_steps['SupVM'].predict_proba(X_test_scaled.iloc[[0], :])[0])
+
+# plot the SHAP values for the false (0) output of the first instance
+shap.initjs()
+shap.force_plot(explainer.expected_value[0], shap_values[0][0,:], X_test_scaled.iloc[0,:], link="logit")
+
+shap.initjs()
+shap.force_plot(explainer.expected_value[1], shap_values[1][0,:], X_test_scaled.iloc[0,:], link="logit")
+
+#Explaining the Prediction for all samples in Test set
+#no hospitalizado
+shap.initjs()
+shap.force_plot(explainer.expected_value[0], shap_values[0], X_test_scaled)
+
+#si hospitalizado
+shap.initjs()
+shap.force_plot(explainer.expected_value[1], shap_values[1], X_test_scaled)
+
+#SHAP Summary Plots
+shap.summary_plot(shap_values, X_test)
+shap.summary_plot(shap_values[1], X_test_scaled)
+shap.summary_plot(shap_values[0], X_test_scaled)
+
+#SHAP Dependence Plots
+shap.dependence_plot("HIPERTENSION", shap_values[1], X_test_scaled)
+# %%
