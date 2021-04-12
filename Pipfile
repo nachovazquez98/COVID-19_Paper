@@ -93,6 +93,7 @@ MarkupSafe = "==1.1.1"
 Pygments = "==2.7.4"
 Send2Trash = "==1.5.0"
 plotly = "*"
+psutil = "*"
 
 [requires]
 python_version = "3.6"
