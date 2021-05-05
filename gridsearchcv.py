@@ -88,18 +88,18 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
         # "gb__n_estimators":[10, 50, 100, 200, 500]
         
         #xgboost
-        # 'xgb__n_estimators': [100],
-        # 'xgb__max_depth': range(1, 11),
-        # 'xgb__learning_rate': [1e-3, 1e-2, 1e-1, 0.5, 1.],
-        # 'xgb__subsample': np.arange(0.05, 1.01, 0.05),
-        # 'xgb__min_child_weight': range(1, 21),
-        # 'xgb__verbosity': [0] # add this line to slient warning message
+        'xgb__n_estimators': [100],
+        'xgb__max_depth': range(1, 11),
+        'xgb__learning_rate': [1e-3, 1e-2, 1e-1, 0.5, 1.],
+        'xgb__subsample': np.arange(0.05, 1.01, 0.05),
+        'xgb__min_child_weight': range(1, 21),
+        'xgb__verbosity': [0] # add this line to slient warning message
         }),
     }
     
     cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=5)#*
-    #grid = GridSearchCV(pipe, params,refit = 'f1',cv = cv, verbose = 3, n_jobs=-1,scoring= ['f1','balanced_accuracy']) #'balanced_accuracy'
-    grid = RandomizedSearchCV(pipe, params,refit = 'balanced_accuracy',cv = cv, verbose = 3, n_jobs=-1,scoring= ['f1','balanced_accuracy']) #'balanced_accuracy'
+    grid = GridSearchCV(pipe, params,refit = 'f1',cv = cv, verbose = 3, n_jobs=-1,scoring= ['f1','balanced_accuracy']) #'balanced_accuracy'
+    #grid = RandomizedSearchCV(pipe, params,refit = 'balanced_accuracy',cv = cv, verbose = 3, n_jobs=-1,scoring= ['f1','balanced_accuracy']) #'balanced_accuracy'
     grid.fit(X_train, y_train)
     print("Best-Fit Parameters From Training Data:\n",grid.best_params_)
     grid_predictions = grid.best_estimator_.predict(X_test) 
