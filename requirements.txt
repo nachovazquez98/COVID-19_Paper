@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+-i https://pypi.org/simple
+=======
 -i https://pypi.org/simple/
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 altair==4.1.0
 argon2-cffi==20.1.0
 astor==0.8.1

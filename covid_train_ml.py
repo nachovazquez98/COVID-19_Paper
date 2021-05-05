@@ -16,6 +16,19 @@ import pandas as pd
 import numpy as np
 import seaborn as sns; sns.set()
 from matplotlib import pyplot as plt
+<<<<<<< HEAD
+from sklearn import metrics
+import joblib
+from sklearn.pipeline import Pipeline
+from gridsearchcv import Gridsearchcv
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier 
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.linear_model import LogisticRegression
+=======
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from scipy import stats
@@ -30,6 +43,7 @@ sns.set(color_codes=True)
 from sklearn.pipeline import Pipeline
 from sklearn.compose import make_column_selector
 from sklearn.compose import ColumnTransformer
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 #%%abrir csv
 path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
 os.chdir(os.path.join(path)) 
@@ -39,6 +53,8 @@ try:
     os.makedirs("models")
 except FileExistsError:
     pass
+<<<<<<< HEAD
+=======
 
 #%%gridsearchcv
 #checar stratify
@@ -78,6 +94,7 @@ def gridsearchcv(X_train, X_test, y_train, y_test):
     print(confusion_matrix(y_test, grid_predictions))
     return grid, report
 
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 #%%CASO 1: prediccion de hospitalizacion por covid
 hosp_data = pd.read_csv("prediction_data/df_caso1.zip")
 #Porcentaje de informacion del dataset
@@ -87,10 +104,17 @@ hosp_data = hosp_data.sample(frac=0.001)
 X = hosp_data.loc[:, hosp_data.columns != 'TIPO_PACIENTE']
 y = hosp_data.loc[:,'TIPO_PACIENTE']
 print(y.value_counts())
+<<<<<<< HEAD
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33,stratify=y, shuffle=True)
+#%%Entrenamiento (opcional)
+#---->train
+grid, grid_report= Gridsearchcv(X_train, X_test, y_train, y_test)
+=======
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42,stratify=y, shuffle=True)
 #%%Entrenamiento (opcional)
 #---->train
 grid, grid_report= gridsearchcv(X_train, X_test, y_train, y_test)
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 #guarda el modelo y su reporte
 joblib.dump(grid, 'models/hosp_data_grid.pkl', compress = 1)
 #joblib.dump(hosp_data_grid_report, 'models/hosp_data_grid_report.pkl', compress = 1)
@@ -111,8 +135,14 @@ weighted avg   0.807078  0.829680  0.800253  593.00000
 grid = joblib.load('models/hosp_data_grid.pkl')
 grid_report = pd.read_csv("models/hosp_data_grid_report.csv", index_col=0)
 print("best score from grid search: %f" % grid.best_estimator_.score(X_test, y_test))
+<<<<<<< HEAD
+print("model prediction: ", grid.predict(pd.DataFrame(X_train.iloc[20, :].values.reshape(1, -1), columns = X_train.columns)))
+print("model prediction probability: ",grid.predict_proba(pd.DataFrame(X_train.iloc[20, :].values.reshape(1, -1), columns = X_train.columns)))
+#%%Pipeline without gridsearchcv
+=======
 #%%Pipeline without gridsearchcv
 
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 num_transformer = Pipeline(steps=[
     ('scaler', MinMaxScaler())])
 
@@ -121,6 +151,26 @@ preprocessor = ColumnTransformer(
     transformers=[
         ('num', num_transformer, ['EDAD'])])
 
+<<<<<<< HEAD
+model = Pipeline([
+    #('scaler', StandardScaler()),
+    ('preprocessor', preprocessor),
+    #('SupVM', SVC(kernel='rbf',probability=True))
+    #('rf', RandomForestClassifier())
+    ('SupVM', LogisticRegression(solver='liblinear'))
+    ])
+
+model.set_params(**grid.best_params_)
+#model.set_params(**{'SupVM__fit_intercept': True, 'SupVM__max_iter': 100, 'SupVM__penalty': 'l1', 'SupVM__tol': 0.0001})
+#model.get_params(**{'fit_intercept': False, 'max_iter': 10, 'penalty': 'l1', 'tol': 1e-05})
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+metrics.accuracy_score(y_test, y_pred)
+print(classification_report(y_test, y_pred))
+#%%se preprocesan los datos
+X_train_scaled = pd.DataFrame(model.named_steps['preprocessor'].fit_transform(X_train),columns = X_train.columns)
+X_test_scaled = pd.DataFrame(model.named_steps['preprocessor'].fit_transform(X_test),columns = X_test.columns)
+=======
 svc_model = Pipeline([
     #('scaler', StandardScaler()),
     ('preprocessor', preprocessor),
@@ -135,6 +185,7 @@ print(classification_report(y_test, y_pred))
 #%%se preprocesan los datos
 X_train_scaled = pd.DataFrame(svc_model.named_steps['preprocessor'].fit_transform(X_train),columns = X_train.columns)
 X_test_scaled = pd.DataFrame(svc_model.named_steps['preprocessor'].fit_transform(X_test),columns = X_test.columns)
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 #cambia el orden de edad y sexo
 X_train_scaled[['EDAD','SEXO']]=X_train_scaled[['SEXO','EDAD']]
 X_test_scaled[['EDAD','SEXO']]=X_test_scaled[['SEXO','EDAD']]
@@ -144,12 +195,21 @@ X_test_scaled[['EDAD','SEXO']]=X_test_scaled[['SEXO','EDAD']]
 y_test.iloc[20] 
 X_test.iloc[20]
 
+<<<<<<< HEAD
+model.named_steps['SupVM'].predict(X_test_scaled.iloc[20, :].values.reshape(1, -1))
+model.named_steps['SupVM'].predict_proba(X_test_scaled.iloc[20, :].values.reshape(1, -1))
+#%%
+import shap
+# use Kernel SHAP to explain test set predictions
+explainer = shap.KernelExplainer(model = model.named_steps['SupVM'].predict_proba, data = X_train_scaled, link = 'logit')
+=======
 svc_model.named_steps['SupVM'].predict(X_test_scaled.iloc[20, :].values.reshape(1, -1))
 svc_model.named_steps['SupVM'].predict_proba(X_test_scaled.iloc[20, :].values.reshape(1, -1))
 #%%
 import shap
 # use Kernel SHAP to explain test set predictions
 explainer = shap.KernelExplainer(model = svc_model.named_steps['SupVM'].predict_proba, data = X_train_scaled, link = 'logit')
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 shap_values = explainer.shap_values(X = X_test_scaled, nsamples = 30, l1_reg="num_features(12)")
 
 print(f'length of SHAP values: {len(shap_values)}')
@@ -157,8 +217,13 @@ print(f'Shape of each element: {shap_values[0].shape}')
 
 #prediction and probability of model
 X_test.iloc[0, :]
+<<<<<<< HEAD
+print(f'Prediction for 1st sample in X_test: ', model.named_steps['SupVM'].predict(X_test_scaled.iloc[[0], :])[0])
+print(f'Prediction probability for 1st sample in X_test: ', model.named_steps['SupVM'].predict_proba(X_test_scaled.iloc[[0], :])[0])
+=======
 print(f'Prediction for 1st sample in X_test: ', svc_model.named_steps['SupVM'].predict(X_test_scaled.iloc[[0], :])[0])
 print(f'Prediction probability for 1st sample in X_test: ', svc_model.named_steps['SupVM'].predict_proba(X_test_scaled.iloc[[0], :])[0])
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 
 # plot the SHAP values for the false (0) output of the first instance
 shap.initjs()

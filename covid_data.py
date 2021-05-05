@@ -1,7 +1,15 @@
+<<<<<<< HEAD
+#%%
+=======
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 #https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
 from io import BytesIO
 from zipfile import ZipFile
 from urllib.request import urlopen
+<<<<<<< HEAD
+import urllib
+=======
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 import urllib.request
 from socket import timeout
 import logging
@@ -10,6 +18,10 @@ import numpy as np
 import os
 import datetime
 import requests
+<<<<<<< HEAD
+#%%
+=======
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 '''
 crear dataset por cada problema
 '''
@@ -20,6 +32,14 @@ url = 'http://datosabiertos.salud.gob.mx/gobmx/salud/datos_abiertos/datos_abiert
 path = '/home/nacho/Documents/coronavirus/COVID-19_Paper/datos_abiertos_covid19.zip' #del archivo .zip
 #path = "/app"
 
+<<<<<<< HEAD
+fullpath = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"    
+print('path del codigo: ', fullpath) 
+os.chdir(fullpath) #cambia directorio de trabajo en la dir del codigo
+os.getcwd()
+#%%
+=======
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 def filter_exclude_columns(df):
     #df.drop(['RESULTADO','FECHA_ACTUALIZACION', 'ID_REGISTRO', 'ORIGEN', 'SECTOR', 'ENTIDAD_UM', 'MIGRANTE', 'PAIS_ORIGEN', 'PAIS_NACIONALIDAD'], axis=1, inplace = True)
     df.drop(['FECHA_ACTUALIZACION', 'ID_REGISTRO', 'ORIGEN', 'MIGRANTE', 'PAIS_ORIGEN', 'PAIS_NACIONALIDAD','MUNICIPIO_RES','ENTIDAD_NAC', 'NACIONALIDAD','HABLA_LENGUA_INDIG', 'INDIGENA', 'TOMA_MUESTRA_LAB', 'RESULTADO_LAB', 'TOMA_MUESTRA_ANTIGENO', 'RESULTADO_ANTIGENO'], axis=1, inplace = True) #Se eliminan las columnas innecesarias
@@ -98,6 +118,8 @@ def filter_pregnant_men(df):
     #verificacion
     df['SEXO'][(df['SEXO'] ==0) & (df['EMBARAZO'] ==1)]
     
+<<<<<<< HEAD
+=======
 '''
 zipfile = ZipFile(path, 'r')
 extracted_file = zipfile.open(zipfile.namelist()[0])
@@ -111,6 +133,7 @@ for i in df[conditions]:
     print()
 '''   
  
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 def covid_predicion(df):
     df_prediction = df.copy()
     df_prediction = df_prediction[df_prediction['RESULTADO'] == 1] #filtrar solo gente positiva covid
@@ -234,8 +257,12 @@ def covid_predicion(df):
     
     filename = 'df_caso7'
     compression_options = dict(method='zip', archive_name=f'{filename}.csv')
+<<<<<<< HEAD
+    df_caso7.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)  
+=======
     df_caso7.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)
   
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
   
 def print_df(df):
 #Se imprime el dataframe    
@@ -244,7 +271,11 @@ def print_df(df):
     compression_options = dict(method='zip', archive_name=f'{filename}.csv')
     df.to_csv(f'{filename}.zip', compression=compression_options,index=False)
     print("Se ha generado el archivo .csv")
+<<<<<<< HEAD
+#%%
+=======
 
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 #Se ejecutan las funciones
 try: #Se obtiene el archivo más reciente
     resp = urlopen(url, timeout=10).read() #Se omite el uso de una función en este segmento para evitar errores con las variables
@@ -254,13 +285,21 @@ try: #Se obtiene el archivo más reciente
     print("Se está descargando la versión más actual del archivo...")
     _ = df
 except (ConnectionResetError, timeout) as error: #Si se falla al obtener el archivo más reciente se usa el último registro local
+<<<<<<< HEAD
+    print(str(error.args)) #Se omite el uso de una función en este segmento para evitar errores con las variables
+=======
     print(error.args) #Se omite el uso de una función en este segmento para evitar errores con las variables
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
     #print("ConnectionResetError or Timeout")
     print("Conexión fallida, se usará el último archivo local...")
     zipfile = ZipFile(path, 'r')
     extracted_file = zipfile.open(zipfile.namelist()[0])
     df = pd.read_csv(extracted_file, encoding = "ISO-8859-1")
     _ = df
+<<<<<<< HEAD
+#%%
+=======
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 finally:
     #preprocessing
     filter_exclude_columns(df)

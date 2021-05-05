@@ -9,10 +9,18 @@ import plotly.express as px
 from covid_graficas import casos_nuevos_total
 from covid_graficas import casos_acum_total
 from covid_graficas import mort_porcentaje
+<<<<<<< HEAD
+
+#eliminar otro caso
+#corregir grafica hist de muertes y vent, comparar con notebook jalisco
+#https://docs.streamlit.io/en/stable/caching.html
+
+=======
 '''
 eliminar otro caso
 corregir grafica hist de muertes y vent, comparar con notebook jalisco
 '''
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 #@st.cache(ttl=3600*24, show_spinner=False)
 def load_data():
     df = pd.read_csv("covid_data.zip",low_memory = True)
@@ -52,13 +60,20 @@ def descriptores():
     inms = st.radio("¿Presenta inmunosupresión?",tuple(feature_dict.keys()))
     epoc = st.radio("¿Tiene un diagnóstico la enfermedad pulmonar obstructiva crónica (EPOC)?",tuple(feature_dict.keys()))
     obes = st.radio("¿Tiene diagnóstico de obesidad?",tuple(feature_dict.keys()))
+<<<<<<< HEAD
+=======
     otro = st.radio("¿Tuvo contacto con algún otro caso diagnósticado con SARS CoV-2?",tuple(feature_dict.keys()))
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
     hiper = st.radio("¿Tiene diagnóstico de hipertensión?",tuple(feature_dict.keys()))
     tab = st.radio("¿Tiene hábito de tabaquismo?",tuple(feature_dict.keys()))
     cardio = st.radio("¿Tiene un diagnóstico de enfermedades cardiovasculares?",tuple(feature_dict.keys()))
     asma = st.radio("¿Tiene un diagnóstico de asma?",tuple(feature_dict.keys()))
     sex = st.radio("Sexo",tuple(genero_dict.keys()))
+<<<<<<< HEAD
+    return age, emb, ren_cron, diab, inms, epoc, obes, hiper, tab, cardio, asma, sex
+=======
     return age, emb, ren_cron, diab, inms, epoc, obes, otro, hiper, tab, cardio, asma, sex
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 
 def main():
     df, df_descrip,df_estados = load_data()
@@ -143,16 +158,28 @@ def main():
         elif activity=='Prediction':
             st.subheader("Análisis predictivo")
             st.write(pd.read_csv("models/hosp_data_grid_report.csv", index_col=0))
+<<<<<<< HEAD
+            age, emb, ren_cron, diab, inms, epoc, obes, hiper, tab, cardio, asma, sex = descriptores()
+            feature_list = [get_value(sex,genero_dict),age,get_fval(emb),get_fval(diab),get_fval(epoc),get_fval(asma),get_fval(inms),get_fval(hiper),get_fval(cardio),get_fval(obes),get_fval(ren_cron),get_fval(tab)]
+            st.write(feature_list)
+            user_input_column_names = ['SEXO', 'EDAD', 'EMBARAZO', 'DIABETES', 'EPOC', 'ASMA', 'INMUSUPR', 'HIPERTENSION', 'CARDIOVASCULAR', 'OBESIDAD', 'RENAL_CRONICA','TABAQUISMO']
+            user_input = pd.DataFrame(np.array(feature_list).reshape(1,-1), columns= user_input_column_names)
+=======
             age, emb, ren_cron, diab, inms, epoc, obes, otro, hiper, tab, cardio, asma, sex = descriptores()
             feature_list = [age,get_fval(emb),get_fval(ren_cron),get_fval(diab),get_fval(inms),get_fval(epoc),get_fval(obes),get_fval(otro),get_fval(hiper),get_fval(tab),get_fval(cardio),get_fval(asma),get_value(sex,genero_dict)]
             st.write(feature_list)
             feature_model = np.array(feature_list).reshape(1,-1)
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
             #ML
             # model_choice = st.selectbox("Seleccione un modelo:",['RF','SVM','LR'])
             # if st.button('Predict'):
             #     if model_choice = 'SVM':-
             model_load = load_model('models/hosp_data_grid.pkl')
+<<<<<<< HEAD
+            prediction = model_load.predict(user_input)
+=======
             prediction = model_load.predict(feature_model)
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
             #
             st.write(prediction)
             if prediction == 1:
@@ -160,7 +187,11 @@ def main():
             else:
                 st.success("No necesitara hospitalización")
                 
+<<<<<<< HEAD
+            pred_prob = model_load.predict_proba(user_input)
+=======
             pred_prob = model_load.predict_proba(feature_model)
+>>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
             st.write(pred_prob)
             prob_score = {'Ambulante':pred_prob[0][0]*100,'Hospitalizado':pred_prob[0][1]*100}
             st.json(prob_score)
