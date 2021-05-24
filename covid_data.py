@@ -1,15 +1,9 @@
-<<<<<<< HEAD
 #%%
-=======
->>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 #https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
 from io import BytesIO
 from zipfile import ZipFile
 from urllib.request import urlopen
-<<<<<<< HEAD
 import urllib
-=======
->>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 import urllib.request
 from socket import timeout
 import logging
@@ -18,10 +12,8 @@ import numpy as np
 import os
 import datetime
 import requests
-<<<<<<< HEAD
+import pathlib
 #%%
-=======
->>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 '''
 crear dataset por cada problema
 '''
@@ -29,17 +21,17 @@ crear dataset por cada problema
 #Se extrae el csv de la web
 #url = "http://187.191.75.115/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip"
 url = 'http://datosabiertos.salud.gob.mx/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip'
-path = '/home/nacho/Documents/coronavirus/COVID-19_Paper/datos_abiertos_covid19.zip' #del archivo .zip
 #path = "/app"
 
-<<<<<<< HEAD
-fullpath = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"    
+fullpath = "/home/nacho/Documents/coronavirus/COVID-19_Paper/" 
+#fullpath = pathlib.Path(__file__).parent.absolute()
+
+path = str(fullpath) + 'datos_abiertos_covid19.zip' #del archivo .zip
+
 print('path del codigo: ', fullpath) 
 os.chdir(fullpath) #cambia directorio de trabajo en la dir del codigo
 os.getcwd()
 #%%
-=======
->>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 def filter_exclude_columns(df):
     #df.drop(['RESULTADO','FECHA_ACTUALIZACION', 'ID_REGISTRO', 'ORIGEN', 'SECTOR', 'ENTIDAD_UM', 'MIGRANTE', 'PAIS_ORIGEN', 'PAIS_NACIONALIDAD'], axis=1, inplace = True)
     df.drop(['FECHA_ACTUALIZACION', 'ID_REGISTRO', 'ORIGEN', 'MIGRANTE', 'PAIS_ORIGEN', 'PAIS_NACIONALIDAD','MUNICIPIO_RES','ENTIDAD_NAC', 'NACIONALIDAD','HABLA_LENGUA_INDIG', 'INDIGENA', 'TOMA_MUESTRA_LAB', 'RESULTADO_LAB', 'TOMA_MUESTRA_ANTIGENO', 'RESULTADO_ANTIGENO'], axis=1, inplace = True) #Se eliminan las columnas innecesarias
@@ -118,29 +110,19 @@ def filter_pregnant_men(df):
     #verificacion
     df['SEXO'][(df['SEXO'] ==0) & (df['EMBARAZO'] ==1)]
     
-<<<<<<< HEAD
-=======
-'''
-zipfile = ZipFile(path, 'r')
-extracted_file = zipfile.open(zipfile.namelist()[0])
-df = pd.read_csv(extracted_file, encoding = "ISO-8859-1")
-#df = df[df['RESULTADO'] == 1] #filtrar
-conditions = list(df)
-#conditions = ['EMBARAZO', 'RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'OTRO_CASO', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA', 'OTRA_COM', 'TIPO_PACIENTE', 'UCI','INTUBADO']
-for i in df[conditions]:
-    x = df[i].value_counts()
-    print(i,"\n",x)
-    print()
-'''   
- 
->>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 def covid_predicion(df):
     df_prediction = df.copy()
     df_prediction = df_prediction[df_prediction['RESULTADO'] == 1] #filtrar solo gente positiva covid
-    df_prediction.loc[df_prediction['SEXO'] == 2, ['SEXO']] = 0 #Hombre es 1, Mujer es 0
+    df_prediction.loc[df_prediction['SEXO'] == 2, ['SEXO']] = 0 #Hombre es 0, Mujer es 1
+    
     df_prediction.loc[df_prediction['EMBARAZO'] == 97, ['EMBARAZO']] = 2
     df_prediction.loc[df_prediction['EMBARAZO'] == 98, ['EMBARAZO']] = 2
     df_prediction.loc[df_prediction['EMBARAZO'] == 99, ['EMBARAZO']] = 2
+
+    # df_prediction.drop(df_prediction[(df_prediction['EMBARAZO'] ==97)]) 
+    # df_prediction.drop(df_prediction[(df_prediction['EMBARAZO'] ==98)]) 
+    # df_prediction.drop(df_prediction[(df_prediction['EMBARAZO'] ==99)]) 
+    
     #eliminar los hombres embarazados
     df_prediction.drop(df_prediction[(df_prediction['SEXO'] ==0) & (df_prediction['EMBARAZO'] ==1)].index, inplace = True)
     #filtra tipo paciente en 0:No hosp, 1:Si hosp
@@ -163,20 +145,39 @@ def covid_predicion(df):
     compression_options = dict(method='zip', archive_name=f'{filename}.csv')
     df_caso1.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)
     
-    '''CASO 2 -  Mortalidad de los contagiagos ANTES de ir al hospital'''
+    '''CASO 1_2: si el paciente contagiado de CoV-2 necesitará hospitalización crítica'''
+    df_caso1_2 = df_prediction.copy()
+    df_caso1_2.drop(df_caso1_2[(df_caso1_2['TIPO_PACIENTE'] == 99)].index, inplace = True)
+    #elimina TIPO_PACIENTE = 0 (gente NO hospitalizada)
+    df_caso1_2.drop(df_caso1_2[(df_caso1_2['TIPO_PACIENTE'] == 0)].index, inplace = True)
+
+    conditions = ['EMBARAZO','RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA','UCI','INTUBADO']
+    for condition in conditions:
+        df_caso1_2 = df_caso1_2.loc[~((df_caso1_2[condition] == 97) | (df_caso1_2[condition] == 98) | (df_caso1_2[condition] == 99))]
+        df_caso1_2.loc[df_caso1_2[condition] == 2, [condition]] = 0 #0 es NO, 1 es SI
+
+    def conditions(df_caso1_2):
+        if (df_caso1_2['UCI'] == 1) or (df_caso1_2['INTUBADO'] == 1):
+            return 1
+        else:
+            return 0
+    df_caso1_2['hosp_critica'] = df_caso1_2.apply(conditions, axis=1)
+
+    final_caso1_2_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','hosp_critica']
+    df_caso1_2 = df_caso1_2[df_caso1_2.columns.intersection(final_caso1_2_columns)]
+    filename = 'df_caso0'
+    compression_options = dict(method='zip', archive_name=f'{filename}.csv')
+    df_caso1_2.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)
+
+    #CASO 2: predecir en base a los descriptores la mortalidad (sin filtro)
     df_caso2 = df_prediction.copy()
     df_caso2.drop(df_caso2[(df_caso2['TIPO_PACIENTE'] == 99)].index, inplace = True)
-    #elimina TIPO_PACIENTE = 1 (gente hospitalizada)
-    df_caso2.drop(df_caso2[(df_caso2['TIPO_PACIENTE'] == 1)].index, inplace = True) #revisar si mejora el rendimiento
-    
     conditions = ['EMBARAZO','RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA']
     for condition in conditions:
-        df_caso2 = df_caso2.loc[~((df_caso2[condition] == 97) | (df_caso2[condition] == 98) | (df_caso2[condition] == 99))]
+        df_caso2 = df_caso2.loc[~((df_caso2[condition] == 97) | (df_caso2 [condition] == 98) | (df_caso2[condition] == 99))]
         df_caso2.loc[df_caso2[condition] == 2, [condition]] = 0 #0 es NO, 1 es SI
-    
-    final_caso2_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','BOOL_DEF']
+    final_caso2_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','BOOL_DEF','TIPO_PACIENTE']
     df_caso2 = df_caso2[df_caso2.columns.intersection(final_caso2_columns)]
-    
     filename = 'df_caso2'
     compression_options = dict(method='zip', archive_name=f'{filename}.csv')
     df_caso2.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)
@@ -199,22 +200,56 @@ def covid_predicion(df):
     compression_options = dict(method='zip', archive_name=f'{filename}.csv')
     df_caso3.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)
   
-    '''CASO 4 -Necesidad de UCI ANTES de diagnostico de neumonia'''     
-    df_caso4 = df_prediction.copy()
-    
-    conditions = ['EMBARAZO','RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA','UCI']
-    for condition in conditions:
-        df_caso4 = df_caso4.loc[~((df_caso4[condition] == 97) | (df_caso4[condition] == 98) | (df_caso4[condition] == 99))]
-        df_caso4.loc[df_caso4[condition] == 2, [condition]] = 0 #0 es NO, 1 es SI
+    #CASO 3.1: Mortalidad de los contagiagos DESPUES de INTUBADO,UCI (confiltro)
+    df_caso3 = df_prediction.copy()
 
-    final_caso4_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','UCI']
-    df_caso4 = df_caso4[df_caso4.columns.intersection(final_caso4_columns)]
-    
-    filename = 'df_caso4'
+    df_caso3.drop(df_caso3[(df_caso3['TIPO_PACIENTE'] == 99)].index, inplace = True)
+    conditions = ['EMBARAZO','RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA','INTUBADO','UCI']
+    for condition in conditions:
+        df_caso3 = df_caso3.loc[~((df_caso3[condition] == 97) | (df_caso3[condition] == 98) | (df_caso3[condition] == 99))]
+        df_caso3.loc[df_caso3[condition] == 2, [condition]] = 0 #0 es NO,1 es SI
+    #elimina no intubado y uci
+    df_caso3.drop(df_caso3[(df_caso3['INTUBADO'] == 0)].index, inplace =True)
+    df_caso3.drop(df_caso3[(df_caso3['UCI'] == 0)].index, inplace = True)
+    final_caso3_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','BOOL_DEF']
+    df_caso3 = df_caso3[df_caso3.columns.intersection(final_caso3_columns)]
+    filename = 'df_caso_3_1'
     compression_options = dict(method='zip', archive_name=f'{filename}.csv')
-    df_caso4.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)
-  
-    '''CASO 5 -Necesidad de ICU DESPUES de diagnostico de neumonia'''     
+    df_caso3.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)
+
+    #CASO 3.2: Mortalidad de los contagiagos DESPUES de INTUBADO,UCI (filtro solo INTUBADO)
+    df_caso3 = df_prediction.copy()
+
+    df_caso3.drop(df_caso3[(df_caso3['TIPO_PACIENTE'] == 99)].index, inplace = True)
+    conditions = ['EMBARAZO','RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA','INTUBADO','UCI']
+    for condition in conditions:
+        df_caso3 = df_caso3.loc[~((df_caso3[condition] == 97) | (df_caso3[condition] == 98) | (df_caso3[condition] == 99))]
+        df_caso3.loc[df_caso3[condition] == 2, [condition]] = 0 #0 es NO,1 es SI
+    #elimina no intubado
+    df_caso3.drop(df_caso3[(df_caso3['INTUBADO'] == 0)].index, inplace = True)
+    final_caso3_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','UCI','BOOL_DEF']
+    df_caso3 = df_caso3[df_caso3.columns.intersection(final_caso3_columns)]
+    filename = 'df_caso_3_2'
+    compression_options = dict(method='zip', archive_name=f'{filename}.csv')
+    df_caso3.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)
+
+    #CASO 3.3: Mortalidad de los contagiagos DESPUES de INTUBADO,UCI (filtro solo UCI)
+    df_caso3 = df_prediction.copy()
+
+    df_caso3.drop(df_caso3[(df_caso3['TIPO_PACIENTE'] == 99)].index, inplace = True)
+    conditions = ['EMBARAZO','RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA','INTUBADO','UCI']
+    for condition in conditions:
+        df_caso3 = df_caso3.loc[~((df_caso3[condition] == 97) | (df_caso3[condition] == 98) | (df_caso3[condition] == 99))]
+        df_caso3.loc[df_caso3[condition] == 2, [condition]] = 0 #0 es NO,1 es SI
+    #elimina no uci
+    df_caso3.drop(df_caso3[(df_caso3['UCI'] == 0)].index, inplace = True)
+    final_caso3_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','INTUBADO','BOOL_DEF']
+    df_caso3 = df_caso3[df_caso3.columns.intersection(final_caso3_columns)]
+    filename = 'df_caso_3_3'
+    compression_options = dict(method='zip', archive_name=f'{filename}.csv')
+    df_caso3.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)
+
+    '''CASO 5 -Necesidad de ICU '''     
     df_caso5 = df_prediction.copy()
     
     conditions = ['EMBARAZO','RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA','UCI', 'NEUMONIA']
@@ -229,6 +264,22 @@ def covid_predicion(df):
     compression_options = dict(method='zip', archive_name=f'{filename}.csv')
     df_caso5.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)
     
+    #CASO 5.1: Necesidad de ICU DESPUES de diagnostico de neumonia (con filtro)
+    df_caso5 = df_prediction.copy()
+
+    conditions = ['EMBARAZO','RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA','UCI', 'NEUMONIA']
+    for condition in conditions:
+        df_caso5 = df_caso5.loc[~((df_caso5[condition] == 97) | (df_caso5[condition] == 98) | (df_caso5[condition] == 99))]
+        df_caso5.loc[df_caso5[condition] == 2, [condition]] = 0 #0 es NO,1 es SI
+    #elimina no neumonia
+    df_caso5.drop(df_caso5[(df_caso5['NEUMONIA'] == 0)].index, inplace =True)
+    final_caso5_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','UCI']
+    df_caso5 = df_caso5[df_caso5.columns.intersection(final_caso5_columns)]
+    filename = 'df_caso5_1'
+    compression_options = dict(method='zip', archive_name=f'{filename}.csv')
+    df_caso5.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)
+
+
     '''CASO 6 - necesidad de ventilador ANTES de DIAGNOSTICO de neumonia e ICU'''     
     df_caso6 = df_prediction.copy()
     
@@ -257,13 +308,57 @@ def covid_predicion(df):
     
     filename = 'df_caso7'
     compression_options = dict(method='zip', archive_name=f'{filename}.csv')
-<<<<<<< HEAD
     df_caso7.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)  
-=======
-    df_caso7.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False)
   
->>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
-  
+    #CASO 7.1: necesidad de ventilador DESPUES de DIAGNOSTICO de neumonia e ICU (con filtro)
+    df_caso7 = df_prediction.copy()
+
+    conditions = ['EMBARAZO','RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA','UCI','NEUMONIA','INTUBADO']
+    for condition in conditions:
+        df_caso7 = df_caso7.loc[~((df_caso7[condition] == 97) | (df_caso7[condition] == 98) | (df_caso7[condition] == 99))]
+        df_caso7.loc[df_caso7[condition] == 2, [condition]] = 0 #0 es NO,1 es SI
+    #elimina no neumonia e ICU
+    df_caso7.drop(df_caso7[(df_caso7['NEUMONIA'] == 0)].index, inplace =True)
+    df_caso7.drop(df_caso7[(df_caso7['UCI'] == 0)].index, inplace = True)
+    final_caso7_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','INTUBADO']
+    df_caso7 = df_caso7[df_caso7.columns.intersection(final_caso7_columns)]
+
+    filename = 'df_caso_7_1'
+    compression_options = dict(method='zip', archive_name=f'{filename}.csv')
+    df_caso7.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False) 
+
+    ##CASO 7.2: necesidad de ventilador DESPUES de DIAGNOSTICO de neumonia e ICU (solo filtro UCI)
+    df_caso7 = df_prediction.copy()
+
+    conditions = ['EMBARAZO','RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA','UCI','NEUMONIA','INTUBADO']
+    for condition in conditions:
+        df_caso7 = df_caso7.loc[~((df_caso7[condition] == 97) | (df_caso7[condition] == 98) | (df_caso7[condition] == 99))]
+        df_caso7.loc[df_caso7[condition] == 2, [condition]] = 0 #0 es NO, 1 es SI
+    #elimina no ICU
+    df_caso7.drop(df_caso7[(df_caso7['UCI'] == 0)].index, inplace = True)
+    final_caso7_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','NEUMONIA','INTUBADO']
+    df_caso7 = df_caso7[df_caso7.columns.intersection(final_caso7_columns)]
+    
+    filename = 'df_caso_7_2'
+    compression_options = dict(method='zip', archive_name=f'{filename}.csv')
+    df_caso7.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False) 
+
+    #CASO 7.3: necesidad de ventilador DESPUES de DIAGNOSTICO de neumonia e ICU (solo filtro neumonia)
+    df_caso7 = df_prediction.copy()
+
+    conditions = ['EMBARAZO','RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA','UCI','NEUMONIA','INTUBADO']
+    for condition in conditions:
+        df_caso7 = df_caso7.loc[~((df_caso7[condition] == 97) | (df_caso7[condition] == 98) | (df_caso7[condition] == 99))]
+        df_caso7.loc[df_caso7[condition] == 2, [condition]] = 0 #0 es NO, 1 es SI
+    #elimina no neumonia
+    df_caso7.drop(df_caso7[(df_caso7['NEUMONIA'] == 0)].index, inplace =True)
+    final_caso7_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','UCI','INTUBADO']
+    df_caso7 = df_caso7[df_caso7.columns.intersection(final_caso7_columns)]
+
+    filename = 'df_caso_7_3'
+    compression_options = dict(method='zip', archive_name=f'{filename}.csv')
+    df_caso7.to_csv(f'prediction_data/{filename}.zip', compression=compression_options,index=False) 
+
 def print_df(df):
 #Se imprime el dataframe    
     #print(df)
@@ -271,11 +366,7 @@ def print_df(df):
     compression_options = dict(method='zip', archive_name=f'{filename}.csv')
     df.to_csv(f'{filename}.zip', compression=compression_options,index=False)
     print("Se ha generado el archivo .csv")
-<<<<<<< HEAD
 #%%
-=======
-
->>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 #Se ejecutan las funciones
 try: #Se obtiene el archivo más reciente
     resp = urlopen(url, timeout=10).read() #Se omite el uso de una función en este segmento para evitar errores con las variables
@@ -285,21 +376,14 @@ try: #Se obtiene el archivo más reciente
     print("Se está descargando la versión más actual del archivo...")
     _ = df
 except (ConnectionResetError, timeout) as error: #Si se falla al obtener el archivo más reciente se usa el último registro local
-<<<<<<< HEAD
-    print(str(error.args)) #Se omite el uso de una función en este segmento para evitar errores con las variables
-=======
     print(error.args) #Se omite el uso de una función en este segmento para evitar errores con las variables
->>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
     #print("ConnectionResetError or Timeout")
     print("Conexión fallida, se usará el último archivo local...")
     zipfile = ZipFile(path, 'r')
     extracted_file = zipfile.open(zipfile.namelist()[0])
     df = pd.read_csv(extracted_file, encoding = "ISO-8859-1")
     _ = df
-<<<<<<< HEAD
 #%%
-=======
->>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
 finally:
     #preprocessing
     filter_exclude_columns(df)

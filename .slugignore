@@ -1,3 +1,4 @@
 #cat .slugignore
 *.ipynb
+*.zip
 datos_abiertos_covid19.zip
