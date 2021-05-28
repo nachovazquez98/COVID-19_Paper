@@ -1,6 +1,7 @@
 #%%
 '''
 http://epistasislab.github.io/tpot/api/#classification
+https://machinelearningmastery.com/tpot-for-automated-machine-learning-in-python/
 '''
 import os, sys
 import pandas as pd
@@ -10,13 +11,14 @@ from sklearn.model_selection import train_test_split
 import pathlib
 from tpot import TPOTClassifier
 from sklearn.model_selection import RepeatedStratifiedKFold
-
+from sklearn.metrics import classification_report, confusion_matrix
 #%%abrir csv
 path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
 os.chdir(os.path.join(path)) 
 
 #path = pathlib.Path(__file__).parent.absolute()
 #os.chdir(path)
+print(os.getcwd())
 
 data_percentage = 0.01
 #data_percentage = 1
@@ -57,15 +59,17 @@ for subdir, dirs, files in os.walk(str_path+'prediction_data'):
             X = df_data.loc[:, df_data.columns != label]
             y = df_data.loc[:, label]
             print(y.value_counts())
+            X, y = X.values, y.values
+            X, y = X.astype('float32'), y.astype('float32')
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33,stratify=y, shuffle=True)
             #---->train
-            cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
-            tpot = TPOTClassifier(generations=10, population_size=50, scoring='balanced_accuracy', verbosity = 3, n_jobs = -1, cv= cv)
+            cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3)
+            tpot = TPOTClassifier(generations=100, population_size=100, scoring='balanced_accuracy', verbosity = 3, n_jobs = -1, cv= cv)
             tpot.fit(X_train, y_train)
             predictions = tpot.predict(X_test) 
             report = classification_report(y_test, predictions, output_dict=True)
             report = pd.DataFrame(report).transpose()
             #guarda el modelo y su reporte
-            joblib.dump(tpot, 'tpot/'+file_name+'_tpot_model.pkl', compress = 1)
-            grid_report.to_csv('tpot/'+file_name+'_tpot_report.csv', index=True)
+            #joblib.dump(tpot, 'tpot/'+file_name+'_tpot_model.pkl', compress = 1)
+            report.to_csv('tpot/'+file_name+'_tpot_report.csv', index=True)
             tpot.export('tpot/'+file_name+'_tpot_pipeline.py')

@@ -62,7 +62,7 @@ for subdir, dirs, files in os.walk(str_path+'prediction_data'):
             print(y.value_counts())
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33,stratify=y, shuffle=True)
             #---->train
-            grid, df_grid, grid_report= Gridsearchcv(X_train, X_test, y_train, y_test, randomizedsearch = True)
+            grid, df_grid, grid_report= Gridsearchcv(X_train, X_test, y_train, y_test, bayessearch = True)
             #guarda el modelo y su reporte
             joblib.dump(grid, 'models/'+file_name+'_grid.pkl', compress = 1)
             grid_report.to_csv('models/'+file_name+'_grid_report.csv', index=True)

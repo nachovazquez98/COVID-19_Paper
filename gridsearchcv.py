@@ -22,6 +22,7 @@ from imblearn.ensemble import BalancedRandomForestClassifier
 from sklearn.experimental import enable_hist_gradient_boosting
 from sklearn.ensemble import HistGradientBoostingClassifier
 from skopt.space import Real, Categorical, Integer
+from skopt import BayesSearchCV
 '''
 robust versions of logistic regression
 support vector machines
@@ -55,8 +56,15 @@ https://scikit-learn.org/dev/auto_examples/inspection/plot_permutation_importanc
 https://imbalanced-learn.org/stable/references/ensemble.html
 macro average recall = balanced accuracy 
 macro average precision
+#bayes
+https://scikit-optimize.github.io/stable/modules/generated/skopt.BayesSearchCV.html#skopt.BayesSearchCV
+https://machinelearningmastery.com/scikit-optimize-for-hyperparameter-tuning-in-machine-learning/
+https://towardsdatascience.com/hyperparameter-optimization-with-scikit-learn-scikit-opt-and-keras-f13367f3e796
+https://github.com/RMichae1/PyroStudies/blob/master/Bayesian_Optimization.ipynb
+https://medium.datadriveninvestor.com/alternative-hyperparameter-optimization-techniques-you-need-to-know-part-2-e9b0d4d080a9
+https://scikit-optimize.github.io/stable/auto_examples/sklearn-gridsearchcv-replacement.html
 '''
-def Gridsearchcv(X_train, X_test, y_train, y_test, gridsearch=None, randomizedsearch=None):
+def Gridsearchcv(X_train, X_test, y_train, y_test, gridsearch=None, randomizedsearch=None, bayessearch = None):
     ############
     # Scale numeric values
     num_transformer = Pipeline(steps=[
@@ -156,11 +164,29 @@ def Gridsearchcv(X_train, X_test, y_train, y_test, gridsearch=None, randomizedse
     cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=3)
     #cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=5)
     if gridsearch == True:
-        grid = GridSearchCV(pipe, params,refit = 'ba',cv = cv, verbose = 3, n_jobs=-1,scoring = scoring)
+        grid = GridSearchCV(
+            pipe, 
+            params,
+            refit = 'ba',
+            cv = cv, 
+            verbose = 3, 
+            n_jobs=-1,
+            scoring = scoring,
+            return_train_score = True)
     if randomizedsearch == True:
         #https://towardsdatascience.com/hyper-parameter-tuning-with-randomised-grid-search-54f865d27926
         #n_iter: 30,60, 100
-        grid = RandomizedSearchCV(pipe, params,refit = 'ba',cv = cv, verbose = 3, n_jobs=-1,n_iter = 10,scoring= scoring)
+        grid = RandomizedSearchCV(
+            pipe, 
+            params,
+            refit = 'ba',
+            cv = cv, 
+            verbose = 3, 
+            n_jobs=-1,
+            n_iter = 10,
+            scoring= scoring,
+            return_train_score = True)
+
     grid.fit(X_train, y_train)
     df_grid=pd.DataFrame(grid.cv_results_)
     df_grid = df_grid.sort_values(by=['mean_test_ba'],ascending=False)

@@ -197,7 +197,6 @@ def grafica7(df):
     df_epoc = df.loc[df.EPOC == 1]['EDAD']
     sns.distplot(df_uci, label="uci")
     sns.distplot(df_vent, label="intub")
-<<<<<<< HEAD
     sns.distplot(df_epoc, label="epoc").set_title("Hosp de COVID-19 por edades")  
     plt.legend()
     plt.savefig('plots/hosp_sin_boxplot.png', format='png', dpi=1200)
@@ -214,11 +213,6 @@ def grafica8(df):
     sns.distplot(df_def, label="Defunción").set_title("Casos de COVID-19 por edades")  
     plt.legend()
     plt.savefig('plots/casos_sin_boxplot.png', format='png', dpi=1200)
-=======
-    sns.distplot(df_epoc, label="epoc").set_title("Muertes de COVID-19 por edades")  
-    plt.legend()
-    plt.savefig('plots/def_sin_boxplot.png', format='png', dpi=1200)
->>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
     plt.close(fig)
 
 
@@ -722,21 +716,15 @@ if __name__ == '__main__':
     grafica1(df)
     grafica2(df)
     estados_let(df)
-<<<<<<< HEAD
     #sector_barchart(df_og)
-=======
     sector_barchart(df_og)
->>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
     grafica3(df)
     grafica4(df)
     grafica5(df)
     grafica6(df)
     grafica7(df)
     grafica9(df)
-<<<<<<< HEAD
     grafica8(df)
-=======
->>>>>>> 1906d1b29928dda1f159c3b148ab48488ab87b80
     grafica99(df)
     grafica10(df)
     grafica11(df)

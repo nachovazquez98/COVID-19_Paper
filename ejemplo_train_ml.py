@@ -23,6 +23,7 @@ cancer = load_breast_cancer()
 df = pd.DataFrame(cancer['data'], columns = cancer['feature_names']) 
 df['target'] = cancer['target']
 df.head()
+file_name = 'breast_cancer'
 #%%#separar datos
 X = df.iloc[:,:-1]
 y = df.iloc[:,-1]
@@ -30,13 +31,24 @@ y = df.iloc[:,-1]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33,stratify=y, shuffle=True)
 grid, df_grid, grid_report= Gridsearchcv(X_train, X_test, y_train, y_test, randomizedsearch=True)
 #%%#guarda el modelo y su reporte
-file_name = 'breast_cancer'
 joblib.dump(grid, 'models/'+file_name+'_grid.pkl', compress = 1)
 df_grid.to_csv('models/'+file_name+'_df_grid.csv', index=True)
 grid_report.to_csv('models/'+file_name+'_grid_report.csv', index=True)
+#%%validation curve
+#%%importa el modelo y su rendimiento
+grid=joblib.load('models/'+file_name+'_grid.pkl')
+grid_report=pd.read_csv('models/'+file_name+'_grid_report.csv',index_col=0)
+
+test_scores = grid.cv_results_['mean_test_ba']
+train_scores = grid.cv_results_['mean_train_ba'] 
+
+plt.plot(test_scores, label='test')
+plt.plot(train_scores, label='train')
+plt.legend(loc='best')
+plt.show()
 #%%extract best parameter
-grid_report.iloc[0,:]
-grid_report.iloc[0,:][0][1]
+#grid_report.iloc[0,:]
+#grid_report.iloc[0,:][0][1]
 '''
 #%%Pipeline without gridsearchcv
 num_transformer=Pipeline(steps=[
