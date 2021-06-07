@@ -12,6 +12,7 @@ import pathlib
 from tpot import TPOTClassifier
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.metrics import classification_report, confusion_matrix
+from notify_run import Notify
 #%%abrir csv
 path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
 os.chdir(os.path.join(path)) 
@@ -24,11 +25,16 @@ data_percentage = 0.01
 #data_percentage = 1
 #%%Valida si existen las carpetas
 try:
-    os.makedirs("plots")
-    os.makedirs("models")
-    os.makedirs("tpot")
+    os.makedirs("tpot/models")
 except FileExistsError:
     pass
+#%%
+notify = Notify()
+notify.register()
+endpoint = channel.endpoint
+print(endpoint) # https://notify.run/<channel_code>
+channel_page = channel.channel_page
+print(channel_page) # https://notify.run/c/<channel_page_code>
 #%%iter pred files
 def pred_label(filename): 
     if filename.find('df_caso0') != -1:
@@ -45,7 +51,9 @@ def pred_label(filename):
 
 str_path = str(path)
 print(str_path)
+i = 1
 for subdir, dirs, files in os.walk(str_path+'prediction_data'):
+    notify.send('Empezo el proceso TPOT') 
     for file in files:
         if file.endswith(".zip"):
             file_path = subdir + "/" + file
@@ -71,5 +79,9 @@ for subdir, dirs, files in os.walk(str_path+'prediction_data'):
             report = pd.DataFrame(report).transpose()
             #guarda el modelo y su reporte
             #joblib.dump(tpot, 'tpot/'+file_name+'_tpot_model.pkl', compress = 1)
-            report.to_csv('tpot/'+file_name+'_tpot_report.csv', index=True)
-            tpot.export('tpot/'+file_name+'_tpot_pipeline.py')
+            report.to_csv('tpot/models'+file_name+'_tpot_report.csv', index=True)
+            tpot.export('tpot/models'+file_name+'_tpot_pipeline.py')
+            notify.send('Termino dataset #', i) 
+            i = 1 + 1
+
+notify.send('Finalizo el proceso TPOT') 
