@@ -22,12 +22,13 @@ os.chdir(os.path.join(path))
 #path = pathlib.Path(__file__).parent.absolute()
 #os.chdir(path)
 
-data_percentage = 0.01
-#data_percentage = 1
+#data_percentage = 0.01
+data_percentage = 1
 #%%Valida si existen las carpetas
 try:
     os.makedirs("plots")
     os.makedirs("models")
+    os.makedirs("models/all_data/20_80")
 except FileExistsError:
     pass
 #%%iter pred files
@@ -62,8 +63,8 @@ for subdir, dirs, files in os.walk(str_path+'prediction_data'):
             print(y.value_counts())
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33,stratify=y, shuffle=True)
             #---->train
-            grid, df_grid, grid_report= Gridsearchcv(X_train, X_test, y_train, y_test, bayessearch = True)
+            grid, df_grid, grid_report= Gridsearchcv(X_train, X_test, y_train, y_test)
             #guarda el modelo y su reporte
-            joblib.dump(grid, 'models/'+file_name+'_grid.pkl', compress = 1)
-            grid_report.to_csv('models/'+file_name+'_grid_report.csv', index=True)
-            df_grid.to_csv('models/'+file_name+'_df_grid.csv', index=True)
+            joblib.dump(grid, 'models/all_data/20_80/"'+file_name+'_grid.pkl', compress = 1)
+            grid_report.to_csv('models/all_data/20_80/'+file_name+'_grid_report.csv', index=True)
+            df_grid.to_csv('models/all_data/20_80/'+file_name+'_df_grid.csv', index=True)

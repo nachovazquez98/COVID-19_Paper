@@ -64,7 +64,7 @@ https://github.com/RMichae1/PyroStudies/blob/master/Bayesian_Optimization.ipynb
 https://medium.datadriveninvestor.com/alternative-hyperparameter-optimization-techniques-you-need-to-know-part-2-e9b0d4d080a9
 https://scikit-optimize.github.io/stable/auto_examples/sklearn-gridsearchcv-replacement.html
 '''
-def Gridsearchcv(X_train, X_test, y_train, y_test, gridsearch=None, randomizedsearch=None, bayessearch = None):
+def Gridsearchcv(X_train, X_test, y_train, y_test):
     ############
     # Scale numeric values
     num_transformer = Pipeline(steps=[
@@ -79,15 +79,13 @@ def Gridsearchcv(X_train, X_test, y_train, y_test, gridsearch=None, randomizedse
     pipe = Pipeline([
         ('preprocessor', preprocessor),
         ('clf', PipelineHelper([
-            #('svc', SVC())
-            # ('rf', RandomForestClassifier()),
-            # ('lr', LogisticRegression(solver='saga'))
-            # ('gb', GradientBoostingClassifier())
-            #('xgb', XGBClassifier(use_label_encoder=False))
+            ('svc', SVC())
+            ('gb', GradientBoostingClassifier())
+            ('xgb', XGBClassifier(use_label_encoder=False))
             ('eec', EasyEnsembleClassifier())
-            #('rbc', RUSBoostClassifier())
-            #('bbc', BalancedBaggingClassifier())
-            #('brf', BalancedRandomForestClassifier())
+            ('rbc', RUSBoostClassifier())
+            ('bbc', BalancedBaggingClassifier())
+            ('brf', BalancedRandomForestClassifier())
         ])),
     ])
 
@@ -97,60 +95,47 @@ def Gridsearchcv(X_train, X_test, y_train, y_test, gridsearch=None, randomizedse
         # #EasyEnsembleClassifier
         'eec__n_estimators' : [10, 25, 50, 100],
         'eec__warm_start' : [False, True],
-        'eec__replacement' : [False, True]
+        'eec__replacement' : [False, True],
 
         # #RUSBoostClassifier
-        # 'rbc__algorithm' : ['SAMME','SAMME.R'],
-        # 'rbc__n_estimators' : [10, 50, 100, 200, 500],
-        # 'rbc__learning_rate' : [1e-3, 1e-2, 1e-1, 0.5, 1.]
+        'rbc__algorithm' : ['SAMME','SAMME.R'],
+        'rbc__n_estimators' : [10, 50, 100, 200, 500],
+        'rbc__learning_rate' : [1e-3, 1e-2, 1e-1, 0.5, 1.],
         
         # #BalancedBaggingClassifier
-        # 'bbc__base_estimator': [HistGradientBoostingClassifier(), None],
-        # 'bbc__n_estimators' : [10, 50, 100, 200, 500,750,1000],
-        # 'bbc__max_samples':[0.5,0.6,0.7,0.8,0.9,1.0],
-        # 'bbc__max_features':[0.5,0.6,0.7,0.8,0.9,1.0]
+        'bbc__base_estimator': [HistGradientBoostingClassifier(), None],
+        'bbc__n_estimators' : [10, 50, 100, 200, 500,750,1000],
+        'bbc__max_samples':[0.5,0.6,0.7,0.8,0.9,1.0],
+        'bbc__max_features':[0.5,0.6,0.7,0.8,0.9,1.0],
 
         #BalancedRandomForestClassifier
-        # 'brf__criterion': ['gini', 'entropy'],
-        # 'brf__n_estimators' : [int(x) for x in np.linspace(start = 20, stop = 200, num = 5)],
-        # 'brf__max_depth' : [int(x) for x in np.linspace(1, 45, num = 3)],
-        # 'brf__min_samples_split' : range(2,10),
-        # 'brf__min_samples_leaf': [1,3,5,10], 
-        # 'brf__max_features' : ['auto', 'sqrt', 'log2']
+        'brf__criterion': ['gini', 'entropy'],
+        'brf__n_estimators' : [int(x) for x in np.linspace(start = 20, stop = 200, num = 5)],
+        'brf__max_depth' : [int(x) for x in np.linspace(1, 45, num = 3)],
+        'brf__min_samples_split' : range(2,10),
+        'brf__min_samples_leaf': [1,3,5,10], 
+        'brf__max_features' : ['auto', 'sqrt', 'log2'],
 
         # #svm 
-        # 'svc__kernel': ['rbf', 'linear', 'poly'],
-        # 'svc__C': Real(1e-6, 1e+6, prior='log-uniform'),
-        # 'svc__gamma' : Real(1e-6, 1e+1, prior='log-uniform'),
-        # 'svc__degree': Integer(1,8),
-        
-        # #logistic regression
-        # 'lr__penalty' : ['l1', 'l2'],
-        # 'lr__C' : np.logspace(-4, 4, 20),
-        # 'lr__tol' : [1e-4,1e-5],
-        # 'lr__max_iter' : [350]
-
-        # #randmon 1440 ->borrar
-        # 'rf__n_estimators' : [int(x) for x in np.linspace(start = 20, stop = 200, num = 5)],
-        # 'rf__max_features' : ['auto', 'sqrt', 'log2'],
-        # 'rf__max_depth' : [int(x) for x in np.linspace(1, 45, num = 3)],
-        # 'rf__min_samples_split' : range(2,10),
-        # 'rf__min_samples_leaf': [1,3,5,10]
+        'svc__kernel': ['rbf', 'linear', 'poly'],
+        'svc__C': Real(1e-6, 1e+6, prior='log-uniform'),
+        'svc__gamma' : Real(1e-6, 1e+1, prior='log-uniform'),
+        'svc__degree': Integer(1,8),
 
         # #gb 3780
-        # "gb__learning_rate": [0.0001, 0.001, 0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2],
-        # "gb__max_depth":[3,7,8,9,10,50],
-        # "gb__max_features":["log2","sqrt"],
-        # "gb__subsample":[0.5, 0.618, 0.8, 0.85, 0.9, 0.95, 1.0],
-        # "gb__n_estimators":[10, 50, 100, 200, 500]
+        "gb__learning_rate": [0.0001, 0.001, 0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2],
+        "gb__max_depth":[3,7,8,9,10,50],
+        "gb__max_features":["log2","sqrt"],
+        "gb__subsample":[0.5, 0.618, 0.8, 0.85, 0.9, 0.95, 1.0],
+        "gb__n_estimators":[10, 50, 100, 200, 500],
         
         # #xgboost 20000
-        # 'xgb__n_estimators': [100],
-        # 'xgb__max_depth': range(1, 11),
-        # 'xgb__learning_rate': [1e-3, 1e-2, 1e-1, 0.5, 1.],
-        # 'xgb__subsample': np.arange(0.05, 1.01, 0.05),
-        # 'xgb__min_child_weight': range(1, 21),
-        # 'xgb__verbosity': [0] # add this line to slient warning 
+        'xgb__n_estimators': [100],
+        'xgb__max_depth': range(1, 11),
+        'xgb__learning_rate': [1e-3, 1e-2, 1e-1, 0.5, 1.],
+        'xgb__subsample': np.arange(0.05, 1.01, 0.05),
+        'xgb__min_child_weight': range(1, 21),
+        'xgb__verbosity': [0] # add this line to slient warning 
         
         # 'n_estimators': [400, 700, 1000],
         # 'colsample_bytree': [0.7, 0.8],
@@ -163,29 +148,19 @@ def Gridsearchcv(X_train, X_test, y_train, y_test, gridsearch=None, randomizedse
     scoring = {'ba': 'balanced_accuracy','ap': 'average_precision', 'F1' : 'f1', 'ra': 'roc_auc', 'rc': 'recall'}
     cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=3)
     #cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=5)
-    if gridsearch == True:
-        grid = GridSearchCV(
-            pipe, 
-            params,
-            refit = 'ba',
-            cv = cv, 
-            verbose = 3, 
-            n_jobs=-1,
-            scoring = scoring,
-            return_train_score = True)
-    if randomizedsearch == True:
-        #https://towardsdatascience.com/hyper-parameter-tuning-with-randomised-grid-search-54f865d27926
-        #n_iter: 30,60, 100
-        grid = RandomizedSearchCV(
-            pipe, 
-            params,
-            refit = 'ba',
-            cv = cv, 
-            verbose = 3, 
-            n_jobs=-1,
-            n_iter = 10,
-            scoring= scoring,
-            return_train_score = True)
+    #https://towardsdatascience.com/hyper-parameter-tuning-with-randomised-grid-search-54f865d27926
+    #n_iter: 30,60, 100
+    grid = RandomizedSearchCV(
+        pipe, 
+        params,
+        refit = 'ba',
+        cv = cv, 
+        verbose = 3, 
+        n_jobs=-1,
+        n_iter = 100,
+        scoring= scoring,
+        return_train_score = True
+        )
 
     grid.fit(X_train, y_train)
     df_grid=pd.DataFrame(grid.cv_results_)
