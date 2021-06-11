@@ -1,4 +1,4 @@
-zfrom sklearn.pipeline import Pipeline
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.compose import make_column_selector
@@ -146,8 +146,8 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
         }),
     }
     scoring = {'ba': 'balanced_accuracy','ap': 'average_precision', 'F1' : 'f1', 'ra': 'roc_auc', 'rc': 'recall'}
-    cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=3)
-    #cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=5)
+    #cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=3)
+    cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=5)
     #https://towardsdatascience.com/hyper-parameter-tuning-with-randomised-grid-search-54f865d27926
     #n_iter: 30,60, 100
     grid = RandomizedSearchCV(

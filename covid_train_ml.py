@@ -15,15 +15,21 @@ import joblib
 from gridsearchcv import Gridsearchcv
 from sklearn.model_selection import train_test_split
 import pathlib
+from notify_run import Notify
 #%%abrir csv
-path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
+#path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
+path = "/lustre/home/idvperez/COVID-19_Paper/"
 os.chdir(os.path.join(path)) 
-
-#path = pathlib.Path(__file__).parent.absolute()
-#os.chdir(path)
 
 #data_percentage = 0.01
 data_percentage = 1
+#%%
+notify = Notify()
+channel = notify.register()
+endpoint = channel.endpoint
+print(endpoint) # https://notify.run/<channel_code>
+channel_page = channel.channel_page
+print(channel_page) # https://notify.run/c/<channel_page_code>
 #%%Valida si existen las carpetas
 try:
     os.makedirs("plots")
@@ -47,6 +53,7 @@ def pred_label(filename):
 
 str_path = str(path)
 print(str_path)
+i = 1
 for subdir, dirs, files in os.walk(str_path+'prediction_data'):
     for file in files:
         if file.endswith(".zip"):
@@ -61,10 +68,15 @@ for subdir, dirs, files in os.walk(str_path+'prediction_data'):
             X = df_data.loc[:, df_data.columns != label]
             y = df_data.loc[:, label]
             print(y.value_counts())
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33,stratify=y, shuffle=True)
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20,stratify=y, shuffle=True)
             #---->train
             grid, df_grid, grid_report= Gridsearchcv(X_train, X_test, y_train, y_test)
             #guarda el modelo y su reporte
-            joblib.dump(grid, 'models/all_data/20_80/"'+file_name+'_grid.pkl', compress = 1)
+            joblib.dump(grid, 'models/all_data/20_80/'+file_name+'_grid.pkl', compress = 1)
             grid_report.to_csv('models/all_data/20_80/'+file_name+'_grid_report.csv', index=True)
             df_grid.to_csv('models/all_data/20_80/'+file_name+'_df_grid.csv', index=True)
+
+            notify.send("Termino dataset # " + str(i))
+            i = 1 + i
+
+notify.send('Finalizo el proceso TPOT') 
