@@ -14,15 +14,16 @@ from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.metrics import classification_report, confusion_matrix
 from notify_run import Notify
 #%%abrir csv
-path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
-os.chdir(os.path.join(path)) 
+#path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
+path = "/lustre/home/idvperez/COVID-19_Paper/"
+os.chdir(os.path.join(path))
 
 #path = pathlib.Path(__file__).parent.absolute()
 #os.chdir(path)
 print(os.getcwd())
 
-data_percentage = 0.01
-#data_percentage = 1
+#data_percentage = 0.01
+data_percentage = 1
 #%%Valida si existen las carpetas
 try:
     os.makedirs("tpot/models")
@@ -30,13 +31,13 @@ except FileExistsError:
     pass
 #%%
 notify = Notify()
-notify.register()
+channel = notify.register()
 endpoint = channel.endpoint
 print(endpoint) # https://notify.run/<channel_code>
 channel_page = channel.channel_page
 print(channel_page) # https://notify.run/c/<channel_page_code>
 #%%iter pred files
-def pred_label(filename): 
+def pred_label(filename):
     if filename.find('df_caso0') != -1:
         label = 'hosp_critica'
     if filename.find('caso1') != -1:
@@ -72,16 +73,16 @@ for subdir, dirs, files in os.walk(str_path+'prediction_data'):
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33,stratify=y, shuffle=True)
             #---->train
             cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3)
-            tpot = TPOTClassifier(generations=100, population_size=100, scoring='balanced_accuracy', verbosity = 3, n_jobs = -1, cv= cv)
+            tpot = TPOTClassifier(generations=50, population_size=50, scoring='balanced_accuracy', verbosity = 3, n_jobs = -1, cv= cv)
             tpot.fit(X_train, y_train)
             predictions = tpot.predict(X_test) 
             report = classification_report(y_test, predictions, output_dict=True)
             report = pd.DataFrame(report).transpose()
             #guarda el modelo y su reporte
             #joblib.dump(tpot, 'tpot/'+file_name+'_tpot_model.pkl', compress = 1)
-            report.to_csv('tpot/models'+file_name+'_tpot_report.csv', index=True)
-            tpot.export('tpot/models'+file_name+'_tpot_pipeline.py')
-            notify.send('Termino dataset #', i) 
+            report.to_csv('tpot/models/'+file_name+'_tpot_report.csv', index=True)
+            tpot.export('tpot/models/'+file_name+'_tpot_pipeline.py')
+            notify.send("Termino dataset # " + str(i))
             i = 1 + 1
 
 notify.send('Finalizo el proceso TPOT') 
