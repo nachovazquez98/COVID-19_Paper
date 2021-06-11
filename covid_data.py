@@ -23,7 +23,8 @@ crear dataset por cada problema
 url = 'http://datosabiertos.salud.gob.mx/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip'
 #path = "/app"
 
-fullpath = "/home/nacho/Documents/coronavirus/COVID-19_Paper/" 
+#fullpath = "/home/nacho/Documents/coronavirus/COVID-19_Paper/" 
+fullpath = "/lustre/home/idvperez/COVID-19_Paper"
 #fullpath = pathlib.Path(__file__).parent.absolute()
 
 path = str(fullpath) + 'datos_abiertos_covid19.zip' #del archivo .zip
