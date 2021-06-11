@@ -29,7 +29,7 @@ X = df.iloc[:,:-1]
 y = df.iloc[:,-1]
 #%%
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33,stratify=y, shuffle=True)
-grid, df_grid, grid_report= Gridsearchcv(X_train, X_test, y_train, y_test, randomizedsearch=True)
+grid, df_grid, grid_report= Gridsearchcv(X_train, X_test, y_train, y_test)
 #%%#guarda el modelo y su reporte
 joblib.dump(grid, 'models/'+file_name+'_grid.pkl', compress = 1)
 df_grid.to_csv('models/'+file_name+'_df_grid.csv', index=True)

@@ -25,10 +25,7 @@ print(os.getcwd())
 #data_percentage = 0.01
 data_percentage = 1
 #%%Valida si existen las carpetas
-try:
-    os.makedirs("tpot/models")
-except FileExistsError:
-    pass
+os.makedirs("tpot/models", exist_ok = True)
 #%%
 notify = Notify()
 channel = notify.register()

@@ -79,36 +79,36 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
     pipe = Pipeline([
         ('preprocessor', preprocessor),
         ('clf', PipelineHelper([
-            ('svc', SVC())
-            ('gb', GradientBoostingClassifier())
-            ('xgb', XGBClassifier(use_label_encoder=False))
-            ('eec', EasyEnsembleClassifier())
-            ('rbc', RUSBoostClassifier())
-            ('bbc', BalancedBaggingClassifier())
-            ('brf', BalancedRandomForestClassifier())
+            ('svc', SVC()),
+            ('gb', GradientBoostingClassifier()),
+            ('xgb', XGBClassifier(use_label_encoder=False)),
+            ('eec', EasyEnsembleClassifier()),
+            ('rbc', RUSBoostClassifier()),
+            ('bbc', BalancedBaggingClassifier()),
+            ('brf', BalancedRandomForestClassifier()),
         ])),
     ])
 
     params = {
     'clf__selected_model': pipe.named_steps['clf'].generate({
 
-        # #EasyEnsembleClassifier
+        # # #EasyEnsembleClassifier
         'eec__n_estimators' : [10, 25, 50, 100],
         'eec__warm_start' : [False, True],
         'eec__replacement' : [False, True],
 
-        # #RUSBoostClassifier
+        # # #RUSBoostClassifier
         'rbc__algorithm' : ['SAMME','SAMME.R'],
         'rbc__n_estimators' : [10, 50, 100, 200, 500],
         'rbc__learning_rate' : [1e-3, 1e-2, 1e-1, 0.5, 1.],
         
-        # #BalancedBaggingClassifier
+        # # #BalancedBaggingClassifier
         'bbc__base_estimator': [HistGradientBoostingClassifier(), None],
         'bbc__n_estimators' : [10, 50, 100, 200, 500,750,1000],
         'bbc__max_samples':[0.5,0.6,0.7,0.8,0.9,1.0],
         'bbc__max_features':[0.5,0.6,0.7,0.8,0.9,1.0],
 
-        #BalancedRandomForestClassifier
+        # #BalancedRandomForestClassifier
         'brf__criterion': ['gini', 'entropy'],
         'brf__n_estimators' : [int(x) for x in np.linspace(start = 20, stop = 200, num = 5)],
         'brf__max_depth' : [int(x) for x in np.linspace(1, 45, num = 3)],
@@ -116,38 +116,53 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
         'brf__min_samples_leaf': [1,3,5,10], 
         'brf__max_features' : ['auto', 'sqrt', 'log2'],
 
-        # #svm 
+        # # #svm 
+        'svc__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
+        'svc__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50],
         'svc__kernel': ['rbf', 'linear', 'poly'],
-        'svc__C': Real(1e-6, 1e+6, prior='log-uniform'),
-        'svc__gamma' : Real(1e-6, 1e+1, prior='log-uniform'),
-        'svc__degree': Integer(1,8),
-
-        # #gb 3780
+        
+        # # #gb 3780
         "gb__learning_rate": [0.0001, 0.001, 0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2],
         "gb__max_depth":[3,7,8,9,10,50],
         "gb__max_features":["log2","sqrt"],
         "gb__subsample":[0.5, 0.618, 0.8, 0.85, 0.9, 0.95, 1.0],
         "gb__n_estimators":[10, 50, 100, 200, 500],
         
-        # #xgboost 20000
-        'xgb__n_estimators': [100],
-        'xgb__max_depth': range(1, 11),
-        'xgb__learning_rate': [1e-3, 1e-2, 1e-1, 0.5, 1.],
-        'xgb__subsample': np.arange(0.05, 1.01, 0.05),
-        'xgb__min_child_weight': range(1, 21),
-        'xgb__verbosity': [0] # add this line to slient warning 
+        # #xgboost
+        'xgb__learning_rate' : [1e-3, 1e-2, 1e-1, 0.5, 1.],  
+        'xgb__min_child_weight': [1, 5, 10],
+        'xgb__gamma': [0.5, 1, 1.5, 2, 5],
+        'xgb__subsample': [0.6, 0.8, 1.0],
+        'xgb__colsample_bytree': [0.6, 0.8, 1.0],
+        'xgb__max_depth': [3, 4, 5],
+        'xgb__verbosity': [0],
+
+        # 'xgb__booster': ['gbtree', 'gblinear' ,'dart'], 
+        # 'xgb__learning_rate' : [1e-3, 1e-2, 1e-1, 0.5, 1.], 
+        # 'xgb__min_child_weight': range(1, 21, 5),
+        # 'xgb__subsample': np.arange(0.05, 1.01, 0.05),
+        # 'xgb__max_depth': [15,20,25],
+        # 'xgb__verbosity': [0],
+
+        # 'xgb__n_estimators': [100],
+        # 'xgb__max_depth': range(1, 11),
+        # 'xgb__learning_rate': [1e-3, 1e-2, 1e-1, 0.5, 1.],
+        # 'xgb__subsample': np.arange(0.05, 1.01, 0.05),
+        # 'xgb__min_child_weight': range(1, 21),
+        # 'xgb__verbosity': [0], # add this line to slient warning 
         
-        # 'n_estimators': [400, 700, 1000],
-        # 'colsample_bytree': [0.7, 0.8],
-        # 'max_depth': [15,20,25],
-        # 'reg_alpha': [1.1, 1.2, 1.3],
-        # 'reg_lambda': [1.1, 1.2, 1.3],
-        # 'subsample': [0.7, 0.8, 0.9]
+        # 'xgb__n_estimators': [400, 700, 1000],
+        # 'xgb__colsample_bytree': [0.7, 0.8],
+        # 'xgb__max_depth': [15,20,25],
+        # 'xgb__reg_alpha': [1.1, 1.2, 1.3],
+        # 'xgb__reg_lambda': [1.1, 1.2, 1.3],
+        # 'xgb__subsample': [0.7, 0.8, 0.9],
+        # 'xgb__eval_metric' : ['mlogloss']
         }),
     }
     scoring = {'ba': 'balanced_accuracy','ap': 'average_precision', 'F1' : 'f1', 'ra': 'roc_auc', 'rc': 'recall'}
-    #cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=3)
-    cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=5)
+    cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=3)
+    #cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=5)
     #https://towardsdatascience.com/hyper-parameter-tuning-with-randomised-grid-search-54f865d27926
     #n_iter: 30,60, 100
     grid = RandomizedSearchCV(

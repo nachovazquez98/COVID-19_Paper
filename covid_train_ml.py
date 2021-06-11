@@ -17,8 +17,8 @@ from sklearn.model_selection import train_test_split
 import pathlib
 from notify_run import Notify
 #%%abrir csv
-#path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
-path = "/lustre/home/idvperez/COVID-19_Paper/"
+path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
+#path = "/lustre/home/idvperez/COVID-19_Paper/"
 os.chdir(os.path.join(path)) 
 
 #data_percentage = 0.01
@@ -31,12 +31,10 @@ print(endpoint) # https://notify.run/<channel_code>
 channel_page = channel.channel_page
 print(channel_page) # https://notify.run/c/<channel_page_code>
 #%%Valida si existen las carpetas
-try:
-    os.makedirs("plots")
-    os.makedirs("models")
-    os.makedirs("models/all_data/20_80")
-except FileExistsError:
-    pass
+os.makedirs("plots", exist_ok = True)
+os.makedirs("models", exist_ok = True)
+os.makedirs("models/all_data", exist_ok = True)
+os.makedirs("models/all_data/20_80", exist_ok = True)
 #%%iter pred files
 def pred_label(filename): 
     if filename.find('df_caso0') != -1:
