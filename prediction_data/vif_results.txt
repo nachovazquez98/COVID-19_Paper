@@ -1,0 +1,263 @@
+df_caso_3_1
+BOOL_DEF
+1    13538
+0     4086
+Name: BOOL_DEF, dtype: int64
+    VIF Factor        features
+0     1.571465            SEXO
+1     2.732159            EDAD
+2     1.024041        EMBARAZO
+3     1.689747        DIABETES
+4     1.055257            EPOC
+5     1.023664            ASMA
+6     1.032107        INMUSUPR
+7     1.956934    HIPERTENSION
+8     1.081270  CARDIOVASCULAR
+9     1.368623        OBESIDAD
+10    1.080847   RENAL_CRONICA
+11    1.110678      TABAQUISMO
+df_caso5_1
+UCI
+0    248960
+1     29128
+Name: UCI, dtype: int64
+    VIF Factor        features
+0     1.682250            SEXO
+1     2.759362            EDAD
+2     1.010935        EMBARAZO
+3     1.721104        DIABETES
+4     1.067891            EPOC
+5     1.025504            ASMA
+6     1.031036        INMUSUPR
+7     2.034397    HIPERTENSION
+8     1.080306  CARDIOVASCULAR
+9     1.285888        OBESIDAD
+10    1.108316   RENAL_CRONICA
+11    1.110990      TABAQUISMO
+df_caso5
+UCI
+0    388812
+1     33752
+Name: UCI, dtype: int64
+    VIF Factor        features
+0     1.694204            SEXO
+1     2.771804        NEUMONIA
+2     4.389047            EDAD
+3     1.020351        EMBARAZO
+4     1.714342        DIABETES
+5     1.070276            EPOC
+6     1.026833            ASMA
+7     1.030921        INMUSUPR
+8     2.041260    HIPERTENSION
+9     1.081966  CARDIOVASCULAR
+10    1.286777        OBESIDAD
+11    1.114426   RENAL_CRONICA
+12    1.110602      TABAQUISMO
+df_caso_7_1
+INTUBADO
+1    16567
+0    12561
+Name: INTUBADO, dtype: int64
+    VIF Factor        features
+0     1.614878            SEXO
+1     2.783889            EDAD
+2     1.023133        EMBARAZO
+3     1.696330        DIABETES
+4     1.064115            EPOC
+5     1.025556            ASMA
+6     1.030036        INMUSUPR
+7     1.964997    HIPERTENSION
+8     1.081187  CARDIOVASCULAR
+9     1.355583        OBESIDAD
+10    1.074971   RENAL_CRONICA
+11    1.107855      TABAQUISMO
+df_caso3
+BOOL_DEF
+0    234136
+1    188428
+Name: BOOL_DEF, dtype: int64
+    VIF Factor        features
+0     1.695059            SEXO
+1     1.308628        INTUBADO
+2     2.899630            EDAD
+3     1.020877        EMBARAZO
+4     1.713680        DIABETES
+5     1.069320            EPOC
+6     1.026826            ASMA
+7     1.030941        INMUSUPR
+8     2.039000    HIPERTENSION
+9     1.081480  CARDIOVASCULAR
+10    1.281147        OBESIDAD
+11    1.114537   RENAL_CRONICA
+12    1.110337      TABAQUISMO
+13    1.227666             UCI
+df_caso_3_2
+BOOL_DEF
+1    46124
+0     9330
+Name: BOOL_DEF, dtype: int64
+    VIF Factor        features
+0     1.617377            SEXO
+1     3.204443            EDAD
+2     1.014498        EMBARAZO
+3     1.729795        DIABETES
+4     1.068543            EPOC
+5     1.026590            ASMA
+6     1.034322        INMUSUPR
+7     2.083588    HIPERTENSION
+8     1.082223  CARDIOVASCULAR
+9     1.354084        OBESIDAD
+10    1.102766   RENAL_CRONICA
+11    1.123092      TABAQUISMO
+12    1.416429             UCI
+df_caso_3_3
+BOOL_DEF
+1    19153
+0    14599
+Name: BOOL_DEF, dtype: int64
+    VIF Factor        features
+0     1.620191            SEXO
+1     2.004430        INTUBADO
+2     3.712288            EDAD
+3     1.030897        EMBARAZO
+4     1.686198        DIABETES
+5     1.065608            EPOC
+6     1.026774            ASMA
+7     1.030525        INMUSUPR
+8     1.955424    HIPERTENSION
+9     1.081290  CARDIOVASCULAR
+10    1.354241        OBESIDAD
+11    1.076854   RENAL_CRONICA
+12    1.106527      TABAQUISMO
+df_caso7
+INTUBADO
+0    367110
+1     55454
+Name: INTUBADO, dtype: int64
+    VIF Factor        features
+0     1.694521            SEXO
+1     2.828851        NEUMONIA
+2     4.396849            EDAD
+3     1.020863        EMBARAZO
+4     1.714431        DIABETES
+5     1.070318            EPOC
+6     1.026840            ASMA
+7     1.031028        INMUSUPR
+8     2.041404    HIPERTENSION
+9     1.082029  CARDIOVASCULAR
+10    1.288998        OBESIDAD
+11    1.114618   RENAL_CRONICA
+12    1.110631      TABAQUISMO
+13    1.105517             UCI
+df_caso_7_3
+INTUBADO
+0    231206
+1     46882
+Name: INTUBADO, dtype: int64
+    VIF Factor        features
+0     1.682593            SEXO
+1     2.856589            EDAD
+2     1.011861        EMBARAZO
+3     1.721330        DIABETES
+4     1.068009            EPOC
+5     1.025532            ASMA
+6     1.031234        INMUSUPR
+7     2.034813    HIPERTENSION
+8     1.080329  CARDIOVASCULAR
+9     1.290847        OBESIDAD
+10    1.108451   RENAL_CRONICA
+11    1.110991      TABAQUISMO
+12    1.111904             UCI
+df_caso_7_2
+INTUBADO
+1    17624
+0    16128
+Name: INTUBADO, dtype: int64
+    VIF Factor        features
+0     1.622979            SEXO
+1     5.733059        NEUMONIA
+2     7.005864            EDAD
+3     1.032255        EMBARAZO
+4     1.688541        DIABETES
+5     1.065773            EPOC
+6     1.027151            ASMA
+7     1.031414        INMUSUPR
+8     1.960959    HIPERTENSION
+9     1.082148  CARDIOVASCULAR
+10    1.378225        OBESIDAD
+11    1.076598   RENAL_CRONICA
+12    1.107581      TABAQUISMO
+df_caso2
+BOOL_DEF
+0    2061572
+1     207896
+Name: BOOL_DEF, dtype: int64
+    VIF Factor        features
+0     1.827592            SEXO
+1     1.530917   TIPO_PACIENTE
+2     2.908186            EDAD
+3     1.015489        EMBARAZO
+4     1.442825        DIABETES
+5     1.042825            EPOC
+6     1.025229            ASMA
+7     1.023408        INMUSUPR
+8     1.599355    HIPERTENSION
+9     1.056669  CARDIOVASCULAR
+10    1.205369        OBESIDAD
+11    1.074132   RENAL_CRONICA
+12    1.079787      TABAQUISMO
+df_caso0
+hosp_critica
+0    350982
+1     71582
+Name: hosp_critica, dtype: int64
+    VIF Factor        features
+0     1.693642            SEXO
+1     2.741747            EDAD
+2     1.020345        EMBARAZO
+3     1.713395        DIABETES
+4     1.069164            EPOC
+5     1.026807            ASMA
+6     1.030659        INMUSUPR
+7     2.038455    HIPERTENSION
+8     1.081441  CARDIOVASCULAR
+9     1.274815        OBESIDAD
+10    1.114357   RENAL_CRONICA
+11    1.110243      TABAQUISMO
+df_caso6
+INTUBADO
+0    367110
+1     55462
+Name: INTUBADO, dtype: int64
+    VIF Factor        features
+0     1.693638            SEXO
+1     2.741757            EDAD
+2     1.020345        EMBARAZO
+3     1.713405        DIABETES
+4     1.069162            EPOC
+5     1.026806            ASMA
+6     1.030659        INMUSUPR
+7     2.038473    HIPERTENSION
+8     1.081439  CARDIOVASCULAR
+9     1.274809        OBESIDAD
+10    1.114354   RENAL_CRONICA
+11    1.110245      TABAQUISMO
+df_caso1
+TIPO_PACIENTE
+0    1843528
+1     425940
+Name: TIPO_PACIENTE, dtype: int64
+    VIF Factor        features
+0     1.788909            SEXO
+1     2.516419            EDAD
+2     1.014423        EMBARAZO
+3     1.419273        DIABETES
+4     1.039981            EPOC
+5     1.025113            ASMA
+6     1.022025        INMUSUPR
+7     1.587190    HIPERTENSION
+8     1.055551  CARDIOVASCULAR
+9     1.203787        OBESIDAD
+10    1.066172   RENAL_CRONICA
+11    1.079015      TABAQUISMO
+

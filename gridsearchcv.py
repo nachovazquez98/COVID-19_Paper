@@ -48,6 +48,7 @@ https://www.kaggle.com/crawford/hyperparameter-search-comparison-grid-vs-random
 https://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf
 
 #importante
+#https://dl.acm.org/doi/10.5555/2503308.2188395
 https://scikit-learn.org/stable/auto_examples/model_selection/plot_multi_metric_evaluation.html
 https://scikit-learn.org/0.15/modules/model_evaluation.html
 https://scikit-learn.org/stable/modules/model_evaluation.html
@@ -126,7 +127,7 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
         "gb__max_depth":[3,7,8,9,10,50],
         "gb__max_features":["log2","sqrt"],
         "gb__subsample":[0.5, 0.618, 0.8, 0.85, 0.9, 0.95, 1.0],
-        "gb__n_estimators":[10, 50, 100, 200, 500],
+        "gb__n_estimators":[10, 50, 100, 200, 300],
         
         # #xgboost
         'xgb__learning_rate' : [1e-3, 1e-2, 1e-1, 0.5, 1.],  

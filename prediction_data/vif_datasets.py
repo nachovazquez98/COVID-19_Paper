@@ -12,7 +12,7 @@ os.chdir(os.path.join(path))
 
 os.makedirs("prediction_data/reduced_dataset", exist_ok = True)
 
-def calculate_vif_(X, thresh=100):
+def calculate_vif_(X, thresh=10):
     cols = X.columns
     variables = np.arange(X.shape[1])
     dropped=True
@@ -59,6 +59,12 @@ for subdir, dirs, files in os.walk(str_path+'prediction_data'):
             X = df_data.loc[:, df_data.columns != label]
             y = df_data.loc[:, label]
             print(y.value_counts())
+            #print values
+            vif = pd.DataFrame()
+            vif["VIF Factor"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+            vif["features"] = X.columns
+            pd.set_option('expand_frame_repr', False)
+            print(vif)
             #appplt vif
             new_df = calculate_vif_(X, thresh=100)
             #save new df
