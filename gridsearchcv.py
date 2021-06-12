@@ -126,7 +126,7 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
         "gb__max_depth":[3,7,8,9,10,50],
         "gb__max_features":["log2","sqrt"],
         "gb__subsample":[0.5, 0.618, 0.8, 0.85, 0.9, 0.95, 1.0],
-        "gb__n_estimators":[10, 50, 100, 200, 500],
+        "gb__n_estimators":[10, 50, 100, 200, 300],
         
         # #xgboost
         'xgb__learning_rate' : [1e-3, 1e-2, 1e-1, 0.5, 1.],  
@@ -169,7 +169,7 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
         cv = cv, 
         verbose = 3, 
         n_jobs=-1,
-        n_iter = 100,
+        n_iter = 60,
         scoring= scoring,
         return_train_score = True
         )
