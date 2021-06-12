@@ -97,6 +97,7 @@ imbalanced-learn = "*"
 scikit-learn = "*"
 scikit-optimize = "*"
 notify-run = "*"
+statsmodels = "*"
 
 [requires]
 python_version = "3.6"

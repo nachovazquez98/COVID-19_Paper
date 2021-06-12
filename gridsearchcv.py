@@ -119,7 +119,7 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
         # # #svm 
         'svc__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
         'svc__gamma' : [0.0001, 0.001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.5, 1, 5, 10, 50],
-        'svc__kernel': ['rbf', 'linear', 'poly'],
+        'svc__kernel': ['rbf'],
         
         # # #gb 3780
         "gb__learning_rate": [0.0001, 0.001, 0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2],
@@ -130,11 +130,8 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
         
         # #xgboost
         'xgb__learning_rate' : [1e-3, 1e-2, 1e-1, 0.5, 1.],  
-        'xgb__min_child_weight': [1, 5, 10],
-        'xgb__gamma': [0.5, 1, 1.5, 2, 5],
-        'xgb__subsample': [0.6, 0.8, 1.0],
-        'xgb__colsample_bytree': [0.6, 0.8, 1.0],
-        'xgb__max_depth': [3, 4, 5],
+        'xgb__min_child_weight': np.arange(1, 21, 5),
+        'xgb__subsample': np.arange(0.05, 1.01, 0.05),
         'xgb__verbosity': [0],
 
         # 'xgb__booster': ['gbtree', 'gblinear' ,'dart'], 

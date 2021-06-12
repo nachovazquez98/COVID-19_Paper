@@ -77,4 +77,4 @@ for subdir, dirs, files in os.walk(str_path+'prediction_data'):
             notify.send("Termino dataset # " + str(i))
             i = 1 + i
 
-notify.send('Finalizo el proceso TPOT') 
+notify.send('Finalizo el proceso') 
