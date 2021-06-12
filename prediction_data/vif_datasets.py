@@ -6,8 +6,8 @@ import joblib
 from sklearn.model_selection import train_test_split
 import pathlib
 
-path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
-#path = "/lustre/home/idvperez/COVID-19_Paper/"
+#path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
+path = "/lustre/home/idvperez/COVID-19_Paper/"
 os.chdir(os.path.join(path)) 
 
 os.makedirs("prediction_data/reduced_dataset", exist_ok = True)

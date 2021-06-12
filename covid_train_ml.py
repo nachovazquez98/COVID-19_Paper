@@ -17,8 +17,8 @@ from sklearn.model_selection import train_test_split
 import pathlib
 from notify_run import Notify
 #%%abrir csv
-path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
-#path = "/lustre/home/idvperez/COVID-19_Paper/"
+#path = "/home/nacho/Documents/coronavirus/COVID-19_Paper/"
+path = "/lustre/home/idvperez/COVID-19_Paper/"
 os.chdir(os.path.join(path)) 
 
 #data_percentage = 0.01

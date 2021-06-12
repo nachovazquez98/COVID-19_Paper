@@ -170,7 +170,7 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
         cv = cv, 
         verbose = 3, 
         n_jobs=-1,
-        n_iter = 100,
+        n_iter = 60,
         scoring= scoring,
         return_train_score = True
         )
