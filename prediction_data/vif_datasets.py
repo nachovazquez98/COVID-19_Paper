@@ -66,7 +66,7 @@ for subdir, dirs, files in os.walk(str_path+'prediction_data'):
             pd.set_option('expand_frame_repr', False)
             print(vif)
             #appplt vif
-            new_df = calculate_vif_(X, thresh=100)
+            new_df = calculate_vif_(X, thresh=10)
             #save new df
             new_df[str(label)] = y
             #guarda el modelo
