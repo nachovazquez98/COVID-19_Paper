@@ -21,6 +21,8 @@ from imblearn.ensemble import BalancedBaggingClassifier
 from imblearn.ensemble import BalancedRandomForestClassifier
 from sklearn.experimental import enable_hist_gradient_boosting
 from sklearn.ensemble import HistGradientBoostingClassifier
+from skopt.space import Real, Categorical, Integer
+from skopt import BayesSearchCV
 '''
 robust versions of logistic regression
 support vector machines
@@ -103,17 +105,18 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
         
         # # #BalancedBaggingClassifier
         'bbc__base_estimator': [HistGradientBoostingClassifier(), None],
-        'bbc__n_estimators' : [10, 50, 100, 200, 500,750,1000],
+        'bbc__n_estimators' : [10, 20, 50, 100],
         'bbc__max_samples':[0.5,0.6,0.7,0.8,0.9,1.0],
         'bbc__max_features':[0.5,0.6,0.7,0.8,0.9,1.0],
 
         # #BalancedRandomForestClassifier
         'brf__criterion': ['gini', 'entropy'],
-        'brf__n_estimators' : [int(x) for x in np.linspace(start = 20, stop = 200, num = 5)],
-        'brf__max_depth' : [int(x) for x in np.linspace(1, 45, num = 3)],
-        'brf__min_samples_split' : range(2,10),
-        'brf__min_samples_leaf': [1,3,5,10], 
+        'brf__n_estimators' : [int(x) for x in np.linspace(start = 10, stop = 1000, num = 4)],
+        'brf__max_depth' : [None, 7, 15, 45],
+        'brf__min_samples_split' : [int(x) for x in np.linspace(start = 2, stop = 20, num = 3)],
+        'brf__min_samples_leaf': [int(x) for x in np.linspace(start = 1, stop = 15, num = 3)],
         'brf__max_features' : ['auto', 'sqrt', 'log2'],
+        'brf__class_weight' : ['balanced', 'balanced_subsample'],
 
         # # #svm 
         'svc__C': [0.1, 0.5, 1, 10, 30, 40, 50, 75, 100, 500, 1000], 
@@ -121,11 +124,11 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
         'svc__kernel': ['rbf'],
         
         # # #gb 3780
-        "gb__learning_rate": [0.0001, 0.001, 0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2],
-        "gb__max_depth":[3,7,8,9,10,50],
+        "gb__learning_rate": [0.001, 0.01, 0.1],
+        "gb__max_depth":[3,7,9],
         "gb__max_features":["log2","sqrt"],
-        "gb__subsample":[0.5, 0.618, 0.8, 0.85, 0.9, 0.95, 1.0],
-        "gb__n_estimators":[10, 50, 100, 200, 300],
+        "gb__subsample":[0.5, 0.7, 1.0],
+        "gb__n_estimators":[10, 100, 1000],
         
         # #xgboost
         'xgb__learning_rate' : [1e-3, 1e-2, 1e-1, 0.5, 1.],  

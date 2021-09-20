@@ -69,8 +69,8 @@ for subdir, dirs, files in os.walk(str_path+'prediction_data'):
             X, y = X.astype('float32'), y.astype('float32')
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33,stratify=y, shuffle=True)
             #---->train
-            cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3)
-            tpot = TPOTClassifier(generations=5, population_size=50, scoring='balanced_accuracy', verbosity = 3, n_jobs = -1, cv= cv)
+            #cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3)
+            tpot = TPOTClassifier(generations=5, population_size=50, scoring='balanced_accuracy', verbosity = 3, n_jobs = -1, cv= 5)
             tpot.fit(X_train, y_train)
             predictions = tpot.predict(X_test) 
             report = classification_report(y_test, predictions, output_dict=True)

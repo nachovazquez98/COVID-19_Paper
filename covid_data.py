@@ -175,7 +175,7 @@ def covid_predicion(df):
     df_caso2.drop(df_caso2[(df_caso2['TIPO_PACIENTE'] == 99)].index, inplace = True)
     conditions = ['EMBARAZO','RENAL_CRONICA', 'DIABETES', 'INMUSUPR', 'EPOC', 'OBESIDAD', 'HIPERTENSION', 'TABAQUISMO', 'CARDIOVASCULAR', 'ASMA']
     for condition in conditions:
-        df_caso2 = df_caso2.loc[~((df_caso2[condition] == 97) | (df_caso2[condition] == 98) | (df_caso2[condition] == 99))]
+        df_caso2 = df_caso2.loc[~((df_caso2[condition] == 97) | (df_caso2 [condition] == 98) | (df_caso2[condition] == 99))]
         df_caso2.loc[df_caso2[condition] == 2, [condition]] = 0 #0 es NO, 1 es SI
     final_caso2_columns = ['EDAD','EMBARAZO','RENAL_CRONICA','DIABETES','INMUSUPR','EPOC','OBESIDAD','HIPERTENSION','TABAQUISMO','CARDIOVASCULAR','ASMA','SEXO','BOOL_DEF','TIPO_PACIENTE']
     df_caso2 = df_caso2[df_caso2.columns.intersection(final_caso2_columns)]
