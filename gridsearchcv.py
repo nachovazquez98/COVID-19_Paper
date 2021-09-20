@@ -21,8 +21,6 @@ from imblearn.ensemble import BalancedBaggingClassifier
 from imblearn.ensemble import BalancedRandomForestClassifier
 from sklearn.experimental import enable_hist_gradient_boosting
 from sklearn.ensemble import HistGradientBoostingClassifier
-from skopt.space import Real, Categorical, Integer
-from skopt import BayesSearchCV
 '''
 robust versions of logistic regression
 support vector machines

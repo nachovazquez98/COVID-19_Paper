@@ -1,0 +1,6 @@
+  File "/lustre/home/idvperez/.local/share/virtualenvs/COVID-19_Paper-oNKmw4Xm/lib/python3.6/site-packages/joblib/externals/loky/process_executor.py", line 1102, in submit
+    raise self._flags.broken
+joblib.externals.loky.process_executor.TerminatedWorkerError: A worker process managed by the executor was unexpectedly terminated. This could be caused by a segmentation fault while calling the function or by an excessive memory usage causing the Operating System to kill the worker.
+
+The exit codes of the workers are {SIGKILL(-9)}
+                                                 
