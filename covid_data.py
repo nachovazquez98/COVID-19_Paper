@@ -16,6 +16,9 @@ import pathlib
 #%%
 '''
 crear dataset por cada problema
+
+agregar a hosp, vent, uci nueva columna de dias de cont->hosp
+y buscar en que paper lo lei, creo que el arabe
 '''
 
 #Se extrae el csv de la web

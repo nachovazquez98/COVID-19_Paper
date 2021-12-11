@@ -1,4 +1,5 @@
 {
     "jupyter.jupyterServerType": "local",
-    "python.pythonPath": "/home/nacho/.local/share/virtualenvs/COVID-19_Paper-av4lckde/bin/python"
+    "python.pythonPath": "/home/nacho/.local/share/virtualenvs/COVID-19_Paper-av4lckde/bin/python",
+    "ros.distro": "melodic"
 }

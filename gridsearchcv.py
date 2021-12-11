@@ -1,17 +1,15 @@
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.compose import ColumnTransformer
+from sklearn.metrics import make_scorer, accuracy_score
 from sklearn.compose import make_column_selector
-from sklearn.model_selection import GridSearchCV 
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import RepeatedStratifiedKFold
-from sklearn.ensemble import RandomForestClassifier 
 from pipelinehelper import PipelineHelper
-from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.ensemble import GradientBoostingClassifier
 from xgboost import XGBClassifier
@@ -19,9 +17,7 @@ from imblearn.ensemble import EasyEnsembleClassifier
 from imblearn.ensemble import RUSBoostClassifier
 from imblearn.ensemble import BalancedBaggingClassifier 
 from imblearn.ensemble import BalancedRandomForestClassifier
-from sklearn.experimental import enable_hist_gradient_boosting
 from sklearn.ensemble import HistGradientBoostingClassifier
-from skopt.space import Real, Categorical, Integer
 from skopt import BayesSearchCV
 '''
 robust versions of logistic regression
@@ -64,6 +60,10 @@ https://towardsdatascience.com/hyperparameter-optimization-with-scikit-learn-sci
 https://github.com/RMichae1/PyroStudies/blob/master/Bayesian_Optimization.ipynb
 https://medium.datadriveninvestor.com/alternative-hyperparameter-optimization-techniques-you-need-to-know-part-2-e9b0d4d080a9
 https://scikit-optimize.github.io/stable/auto_examples/sklearn-gridsearchcv-replacement.html
+
+probar metrica 
+https://scikit-learn.org/stable/modules/generated/sklearn.metrics.matthews_corrcoef.html
+https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0177678
 '''
 def Gridsearchcv(X_train, X_test, y_train, y_test):
     ############
@@ -79,6 +79,12 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
     ############
     pipe = Pipeline([
         ('preprocessor', preprocessor),
+        # ('ros', RandomOverSampler(sampling_strategy='all')),
+        # ('r', SMOTEENN(
+        #     smote = SMOTE(),
+        #     enn = EditedNearestNeighbours())),#majority all not minority
+        # ('smote', SMOTE()),
+        # ('smoten', SMOTEN()), #only for categorical features
         ('clf', PipelineHelper([
             ('svc', SVC()),
             ('gb', GradientBoostingClassifier()),
@@ -159,15 +165,22 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
         # 'xgb__eval_metric' : ['mlogloss']
         }),
     }
-    scoring = {'ba': 'balanced_accuracy','ap': 'average_precision', 'F1' : 'f1', 'ra': 'roc_auc', 'rc': 'recall'}
+    scoring = {
+        'ba': 'balanced_accuracy',
+        'acc': make_scorer(accuracy_score),
+        'ap': 'average_precision', 
+        'F1' : 'f1', 
+        'ra': 'roc_auc', 
+        'rc': 'recall'
+        }
     cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=3)
-    #cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=5)
+    #cv = RepeatedStratifiedKFold(n_splits =10, n_repeats=5)
     #https://towardsdatascience.com/hyper-parameter-tuning-with-randomised-grid-search-54f865d27926
     #n_iter: 30,60, 100
     grid = RandomizedSearchCV(
         pipe, 
         params,
-        refit = 'ba',
+        refit = 'ra',
         cv = cv, 
         verbose = 3, 
         n_jobs=-1,
@@ -196,6 +209,9 @@ def Gridsearchcv(X_train, X_test, y_train, y_test):
         'mean_test_F1', 
         'std_test_F1', 
         'rank_test_F1'
+        'mean_test_acc', 
+        'std_test_acc', 
+        'rank_test_acc'
     ]]
 
     print("Best-Fit Parameters From Training Data:\n",grid.best_params_)
